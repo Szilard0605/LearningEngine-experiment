@@ -1,0 +1,10 @@
+^C:\USERS\SZILA\SOURCE\REPOS\LEARNINGENGINE-EXPERIMENT\DEPENDENCIES\ASSIMP\CMAKELISTS.TXT
+setlocal
+C:\Users\szila\source\repos\LearningEngine-experiment\Dependencies\assimp\cmake-3.25.1-windows-x86_64\bin\cmake.exe -SC:/Users/szila/source/repos/LearningEngine-experiment/Dependencies/assimp -BC:/Users/szila/source/repos/LearningEngine-experiment/Dependencies/assimp/build --check-stamp-file C:/Users/szila/source/repos/LearningEngine-experiment/Dependencies/assimp/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

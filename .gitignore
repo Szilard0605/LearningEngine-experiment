@@ -1,0 +1,11 @@
+﻿.vs
+bin
+bin-int
+LearningEngine/Debug
+Sandbox/Debug
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
+*.zip

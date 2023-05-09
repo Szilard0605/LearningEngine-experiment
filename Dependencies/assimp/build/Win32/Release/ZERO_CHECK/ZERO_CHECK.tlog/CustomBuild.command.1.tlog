@@ -1,0 +1,10 @@
+^C:\USERS\SZILA\SOURCE\REPOS\LEARNINGENGINE-EXPERIMENT\DEPENDENCIES\ASSIMP\BUILD\CMAKEFILES\56F8CCB7634018157C83DC7D2E4BD058\GENERATE.STAMP.RULE
+setlocal
+C:\Users\szila\source\repos\LearningEngine-experiment\Dependencies\assimp\cmake-3.25.1-windows-x86_64\bin\cmake.exe -SC:/Users/szila/source/repos/LearningEngine-experiment/Dependencies/assimp -BC:/Users/szila/source/repos/LearningEngine-experiment/Dependencies/assimp/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/szila/source/repos/LearningEngine-experiment/Dependencies/assimp/build/Assimp.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
