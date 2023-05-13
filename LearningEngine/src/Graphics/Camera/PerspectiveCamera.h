@@ -13,6 +13,9 @@ class PerspectiveCamera
 
 		void CalculateProjection();
 		void UpdateView();
+		void SetAspectRatio(float ratio);
+
+
 		glm::mat4 GetProjectionMatrix() { return m_ProjectionMatrix; }
 		glm::mat4 GetViewMatrix() { return m_ViewMatrix; }
 		glm::mat4 GetViewProjection() const { return m_ProjectionMatrix * m_ViewMatrix; }
@@ -42,6 +45,8 @@ class PerspectiveCamera
 		float GetFarClip() { return m_FarClip; }
 		void SetFocalPoint(glm::vec3 point) { m_FocalPoint = point; }
 		glm::vec3 GetFocalPoint() { return m_FocalPoint; }
+
+		
 	private:
 		glm::vec3 m_Position = { 0.0f, 0.0f, 0.0f };
 		glm::vec3 m_FocalPoint = { 0.0f, 0.0f, 0.0f };

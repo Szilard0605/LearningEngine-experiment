@@ -22,6 +22,13 @@ void PerspectiveCamera::UpdateView()
 	m_ViewMatrix = glm::inverse(m_ViewMatrix);
 }
 
+void PerspectiveCamera::SetAspectRatio(float ratio)
+{
+	m_AspectRatio = ratio;
+
+	CalculateProjection();
+}
+
 glm::vec3 PerspectiveCamera::GetForwardDirection() const
 {
 	return glm::rotate(GetOrientation(), glm::vec3(0.0f, 0.0f, -1.0f));

@@ -12,6 +12,8 @@ class Entity
 		Entity(const std::string& name, entt::entity handle, Scene* scene);
 		~Entity();
 
+		std::string GetName() { return m_Name; }
+
 		void SetHandle(entt::entity handle)
 		{
 			m_EntityHandle = handle;
@@ -21,13 +23,40 @@ class Entity
 		{
 			return m_EntityHandle;
 		}
+		
+		Scene* GetScene()
+		{
+			return m_Scene;
+		}
 
 		template<typename T>
 		void AddComponent(T component);
 
-		template<typename T>
-		bool HasComponent(T component);
+		template<typename T, typename... Args>
+		T& AddOrReplaceComponent(Args&&... args)
+		{
+			T& component = m_Scene->Registry.emplace_or_replace<T>(m_EntityHandle, std::forward<Args>(args)...);
+			m_Scene->OnComponentAdded<T>(*this, component);
+			return component;
+		}
 
+		template<typename T>
+		bool HasComponent()
+		{
+			return m_Scene->m_Registry.has<T>(m_EntityHandle);
+		}
+
+		template<typename T>
+		T& GetComponent()
+		{
+			//HZ_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
+			return m_Scene->Registry.get<T>(m_EntityHandle);
+		}
+
+		bool operator ==(const Entity& other) const 
+		{
+			return m_EntityHandle == other.m_EntityHandle && m_Scene == other.m_Scene;
+		}
 
 	private:
 		Scene* m_Scene;

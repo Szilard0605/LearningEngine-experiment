@@ -16,9 +16,26 @@ Scene::~Scene()
 
 Entity Scene::NewEntity(const std::string name)
 {
-	entt::entity entity = m_Registry.create();
+	entt::entity entity = Registry.create();
+
 	TransformComponent tc;
-	m_Registry.emplace<TransformComponent>(entity, tc);
+	Registry.emplace<TransformComponent>(entity, tc);
+
+	TagComponent tagComponent;
+	tagComponent.Tag = name;
+	Registry.emplace<TagComponent>(entity, tagComponent);
+
 
 	return Entity(name, entity, this);
+}
+
+Entity& Scene::GetEntityByTag(std::string name)
+{
+	auto view = Registry.view<TagComponent>();
+	for (auto entity : view)
+	{
+		const TagComponent& tc = view.get<TagComponent>(entity);
+		if (tc.Tag == name)
+			return Entity (name, entity, this);
+	}
 }

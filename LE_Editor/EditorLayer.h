@@ -23,7 +23,18 @@ public:
 	void OnUpdate(Timestep timestep) override;
 
 private:
+	Scene* m_Scene;
+	Framebuffer* m_Framebuffer;
+	PerspectiveCamera* m_EditorCamera;
+	bool m_ViewportActive = false;
+	bool m_ViewportHovered = false;
+
+	entt::entity m_SelectedEntity;
 
 
+	glm::vec2 LastMousePos = {-1, -1};
+	Shader* testShader;
+	Material* testMaterial;
+	Model* testModel;
 };
 

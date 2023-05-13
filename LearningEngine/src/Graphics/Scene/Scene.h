@@ -15,8 +15,11 @@ class Scene
 		~Scene();
 
 		Entity NewEntity(const std::string name);
+
+		Entity& GetEntityByTag(std::string name);
+
+		entt::registry Registry;
 	private:
-		entt::registry m_Registry;
 		std::string m_Name;
 		friend class Entity;
 };

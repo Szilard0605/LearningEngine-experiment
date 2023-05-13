@@ -11,7 +11,20 @@ void EditorLayer::OnAttach()
 {
 	printf("Editor attached\n");
 
-	//GLRenderer::ClearColor(1, 0, 1, 1);
+	m_Scene = new Scene("Test scene");
+
+	testShader = Shader::Create("res/shaders/default_shader.shader");
+
+	Framebuffer::FramebufferSpecifications specs;
+	specs.Attachments = { Framebuffer::FramebufferTextureFormat::RGBA8,Framebuffer::FramebufferTextureFormat::RED_INTEGER, Framebuffer::FramebufferTextureFormat::Depth };
+	specs.Width = 1280;
+	specs.Height = 720;
+	m_Framebuffer = Framebuffer::Create(specs);
+
+	m_EditorCamera = new PerspectiveCamera(60.0f, 1280.f / 720.0f, 1.0f, 10000.0f);
+
+	/*testMaterial = new Material(testShader);
+	testModel = new Model("res/models/sponza/Sponza.gltf", *testMaterial);*/
 }
 
 void EditorLayer::OnDetach()
@@ -20,6 +33,8 @@ void EditorLayer::OnDetach()
 
 void EditorLayer::OnEvent(Event& event)
 {
+	event.Dispatch<MouseMoveEvent>(BIND_EVENT_FN(EditorLayer::OnMouseMove));
+	event.Dispatch<MouseButtonEvent>(BIND_EVENT_FN(EditorLayer::OnMouseButtonChange));
 }
 
 void EditorLayer::OnImGuiRender()
@@ -30,8 +45,6 @@ void EditorLayer::OnImGuiRender()
 	bool opt_fullscreen = opt_fullscreen_persistant;
 	static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
-	// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
-	// because it would be confusing to have two docking targets within each others.
 	ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
 	if (opt_fullscreen)
 	{
@@ -46,22 +59,13 @@ void EditorLayer::OnImGuiRender()
 		window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
 		window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 	}
-
-	// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background and handle the pass-thru hole, so we ask Begin() to not render a background.
+	
 	if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
 		window_flags |= ImGuiWindowFlags_NoBackground;
 
-	// Important: note that we proceed even if Begin() returns false (aka window is collapsed).
-	// This is because we want to keep our DockSpace() active. If a DockSpace() is inactive, 
-	// all active windows docked into it will lose their parent and become undocked.
-	// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise 
-	// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-	ImGui::Begin("DockSpace Demo", &dockspaceOpen, window_flags);
+	ImGui::Begin("DockSpace", &dockspaceOpen, window_flags);
 	ImGui::PopStyleVar();
-
-	/*if (opt_fullscreen)
-		ImGui::PopStyleVar(2);*/
 
 	// DockSpace
 	ImGuiIO& io = ImGui::GetIO();
@@ -70,29 +74,99 @@ void EditorLayer::OnImGuiRender()
 	style.WindowMinSize.x = 370.0f;
 	if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
 	{
-		ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+		ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
 		ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 	}
 
-
-
-	ImGui::Begin("Viewport");
-	ImVec2 crAvail = ImGui::GetContentRegionAvail();
-	printf("Viewport size: %f, %f\n", crAvail.x, crAvail.y);
-
-	ImGui::End();
-
-	ImGui::Begin("Entities");
-	for (int i = 0; i < 10; i++)
+	//Viewport window
 	{
-		std::string label = std::string("Entity ") + std::to_string(i);
- 		ImGui::Selectable(label.c_str(), false);
+		ImGui::Begin("Viewport");
+
+		float viewportWidth = ImGui::GetContentRegionAvail().x;
+		float viewportHeight = ImGui::GetContentRegionAvail().y;
+
+		uint32_t texid = m_Framebuffer->GetColorAttachmentID(0);
+
+		Framebuffer::FramebufferSpecifications fbSpecs = m_Framebuffer->GetSpecification();
+		if (fbSpecs.Width != viewportWidth || fbSpecs.Height != viewportHeight)
+		{
+			m_Framebuffer->Resize(viewportWidth, viewportHeight);
+			m_EditorCamera->SetAspectRatio(viewportWidth / viewportHeight);
+		}
+
+		ImGui::Image((void*)texid, ImVec2(viewportWidth, viewportHeight));
+
+		m_ViewportActive = ImGui::IsWindowFocused();
+		m_ViewportHovered = ImGui::IsWindowHovered();
+
+		ImGui::End();
+	}
+
+	//Entitiy window
+	{
+		ImGui::Begin("Entities");
+
+		// Right-click on blank space
+		if (ImGui::BeginPopupContextWindow(0, 1, false))
+		{
+			if (ImGui::MenuItem("Create Entity"))
+			{
+				Entity entity = m_Scene->NewEntity("Entity");
+			}
+			ImGui::EndPopup();
+		}
+
+		m_Scene->Registry.each([this](auto entityID)
+		{
+			ImGuiTreeNodeFlags flags = ((m_SelectedEntity == entityID) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
+			flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
+
+			TagComponent& tc = m_Scene->Registry.get<TagComponent>(entityID);
+			bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entityID, flags, tc.Tag.c_str());
+
+			if (ImGui::BeginPopupContextItem())
+			{
+					ImGui::PushItemWidth(100.0f);
+					char* input = (char*)tc.Tag.c_str();
+					if (ImGui::InputTextWithHint("##name", "Rename", input, 30))
+					{
+						tc.Tag = input;
+					}
+					ImGui::PopItemWidth();
+				
+				ImGui::EndPopup();
+			}
+			
+			if (ImGui::IsItemClicked())
+			{
+				m_SelectedEntity = entityID;
+				printf("Selected Entity %d\n", entityID);
+			}
+
+			if (opened)
+			{
+
+				ImGui::TreePop();
+			}
+		
+		});
 	}
 	ImGui::End();
 
+	// Components window
+	{
+
+		ImGui::Begin("Components");
+
+		//m_Framebuffer->Resize(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y);
+
+
+
+		ImGui::End();
+	}
 
 	ImGui::Begin("Log");
-
+	ImGui::Text("I am a log string");
 	ImGui::End();
 
 	ImGui::End();
@@ -106,12 +180,26 @@ bool EditorLayer::OnKeyChange(KeyEvent& keyevent)
 
 bool EditorLayer::OnMouseButtonChange(MouseButtonEvent& event)
 {
-	return false;
+	if (event.GetButton() == MouseButton::RIGHT_CLICK && event.GetAction() == KeyAction::RELEASED)
+	{
+		LastMousePos = { -1, -1 };
+	}
+	return true;
 }
 
 bool EditorLayer::OnMouseMove(MouseMoveEvent& event)
 {
-	return false;
+	if (Input::IsMouseButtonPressed(MouseButton::RIGHT_CLICK) && m_ViewportActive && m_ViewportHovered)
+	{
+		if (LastMousePos == glm::vec2(-1, -1))
+			LastMousePos = event.GetPosition();
+
+		m_EditorCamera->SetYaw(m_EditorCamera->GetYaw() + (event.GetPosition().x - LastMousePos.x) * 0.01f);
+		m_EditorCamera->SetPitch(m_EditorCamera->GetPitch() - (event.GetPosition().y - LastMousePos.y) * 0.01f);
+
+		LastMousePos = event.GetPosition();
+	}
+	return true;
 }
 
 bool EditorLayer::OnMouseScrolled(MouseScrolledEvent& event)
@@ -121,5 +209,42 @@ bool EditorLayer::OnMouseScrolled(MouseScrolledEvent& event)
 
 void EditorLayer::OnUpdate(Timestep timestep)
 {
+	m_Framebuffer->Bind();
+
 	Renderer2D::ClearColor(glm::vec4(1, 1, 1, 1));
+
+	//testModel->Render(*m_EditorCamera, { 0, 0, -5000 }, { 1, 1, 1 }, { 180, 0, 0 });
+
+	m_Framebuffer->Unbind();
+
+	/*testMaterial->GetShader()->SetFloat("u_LightAttenuation", 0.5f);
+	testMaterial->GetShader()->SetVec4f("u_Color", { 1, 1, 1, 1 });
+	testMaterial->Bind();*/
+
+	float speed = 10.0f;
+
+	if (!m_ViewportActive)
+		return;
+
+	if (Input::IsKeyPressed(Key::LeftShift))
+		speed *= 2;
+
+	if (Input::IsKeyPressed(Key::W))
+	{
+		m_EditorCamera->Translate(m_EditorCamera->GetPosition() + (speed * m_EditorCamera->GetForwardDirection()));
+	}
+
+	if (Input::IsKeyPressed(Key::S))
+	{
+		m_EditorCamera->Translate(m_EditorCamera->GetPosition() - (speed * m_EditorCamera->GetForwardDirection()));
+	}
+
+	if (Input::IsKeyPressed(Key::D))
+	{
+		m_EditorCamera->Translate(m_EditorCamera->GetPosition() + (speed * m_EditorCamera->GetRightDirection()));
+	}
+	if (Input::IsKeyPressed(Key::A))
+	{
+		m_EditorCamera->Translate(m_EditorCamera->GetPosition() - (speed * m_EditorCamera->GetRightDirection()));
+	}
 }

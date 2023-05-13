@@ -3,8 +3,6 @@
 #include <string>
 #include <vector>
 
-#include "ConstantBuffer.h"
-
 #include "glm.hpp"
 
 class Shader
@@ -13,11 +11,8 @@ public:
 	static Shader* Create(const std::string& path);
 	static Shader* Create(const std::string vertex, const std::string fragment);
 
-	//ID3DBlob* Compile(const std::string& source, const std::string& main, const std::string& target);
 	virtual void Bind() = 0;
 	virtual void Unbind() = 0;
-	//virtual void AddConstantBuffer(ConstantBuffer* buffer) = 0;
-	//virtual std::vector<ConstantBuffer*> GetConstantBuffers() = 0;
 
 	virtual std::string GetFilePath() = 0;
 

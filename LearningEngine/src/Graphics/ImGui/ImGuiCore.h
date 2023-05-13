@@ -7,6 +7,7 @@ class ImGuiCore
 public:
 	static void Init(WindowsWindow& window);
 	static void Shutdown();
+	static void SetupStyle();
 	static void BeginFrame();
 	static void EndFrame();
 };

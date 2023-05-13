@@ -20,7 +20,8 @@ project "Sandbox"
 		"%{wks.location}/LearningEngine",
 		"%{wks.location}/LearningEngine/src",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.ImGui}"
+		"%{IncludeDir.ImGui}",
+		"%{IncludeDir.ENTT}"
 	}
 	
 	defines

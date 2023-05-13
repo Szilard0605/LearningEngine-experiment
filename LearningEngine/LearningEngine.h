@@ -22,6 +22,10 @@
 #include "Graphics/Renderer/MeshFactory.h"
 #include "Graphics/Renderer/Material.h"
 
+#include "Graphics/Scene/Scene.h"
+#include "Graphics/Scene/Entity.h"
+#include "Graphics/Scene/Components.h"
+
 #include "Graphics/Camera/OrthographicCamera.h"
 #include "Graphics/Camera/PerspectiveCamera.h"
 
