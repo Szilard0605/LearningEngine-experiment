@@ -1,3 +1,5 @@
+<img align="left" src="Content/Branding/LOGO.jpg" width="100px"/>
+
 # LearningEngine
 
 This is the more advanced version of my Engine which is being built for the reason for me to understand how Game Engines work and how to make them.
@@ -6,4 +8,4 @@ In this version i am planning to make it more like a Game Engine, i am going to 
 
 ## Images of the development
 #### Image of the Editors early version with a 3D render made with it:
-<img align="left" src="Showcasing/editor_sr.JPG">
+<img align="left" src="Content/Showcasing/editor_sr.JPG"/>
