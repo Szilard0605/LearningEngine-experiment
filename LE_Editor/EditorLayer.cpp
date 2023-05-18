@@ -2,6 +2,9 @@
 
 #include "imgui.h"
 
+// GLM
+#include "gtc/type_ptr.hpp"
+
 EditorLayer::EditorLayer() : Layer("LearningEngine Editor")
 {
 	printf("Editor started\n");
@@ -13,8 +16,6 @@ void EditorLayer::OnAttach()
 
 	m_Scene = new Scene("Test scene");
 
-	testShader = Shader::Create("res/shaders/default_shader.shader");
-
 	Framebuffer::FramebufferSpecifications specs;
 	specs.Attachments = { Framebuffer::FramebufferTextureFormat::RGBA8,Framebuffer::FramebufferTextureFormat::RED_INTEGER, Framebuffer::FramebufferTextureFormat::Depth };
 	specs.Width = 1280;
@@ -23,8 +24,8 @@ void EditorLayer::OnAttach()
 
 	m_EditorCamera = new PerspectiveCamera(60.0f, 1280.f / 720.0f, 1.0f, 10000.0f);
 
-	/*testMaterial = new Material(testShader);
-	testModel = new Model("res/models/sponza/Sponza.gltf", *testMaterial);*/
+	m_EntitiesPanel = EntityListPanel(m_Scene);
+	m_ContentBrowser = ContentBrowser(m_Scene);
 }
 
 void EditorLayer::OnDetach()
@@ -39,6 +40,7 @@ void EditorLayer::OnEvent(Event& event)
 
 void EditorLayer::OnImGuiRender()
 {
+
 	// Note: Switch this to true to enable dockspace
 	static bool dockspaceOpen = true;
 	static bool opt_fullscreen_persistant = true;
@@ -102,72 +104,8 @@ void EditorLayer::OnImGuiRender()
 		ImGui::End();
 	}
 
-	//Entitiy window
-	{
-		ImGui::Begin("Entities");
-
-		// Right-click on blank space
-		if (ImGui::BeginPopupContextWindow(0, 1, false))
-		{
-			if (ImGui::MenuItem("Create Entity"))
-			{
-				Entity entity = m_Scene->NewEntity("Entity");
-			}
-			ImGui::EndPopup();
-		}
-
-		m_Scene->Registry.each([this](auto entityID)
-		{
-			ImGuiTreeNodeFlags flags = ((m_SelectedEntity == entityID) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
-			flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
-
-			TagComponent& tc = m_Scene->Registry.get<TagComponent>(entityID);
-			bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entityID, flags, tc.Tag.c_str());
-
-			if (ImGui::BeginPopupContextItem())
-			{
-					ImGui::PushItemWidth(100.0f);
-					char* input = (char*)tc.Tag.c_str();
-					if (ImGui::InputTextWithHint("##name", "Rename", input, 30))
-					{
-						tc.Tag = input;
-					}
-					ImGui::PopItemWidth();
-				
-				ImGui::EndPopup();
-			}
-			
-			if (ImGui::IsItemClicked())
-			{
-				m_SelectedEntity = entityID;
-				printf("Selected Entity %d\n", entityID);
-			}
-
-			if (opened)
-			{
-
-				ImGui::TreePop();
-			}
-		
-		});
-	}
-	ImGui::End();
-
-	// Components window
-	{
-
-		ImGui::Begin("Components");
-
-		//m_Framebuffer->Resize(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y);
-
-
-
-		ImGui::End();
-	}
-
-	ImGui::Begin("Log");
-	ImGui::Text("I am a log string");
-	ImGui::End();
+	m_EntitiesPanel.Render();
+	m_ContentBrowser.Render();
 
 	ImGui::End();
 
@@ -211,17 +149,14 @@ void EditorLayer::OnUpdate(Timestep timestep)
 {
 	m_Framebuffer->Bind();
 
-	Renderer2D::ClearColor(glm::vec4(1, 1, 1, 1));
+	Renderer2D::ClearColor(glm::vec4(0.5, 0.5, 0.5, 1));
 
-	//testModel->Render(*m_EditorCamera, { 0, 0, -5000 }, { 1, 1, 1 }, { 180, 0, 0 });
+	m_Scene->Render(*m_EditorCamera);
 
 	m_Framebuffer->Unbind();
 
-	/*testMaterial->GetShader()->SetFloat("u_LightAttenuation", 0.5f);
-	testMaterial->GetShader()->SetVec4f("u_Color", { 1, 1, 1, 1 });
-	testMaterial->Bind();*/
 
-	float speed = 10.0f;
+	float speed = 0.1f;
 
 	if (!m_ViewportActive)
 		return;

@@ -4,8 +4,9 @@
 #include "entt.hpp"
 #include <string>
 
-class Entity;
+#include "Graphics/Camera/PerspectiveCamera.h"
 
+class Entity;
 
 class Scene
 {
@@ -17,6 +18,8 @@ class Scene
 		Entity NewEntity(const std::string name);
 
 		Entity& GetEntityByTag(std::string name);
+
+		void Render(PerspectiveCamera& camera);
 
 		entt::registry Registry;
 	private:

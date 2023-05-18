@@ -4,6 +4,8 @@
 
 #include "Components.h"
 
+#include "Graphics/Renderer/Renderer2D.h"
+
 Scene::Scene(const std::string name)
 	: m_Name(name)
 {
@@ -38,4 +40,22 @@ Entity& Scene::GetEntityByTag(std::string name)
 		if (tc.Tag == name)
 			return Entity (name, entity, this);
 	}
+}
+
+void Scene::Render(PerspectiveCamera& camera)
+{
+	Renderer2D::Begin(camera);
+
+	Registry.each([this](auto entity)
+	{
+		if(Registry.has<QuadRendererComponent>(entity))
+		{
+			const TransformComponent& tc = Registry.get<TransformComponent>(entity);
+			const QuadRendererComponent& qrc = Registry.get<QuadRendererComponent>(entity);
+			Renderer2D::DrawQuad(tc.Position, tc.Size + qrc.Scale, tc.Rotation, qrc.Color);
+		}
+	});
+
+
+	Renderer2D::End();
 }

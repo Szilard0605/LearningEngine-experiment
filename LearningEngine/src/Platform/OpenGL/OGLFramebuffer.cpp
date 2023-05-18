@@ -60,6 +60,7 @@ static void BindTexture(bool multisampled, uint32_t id)
 
 
 // NEEDS A MASSIVE REWORK ITS FINE FOR NOW
+// IT CRASHES IF ITS REPEATED A LOT OF TIMES
 void OGLFramebuffer::Invalidate()
 {
 	if (m_Framebuffer)

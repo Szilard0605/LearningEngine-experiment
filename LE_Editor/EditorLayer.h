@@ -2,6 +2,8 @@
 
 #include "LearningEngine.h"
 
+#include "EntityListPanel.h"
+#include "ContentBrowser.h"
 
 class EditorLayer : public Layer
 {
@@ -29,12 +31,10 @@ private:
 	bool m_ViewportActive = false;
 	bool m_ViewportHovered = false;
 
-	entt::entity m_SelectedEntity;
-
-
 	glm::vec2 LastMousePos = {-1, -1};
-	Shader* testShader;
-	Material* testMaterial;
-	Model* testModel;
+
+	// Panels
+	EntityListPanel m_EntitiesPanel;
+	ContentBrowser m_ContentBrowser;
 };
 
