@@ -4,9 +4,17 @@
 
 #include "LearningEngine.h"
 
+Image image;
+static Texture2D* texture;
+
 ContentBrowser::ContentBrowser(Scene* scene)
 	: m_Scene(scene)
 {
+	
+	image = Image("res/textures/ball.png");
+	//ImageAsset testAsset(image);
+	texture = Texture2D::Create(image);
+
 }
 
 void ContentBrowser::Render()
@@ -15,7 +23,7 @@ void ContentBrowser::Render()
 		return;
 
 	ImGui::Begin("Content browser");
-	//ImGui::Text("I am a log string");
+	ImGui::Image((ImTextureID)texture->GetTextureID(), ImVec2(image.GetProperties().Width, image.GetProperties().Height));
 	ImGui::End();
 
 

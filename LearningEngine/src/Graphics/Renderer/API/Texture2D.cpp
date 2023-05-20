@@ -27,3 +27,27 @@ Texture2D* Texture2D::Create(uint32_t width, uint32_t height)
 	}
 	return nullptr;
 }
+
+Texture2D* Texture2D::Create(Texture2DProperties& properties)
+{
+	switch (Renderer::GetAPI())
+	{
+	case Renderer::API::OpenGL:
+		return new OGLTexture2D(properties);
+	default:
+		return nullptr;
+	}
+	return nullptr;
+}
+
+Texture2D* Texture2D::Create(Image& image)
+{
+	switch (Renderer::GetAPI())
+	{
+	case Renderer::API::OpenGL:
+		return new OGLTexture2D(image);
+	default:
+		return nullptr;
+	}
+	return nullptr;
+}

@@ -14,6 +14,8 @@ public:
 private:
 	Scene* m_Scene = nullptr;
 
+	bool m_DeleteEntity = false;
+
 	entt::entity m_SelectedEntity = entt::null;
 };
 

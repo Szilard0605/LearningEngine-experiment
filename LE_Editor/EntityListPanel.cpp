@@ -17,7 +17,7 @@ void EntityListPanel::Render()
 	if (!m_Scene)
 		return;
 
-	//Entitiy window
+	//Entity window
 	{
 		ImGui::Begin("Entities");
 
@@ -41,6 +41,17 @@ void EntityListPanel::Render()
 
 			if (ImGui::BeginPopupContextItem())
 			{
+				m_SelectedEntity = entityID;
+
+				if (ImGui::MenuItem("Delete"))
+				{
+					if (m_SelectedEntity != entt::null)
+					{
+						m_DeleteEntity = true;
+					}
+				}
+
+				// Rename entity
 				ImGui::PushItemWidth(100.0f);
 				char* input = (char*)tc.Tag.c_str();
 				if (ImGui::InputTextWithHint("##name", "Rename", input, 30))
@@ -63,8 +74,53 @@ void EntityListPanel::Render()
 
 				ImGui::TreePop();
 			}
-
 		});
+
+		if (ImGui::IsWindowFocused())
+		{
+			if (m_DeleteEntity || Input::IsKeyPressed(Key::Delete) && m_SelectedEntity != entt::null)
+			{
+				ImGui::OpenPopup("Delete entity?");
+			}
+		}
+
+		ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+		ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+		if (ImGui::BeginPopupModal("Delete entity?", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse))
+		{
+			center = ImGui::GetWindowViewport()->GetCenter();
+			ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+			TagComponent& tc = m_Scene->Registry.get<TagComponent>(m_SelectedEntity);
+			ImGui::Text((std::string("Are you sure you want to delete this entity? (") + tc.Tag + ")").c_str());
+		
+			ImVec2 crAvail = ImGui::GetContentRegionAvail();
+			ImGui::SetCursorPosX(((crAvail.x - ImGui::CalcTextSize("Delete").x) * 0.5f) - ImGui::CalcTextSize("Delete").x);
+			if (ImGui::Button("Delete") || Input::IsKeyPressed(Key::Enter))
+			{
+				if (m_SelectedEntity != entt::null)
+				{
+					m_Scene->Registry.destroy(m_SelectedEntity);
+					m_SelectedEntity = entt::null;
+					ImGui::CloseCurrentPopup();
+				}
+			}
+
+			ImGui::SameLine();
+
+			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 5.0f);
+
+			if (ImGui::Button("Cancel") || Input::IsKeyPressed(Key::Escape))
+			{
+				ImGui::CloseCurrentPopup();
+				
+			}
+
+			m_DeleteEntity = false;
+
+			ImGui::EndPopup();
+		}
+
 		ImGui::End();
 	}
 	// Components window
