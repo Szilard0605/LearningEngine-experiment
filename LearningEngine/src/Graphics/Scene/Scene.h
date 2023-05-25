@@ -11,7 +11,7 @@ class Entity;
 class Scene
 {
 	public:
-	
+		Scene() = default;
 		Scene(const std::string name);
 		~Scene();
 
@@ -20,6 +20,8 @@ class Scene
 		Entity& GetEntityByTag(std::string name);
 
 		void Render(PerspectiveCamera& camera);
+
+		const std::string& GetName() { return m_Name; }
 
 		entt::registry Registry;
 	private:

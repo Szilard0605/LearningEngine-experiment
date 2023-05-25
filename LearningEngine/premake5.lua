@@ -36,7 +36,8 @@ project "LearningEngine"
 		"%{IncludeDir.spdlog}",
 		"%{IncludeDir.Box2D}",
 		"%{IncludeDir.ASSIMP}",
-		"%{IncludeDir.ENTT}",		
+		"%{IncludeDir.ENTT}",
+		"%{IncludeDir.JSON}"		
 	}
 	
 	libdirs

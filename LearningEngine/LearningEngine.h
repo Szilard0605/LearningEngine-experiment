@@ -25,6 +25,7 @@
 #include "Graphics/Scene/Scene.h"
 #include "Graphics/Scene/Entity.h"
 #include "Graphics/Scene/Components.h"
+#include "Graphics/Scene/SceneSerializer.h"
 
 #include "Graphics/Camera/OrthographicCamera.h"
 #include "Graphics/Camera/PerspectiveCamera.h"

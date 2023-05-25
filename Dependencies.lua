@@ -8,6 +8,7 @@ IncludeDir["spdlog"] = "%{wks.location}/Dependencies/spdlog/include"
 IncludeDir["Box2D"] = "%{wks.location}/Dependencies/box2d/include"
 IncludeDir["ASSIMP"] = "%{wks.location}/Dependencies/assimp/include"
 IncludeDir["ENTT"] = "%{wks.location}/Dependencies/entt/include"
+IncludeDir["JSON"] = "%{wks.location}/Dependencies/json"
 
 LibraryDir = {}
 

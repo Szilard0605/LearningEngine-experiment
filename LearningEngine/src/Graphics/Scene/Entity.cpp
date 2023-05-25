@@ -10,9 +10,3 @@ Entity::~Entity()
 {
 	printf("entity destroyed\n");
 }
-
-template<typename T>
-void Entity::AddComponent(T component)
-{
-	m_Scene->m_Registry.emplace(m_EntityHandle, component);
-}

@@ -14,7 +14,7 @@ void EditorLayer::OnAttach()
 {
 	printf("Editor attached\n");
 
-	m_Scene = new Scene("Test scene");
+	m_Scene = new Scene("TestScene");
 
 	Framebuffer::FramebufferSpecifications specs;
 	specs.Attachments = { Framebuffer::FramebufferTextureFormat::RGBA8,Framebuffer::FramebufferTextureFormat::RED_INTEGER, Framebuffer::FramebufferTextureFormat::Depth };
@@ -40,6 +40,8 @@ void EditorLayer::OnEvent(Event& event)
 
 void EditorLayer::OnImGuiRender()
 {
+
+
 
 	// Note: Switch this to true to enable dockspace
 	static bool dockspaceOpen = true;
@@ -69,6 +71,8 @@ void EditorLayer::OnImGuiRender()
 	ImGui::Begin("DockSpace", &dockspaceOpen, window_flags);
 	ImGui::PopStyleVar();
 
+
+
 	// DockSpace
 	ImGuiIO& io = ImGui::GetIO();
 	ImGuiStyle& style = ImGui::GetStyle();
@@ -79,6 +83,9 @@ void EditorLayer::OnImGuiRender()
 		ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
 		ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 	}
+
+	m_EntitiesPanel.Render();
+	m_ContentBrowser.Render();
 
 	//Viewport window
 	{
@@ -104,8 +111,29 @@ void EditorLayer::OnImGuiRender()
 		ImGui::End();
 	}
 
-	m_EntitiesPanel.Render();
-	m_ContentBrowser.Render();
+	if (ImGui::BeginMainMenuBar())
+	{
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::MenuItem("Save scene"))
+			{
+				SceneSerializer::Serialize(m_Scene);
+			}
+
+			if (ImGui::MenuItem("Load scene"))
+			{
+				m_Scene = nullptr;
+				m_Scene = SceneSerializer::Load("res/scenes/TestScene.lescene");
+
+				m_EntitiesPanel = EntityListPanel(m_Scene);
+				m_ContentBrowser = ContentBrowser(m_Scene);
+			}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+	}
+	
+
 
 	ImGui::End();
 
