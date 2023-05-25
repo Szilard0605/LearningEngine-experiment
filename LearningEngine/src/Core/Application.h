@@ -2,13 +2,9 @@
 
 #include "Base.h"
 #include "Layers/Layer.h"
-
 #include "PLatform/Windows/WindowsWindow.h"
-
 #include <functional>
-
 #include <Events/Event.h>
-
 #include "Graphics/Renderer/API/Renderer.h"
 
 class Application

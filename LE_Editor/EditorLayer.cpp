@@ -14,7 +14,7 @@ void EditorLayer::OnAttach()
 {
 	printf("Editor attached\n");
 
-	m_Scene = new Scene("TestScene");
+	m_Scene = new Scene("OtherScene");
 
 	Framebuffer::FramebufferSpecifications specs;
 	specs.Attachments = { Framebuffer::FramebufferTextureFormat::RGBA8,Framebuffer::FramebufferTextureFormat::RED_INTEGER, Framebuffer::FramebufferTextureFormat::Depth };
@@ -123,7 +123,10 @@ void EditorLayer::OnImGuiRender()
 			if (ImGui::MenuItem("Load scene"))
 			{
 				m_Scene = nullptr;
-				m_Scene = SceneSerializer::Load("res/scenes/TestScene.lescene");
+
+				std::string ScenePath = Utils::FileDialog::OpenFile("LearingEngine Scene (*.lescene)\0*.lescene\0");
+
+				m_Scene = SceneSerializer::Load(ScenePath);
 
 				m_EntitiesPanel = EntityListPanel(m_Scene);
 				m_ContentBrowser = ContentBrowser(m_Scene);

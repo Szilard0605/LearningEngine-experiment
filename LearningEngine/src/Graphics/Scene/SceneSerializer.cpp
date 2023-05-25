@@ -24,7 +24,7 @@ void SceneSerializer::Serialize(Scene* scene)
         TagComponent& tag = scene->Registry.get<TagComponent>(entityID);
         const char* tagstr = tag.Tag.c_str();
 
-        s_JSON[tagstr] = nlohmann::json_abi_v3_11_2::json::object();
+        s_JSON[tagstr] = json::object();
 
         if (scene->Registry.has<TransformComponent>(entityID))
         {

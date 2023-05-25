@@ -39,8 +39,6 @@ void EntityListPanel::Render()
 			TagComponent& tc = m_Scene->Registry.get<TagComponent>(entityID);
 			bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entityID, flags, tc.Tag.c_str());
 
-			printf("Entity %d\n", entityID);
-
 			if (ImGui::BeginPopupContextItem())
 			{
 				m_SelectedEntity = entityID;
