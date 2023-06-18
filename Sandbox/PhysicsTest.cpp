@@ -76,7 +76,7 @@ void PhysicsTest::OnUpdate(Timestep timestep)
 	testModel.Render(Camera, debugPos, { 1, 1, 1 }, {0, 0, 0});
 	mesh->Render(Camera, CubePos, debugScale, debugRot);
 
-	float speed = 10.0f;
+	float speed = 0.001f;
 
 	u_LightPosition = CubePos;
 
@@ -100,11 +100,6 @@ void PhysicsTest::OnUpdate(Timestep timestep)
 	if (Input::IsKeyPressed(Key::A))
 	{
 		Camera.Translate(Camera.GetPosition() - (speed * Camera.GetRightDirection()));
-	}
-
-	if (Input::IsKeyPressed(Key::F))
-	{
-		CubePos = Camera.GetPosition() + (2.0f * Camera.GetForwardDirection());
 	}
 
 	

@@ -26,6 +26,9 @@ void EditorLayer::OnAttach()
 
 	m_EntitiesPanel = EntityListPanel(m_Scene);
 	m_ContentBrowser = ContentBrowser(m_Scene);
+
+	m_TexPlayButton = Texture2D::Create("res/textures/Editor/play_button.png");
+
 }
 
 void EditorLayer::OnDetach()
@@ -40,9 +43,6 @@ void EditorLayer::OnEvent(Event& event)
 
 void EditorLayer::OnImGuiRender()
 {
-
-
-
 	// Note: Switch this to true to enable dockspace
 	static bool dockspaceOpen = true;
 	static bool opt_fullscreen_persistant = true;
@@ -87,6 +87,7 @@ void EditorLayer::OnImGuiRender()
 	m_EntitiesPanel.Render();
 	m_ContentBrowser.Render();
 
+
 	//Viewport window
 	{
 		ImGui::Begin("Viewport");
@@ -104,6 +105,24 @@ void EditorLayer::OnImGuiRender()
 		}
 
 		ImGui::Image((void*)texid, ImVec2(viewportWidth, viewportHeight));
+		
+		//(ImTextureID)iconTexture->GetTextureID(), { 100, 100 }, { 0, 1 }, { 1, 0 }
+
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(viewportWidth / 2.0f);
+
+		ImVec4 playbtn_col = m_PressedPlay ? ImVec4(0.0f, 0.0f, 1.0f, 0.3f) : ImVec4(1.0f, 1.0f, 1.0f, 0.3f);
+
+		ImGui::PushStyleColor(ImGuiCol_Button, playbtn_col);
+		if (ImGui::ImageButton((void*)m_TexPlayButton->GetTextureID(), {20, 20}, { 0, 1 }, { 1, 0 }))
+		{
+			m_PressedPlay = !m_PressedPlay;
+
+			printf("play = %s\n", m_PressedPlay ? "true" : "false");
+
+			m_PressedPlay ? m_Runtime.Start(m_Scene) : m_Runtime.Stop();
+		}
+		ImGui::PopStyleColor();
 
 		m_ViewportActive = ImGui::IsWindowFocused();
 		m_ViewportHovered = ImGui::IsWindowHovered();
@@ -122,14 +141,13 @@ void EditorLayer::OnImGuiRender()
 
 			if (ImGui::MenuItem("Load scene"))
 			{
-				m_Scene = nullptr;
-
-				std::string ScenePath = Utils::FileDialog::OpenFile("LearingEngine Scene (*.lescene)\0*.lescene\0");
-
-				m_Scene = SceneSerializer::Load(ScenePath);
-
-				m_EntitiesPanel = EntityListPanel(m_Scene);
-				m_ContentBrowser = ContentBrowser(m_Scene);
+				std::string ScenePath;
+				if (Utils::FileDialog::OpenFile("LearingEngine Scene (*.lescene)\0*.lescene*\0", ScenePath))
+				{
+					m_Scene = SceneSerializer::Load(ScenePath);
+					m_EntitiesPanel = EntityListPanel(m_Scene);
+					m_ContentBrowser = ContentBrowser(m_Scene);
+				}
 			}
 			ImGui::EndMenu();
 		}
@@ -182,35 +200,42 @@ void EditorLayer::OnUpdate(Timestep timestep)
 
 	Renderer2D::ClearColor(glm::vec4(0.5, 0.5, 0.5, 1));
 
-	m_Scene->Render(*m_EditorCamera);
+
+	if (m_PressedPlay)
+	{
+		m_Runtime.Update(timestep);
+	}
+	else
+	{
+		m_Scene->Render(*m_EditorCamera);
+
+		if (m_ViewportActive)
+		{
+			float speed = 0.1f;
+
+			if (Input::IsKeyPressed(Key::LeftShift))
+				speed *= 2;
+
+			if (Input::IsKeyPressed(Key::W))
+			{
+				m_EditorCamera->Translate(m_EditorCamera->GetPosition() + (speed * m_EditorCamera->GetForwardDirection()));
+			}
+
+			if (Input::IsKeyPressed(Key::S))
+			{
+				m_EditorCamera->Translate(m_EditorCamera->GetPosition() - (speed * m_EditorCamera->GetForwardDirection()));
+			}
+
+			if (Input::IsKeyPressed(Key::D))
+			{
+				m_EditorCamera->Translate(m_EditorCamera->GetPosition() + (speed * m_EditorCamera->GetRightDirection()));
+			}
+			if (Input::IsKeyPressed(Key::A))
+			{
+				m_EditorCamera->Translate(m_EditorCamera->GetPosition() - (speed * m_EditorCamera->GetRightDirection()));
+			}
+		}
+	}
 
 	m_Framebuffer->Unbind();
-
-
-	float speed = 0.1f;
-
-	if (!m_ViewportActive)
-		return;
-
-	if (Input::IsKeyPressed(Key::LeftShift))
-		speed *= 2;
-
-	if (Input::IsKeyPressed(Key::W))
-	{
-		m_EditorCamera->Translate(m_EditorCamera->GetPosition() + (speed * m_EditorCamera->GetForwardDirection()));
-	}
-
-	if (Input::IsKeyPressed(Key::S))
-	{
-		m_EditorCamera->Translate(m_EditorCamera->GetPosition() - (speed * m_EditorCamera->GetForwardDirection()));
-	}
-
-	if (Input::IsKeyPressed(Key::D))
-	{
-		m_EditorCamera->Translate(m_EditorCamera->GetPosition() + (speed * m_EditorCamera->GetRightDirection()));
-	}
-	if (Input::IsKeyPressed(Key::A))
-	{
-		m_EditorCamera->Translate(m_EditorCamera->GetPosition() - (speed * m_EditorCamera->GetRightDirection()));
-	}
 }

@@ -4,6 +4,7 @@
 
 #include "EntityListPanel.h"
 #include "ContentBrowser.h"
+#include "EditorRuntime.h"
 
 class EditorLayer : public Layer
 {
@@ -36,5 +37,10 @@ private:
 	// Panels
 	EntityListPanel m_EntitiesPanel;
 	ContentBrowser m_ContentBrowser;
+
+	Texture2D* m_TexPlayButton;
+	bool m_PressedPlay = false;
+
+	EditorRuntime m_Runtime;
 };
 

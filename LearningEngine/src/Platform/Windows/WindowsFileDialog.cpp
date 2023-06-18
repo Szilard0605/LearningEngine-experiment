@@ -12,7 +12,7 @@
 
 #include <filesystem>
 
-std::string WindowsFileDialog::OpenFile(const char* filters)
+bool WindowsFileDialog::OpenFile(const char* filters, std::string& outPath)
 {
 	OPENFILENAMEA ofn;
 	CHAR szFile[260] = { 0 };
@@ -26,16 +26,18 @@ std::string WindowsFileDialog::OpenFile(const char* filters)
 		ofn.lpstrInitialDir = currentDir;
 	ofn.nMaxFile = sizeof(szFile);
 	ofn.lpstrFilter = (LPCSTR)filters;
+
 	ofn.nFilterIndex = 1;
 	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;;
 
 	ofn.lpstrDefExt = strchr(filters, '\0') + 1;
 
-	if (GetOpenFileNameA(&ofn) == TRUE) 
+	if (GetOpenFileNameA(&ofn)) 
 	{
-		return std::string(ofn.lpstrFile);
+		outPath = ofn.lpstrFile;
+		return true;
 	}
 
-
-	return std::string("None");
+	outPath = std::string("None");
+	return false;
 }

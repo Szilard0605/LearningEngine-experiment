@@ -16,14 +16,14 @@ class Scene
 		~Scene();
 
 		Entity NewEntity(const std::string name);
-
 		Entity& GetEntityByTag(std::string name);
-
 		void Render(PerspectiveCamera& camera);
 
+		void SetName(const std::string name) { m_Name = name; }
 		const std::string& GetName() { return m_Name; }
-
+		
 		entt::registry Registry;
+
 	private:
 		std::string m_Name;
 		friend class Entity;

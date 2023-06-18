@@ -7,18 +7,18 @@
 
 namespace Utils
 {
-	std::string FileDialog::OpenFile(const char* filters)
+	bool FileDialog::OpenFile(const char* filters, std::string& outPath)
 	{
 		switch (Platform::GetOperatingSystem())
 		{
 		case::Platform::OperatingSystem::Windows:
 		{
-			return WindowsFileDialog::OpenFile(filters);
+			return WindowsFileDialog::OpenFile(filters, outPath);
 		}
 
 		default:
-			return std::string("Unknown");
+			return false;
 		}
-		return std::string("Unknown");
+		return false;
 	}
 }

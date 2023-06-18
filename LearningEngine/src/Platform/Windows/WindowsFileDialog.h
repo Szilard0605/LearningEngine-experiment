@@ -5,6 +5,6 @@
 class WindowsFileDialog
 {
 public:
-	static std::string OpenFile(const char* filters);
+	static bool OpenFile(const char* filters, std::string& outPath);
 };
 
