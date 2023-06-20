@@ -43,9 +43,34 @@ Entity& Scene::GetEntityByTag(std::string name)
 	}
 }
 
-void Scene::Render(PerspectiveCamera& camera)
+void Scene::Render(PerspectiveCamera* camera)
 {
-	Renderer2D::Begin(camera);
+	PerspectiveCamera* mainCamera = camera;
+
+	if (!mainCamera)
+	{	
+		glm::mat4 cameraTransform;
+		{
+			auto view = Registry.view<TransformComponent, PerspectiveCameraComponent>();
+			for (auto entity : view)
+			{
+				auto [transform, camera] = view.get<TransformComponent, PerspectiveCameraComponent>(entity);
+
+				camera.Camera->Translate(transform.Position);
+				
+				if (camera.MainCamera)
+				{
+					mainCamera = camera.Camera;
+					break;
+				}
+			}
+		}
+	}
+	
+	if (!mainCamera)
+		return;
+
+	Renderer2D::Begin(*mainCamera);
 
 	Registry.each([this](auto entity)
 	{

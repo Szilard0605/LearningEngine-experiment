@@ -25,12 +25,16 @@ public:
 
 	void OnUpdate(Timestep timestep) override;
 
+	static glm::vec2 GetMainViewportSize() { return s_MainViewportSize; };
+
 private:
 	Scene* m_Scene;
 	Framebuffer* m_Framebuffer;
 	PerspectiveCamera* m_EditorCamera;
 	bool m_ViewportActive = false;
 	bool m_ViewportHovered = false;
+
+	static glm::vec2 s_MainViewportSize;
 
 	glm::vec2 LastMousePos = {-1, -1};
 

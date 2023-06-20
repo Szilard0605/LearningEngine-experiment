@@ -57,6 +57,26 @@ void SceneSerializer::Serialize(Scene* scene)
             s_JSON[tagstr][qrc.ID]["Color"][2] = qrc.Color.b;
             s_JSON[tagstr][qrc.ID]["Color"][3] = qrc.Color.a;
         }
+
+        if (scene->Registry.has<PerspectiveCameraComponent>(entityID))
+        {
+            PerspectiveCameraComponent& pcc = scene->Registry.get<PerspectiveCameraComponent>(entityID);
+
+            s_JSON[tagstr][pcc.ID]["MainCamera"] = pcc.MainCamera;
+
+            s_JSON[tagstr][pcc.ID]["FocalPoint"][0] = pcc.FocalPoint.x;
+            s_JSON[tagstr][pcc.ID]["FocalPoint"][1] = pcc.FocalPoint.y;
+            s_JSON[tagstr][pcc.ID]["FocalPoint"][2] = pcc.FocalPoint.z;
+
+            s_JSON[tagstr][pcc.ID]["Distance"] = pcc.Distance;
+            s_JSON[tagstr][pcc.ID]["Pitch"] = pcc.Pitch;
+            s_JSON[tagstr][pcc.ID]["Yaw"] = pcc.Yaw;
+            s_JSON[tagstr][pcc.ID]["FOV"] = pcc.FOV;
+            s_JSON[tagstr][pcc.ID]["AspectRatio"] = pcc.AspectRatio;
+            s_JSON[tagstr][pcc.ID]["FixedAspectRatio"] = pcc.AspectRatio;
+            s_JSON[tagstr][pcc.ID]["NearClip"] = pcc.NearClip;
+            s_JSON[tagstr][pcc.ID]["FarClip"] = pcc.FarClip;
+        }
     });
 
     std::string path = "res/scenes/" + scene->GetName() + ".lescene";
@@ -90,17 +110,17 @@ Scene* SceneSerializer::Load(const std::filesystem::path path)
         {
             TransformComponent tc;
 
-            tc.Position = { (float)it.value()["TransformComponent"]["Position"][0],
-                            (float)it.value()["TransformComponent"]["Position"][1],
-                            (float)it.value()["TransformComponent"]["Position"][2]};
+            tc.Position = { (float)it.value()[tc.ID]["Position"][0],
+                            (float)it.value()[tc.ID]["Position"][1],
+                            (float)it.value()[tc.ID]["Position"][2]};
 
-            tc.Rotation = { (float)it.value()["TransformComponent"]["Rotation"][0],
-                            (float)it.value()["TransformComponent"]["Rotation"][1],
-                            (float)it.value()["TransformComponent"]["Rotation"][2]};
+            tc.Rotation = { (float)it.value()[tc.ID]["Rotation"][0],
+                            (float)it.value()[tc.ID]["Rotation"][1],
+                            (float)it.value()[tc.ID]["Rotation"][2]};
 
-            tc.Size     = { (float)it.value()["TransformComponent"]["Size"][0],
-                            (float)it.value()["TransformComponent"]["Size"][1],
-                            (float)it.value()["TransformComponent"]["Size"][2]};
+            tc.Size     = { (float)it.value()[tc.ID]["Size"][0],
+                            (float)it.value()[tc.ID]["Size"][1],
+                            (float)it.value()[tc.ID]["Size"][2]};
             
             entity.AddOrReplaceComponent<TransformComponent>(tc);
         }
@@ -109,16 +129,43 @@ Scene* SceneSerializer::Load(const std::filesystem::path path)
         {
             QuadRendererComponent qrc;
 
-            qrc.Scale = { (float)it.value()["QuadRendererComponent"]["Scale"][0],
-                          (float)it.value()["QuadRendererComponent"]["Scale"][1],
-                          (float)it.value()["QuadRendererComponent"]["Scale"][2] };
+            qrc.Scale = { (float)it.value()[qrc.ID]["Scale"][0],
+                          (float)it.value()[qrc.ID]["Scale"][1],
+                          (float)it.value()[qrc.ID]["Scale"][2]};
 
-            qrc.Color = { (float)it.value()["QuadRendererComponent"]["Color"][0],
-                          (float)it.value()["QuadRendererComponent"]["Color"][1],
-                          (float)it.value()["QuadRendererComponent"]["Color"][2],
-                          (float)it.value()["QuadRendererComponent"]["Color"][3] };
+            qrc.Color = { (float)it.value()[qrc.ID]["Color"][0],
+                          (float)it.value()[qrc.ID]["Color"][1],
+                          (float)it.value()[qrc.ID]["Color"][2],
+                          (float)it.value()[qrc.ID]["Color"][3]};
 
             entity.AddOrReplaceComponent<QuadRendererComponent>(qrc);
+        }
+
+        if (it.value().contains("PerspectiveCameraComponent"))
+        {
+            PerspectiveCameraComponent pcc;
+
+            pcc.MainCamera = it.value()[pcc.ID]["MainCamera"];
+
+            pcc.FocalPoint = {(float)it.value()[pcc.ID]["FocalPoint"][0],
+                              (float)it.value()[pcc.ID]["FocalPoint"][1], 
+                              (float)it.value()[pcc.ID]["FocalPoint"][2]};
+
+            pcc.Distance = (float)it.value()[pcc.ID]["Distance"];
+            pcc.Pitch = (float)it.value()[pcc.ID]["Pitch"];
+            pcc.Yaw = (float)it.value()[pcc.ID]["Yaw"];
+            pcc.FOV = (float)it.value()[pcc.ID]["FOV"];
+            pcc.AspectRatio = (float)it.value()[pcc.ID]["AspectRatio"];
+            pcc.FixedAspectRatio = (float)it.value()[pcc.ID]["FixedAspectRatio"];
+            pcc.NearClip = (float)it.value()[pcc.ID]["NearClip"];
+            pcc.FarClip = (float)it.value()[pcc.ID]["FarClip"];
+
+            pcc.Camera = new PerspectiveCamera(pcc.FOV, pcc.AspectRatio, pcc.NearClip, pcc.FarClip);
+
+            pcc.Camera->SetPitch(pcc.Pitch);
+            pcc.Camera->SetYaw(pcc.Yaw);
+
+            entity.AddOrReplaceComponent<PerspectiveCameraComponent>(pcc);
         }
     }
 

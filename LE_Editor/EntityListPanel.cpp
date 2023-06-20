@@ -4,6 +4,8 @@
 
 #include "LearningEngine.h"
 
+#include "EditorLayer.h"
+
 // GLM
 #include "gtc/type_ptr.hpp"
 
@@ -66,7 +68,6 @@ void EntityListPanel::Render()
 			if (ImGui::IsItemClicked())
 			{
 				m_SelectedEntity = entityID;
-				printf("Selected Entity %d\n", entityID);
 			}
 
 			if (opened)
@@ -123,13 +124,13 @@ void EntityListPanel::Render()
 
 		ImGui::End();
 	}
-	// Components window
+	// Adding Components window
 	{
 
 		ImGui::Begin("Components");
 
 		// Right-click on blank space
-		if (ImGui::BeginPopupContextWindow(0, 1, false))
+		if (m_SelectedEntity != entt::null && ImGui::BeginPopupContextWindow(0, 1, false))
 		{
 			if (ImGui::BeginMenu("Add Component"))
 			{
@@ -138,32 +139,110 @@ void EntityListPanel::Render()
 					QuadRendererComponent qrc;
 					m_Scene->Registry.emplace<QuadRendererComponent>(m_SelectedEntity, qrc);
 				}
+
+				if (ImGui::BeginMenu("Camera"))
+				{
+					if (ImGui::MenuItem("Perspective Camera Component"))
+					{
+						PerspectiveCameraComponent pcc;
+						pcc.Camera = new PerspectiveCamera(pcc.FOV, pcc.AspectRatio, pcc.NearClip, pcc.FarClip);
+						m_Scene->Registry.emplace<PerspectiveCameraComponent>(m_SelectedEntity, pcc);
+					}
+
+					if (ImGui::MenuItem("Orthographic Camera Component"))
+					{
+
+					}
+
+					ImGui::EndMenu();
+				}
 				ImGui::EndMenu();
 			}
 			ImGui::EndMenu();
 		}
 
-		if (m_SelectedEntity != entt::null && m_Scene->Registry.has<TransformComponent>(m_SelectedEntity))
+		// Displaying the components
+		if (m_SelectedEntity != entt::null)
 		{
-			TransformComponent& tc = m_Scene->Registry.get<TransformComponent>(m_SelectedEntity);
-			if (ImGui::CollapsingHeader("Transform Component"))
+			if (m_Scene->Registry.has<TransformComponent>(m_SelectedEntity))
 			{
-				ImGui::DragFloat3("Position", glm::value_ptr(tc.Position), 0.1f);
-				ImGui::DragFloat3("Size", glm::value_ptr(tc.Size), 0.1f);
-				ImGui::DragFloat3("Rotation", glm::value_ptr(tc.Rotation), 0.1f);
+				TransformComponent& tc = m_Scene->Registry.get<TransformComponent>(m_SelectedEntity);
+				if (ImGui::CollapsingHeader("Transform Component"))
+				{
+					ImGui::DragFloat3("Position", glm::value_ptr(tc.Position), 0.1f);
+					ImGui::DragFloat3("Size", glm::value_ptr(tc.Size), 0.1f);
+					ImGui::DragFloat3("Rotation", glm::value_ptr(tc.Rotation), 0.1f);
+				}
+			}
+
+			if (m_Scene->Registry.has<QuadRendererComponent>(m_SelectedEntity))
+			{
+				QuadRendererComponent& qrc = m_Scene->Registry.get<QuadRendererComponent>(m_SelectedEntity);
+				if (ImGui::CollapsingHeader("Quad Renderer Component"))
+				{
+					ImGui::DragFloat3("Scale", glm::value_ptr(qrc.Scale), 0.1f);
+					ImGui::ColorEdit4("Color", glm::value_ptr(qrc.Color));
+				}
+			}
+
+			if (m_Scene->Registry.has<PerspectiveCameraComponent>(m_SelectedEntity))
+			{
+				PerspectiveCameraComponent& pcc = m_Scene->Registry.get<PerspectiveCameraComponent>(m_SelectedEntity);
+				if (ImGui::CollapsingHeader("Perspective Camera Component"))
+				{
+					ImGui::Checkbox("Main camera", &pcc.MainCamera);
+
+					ImGui::Separator();
+
+					if (ImGui::DragFloat3("Focal point", glm::value_ptr(pcc.FocalPoint)))
+						pcc.Camera->SetFocalPoint(pcc.FocalPoint);
+
+					ImGui::Separator();
+
+					if (ImGui::DragFloat("Distance", &pcc.Distance))
+						pcc.Camera->SetDistance(pcc.Distance);
+					
+					if (ImGui::DragFloat("Yaw", &pcc.Yaw))
+						pcc.Camera->SetYaw(pcc.Yaw);
+
+					if (ImGui::DragFloat("Pitch", &pcc.Pitch))
+						pcc.Camera->SetPitch(pcc.Pitch);
+
+					if (ImGui::DragFloat("FOV", &pcc.FOV))
+						pcc.Camera->SetFOV(pcc.FOV);
+					
+				
+					ImGui::Separator();
+
+					ImGui::PushItemWidth(100.0f);
+					ImGui::BeginDisabled(pcc.FixedAspectRatio);
+					if (ImGui::DragFloat("AspectRatio", &pcc.AspectRatio))
+						pcc.Camera->SetAspectRatio(pcc.AspectRatio);
+					
+					ImGui::PopItemWidth();
+					ImGui::EndDisabled();
+					
+					if (ImGui::Checkbox("Fixed", &pcc.FixedAspectRatio) && pcc.FixedAspectRatio)
+					{
+						glm::vec2 vpSize = EditorLayer::GetMainViewportSize();
+
+						pcc.AspectRatio = vpSize.x / vpSize.y;
+						pcc.Camera->SetAspectRatio(pcc.AspectRatio);
+					}
+
+
+					ImGui::Separator();
+
+
+					if (ImGui::DragFloat("Near clip", &pcc.NearClip))
+						pcc.Camera->SetNearClip(pcc.NearClip);
+
+					if (ImGui::DragFloat("Far clip", &pcc.FarClip))
+						pcc.Camera->SetFarClip(pcc.FarClip);
+
+				}
 			}
 		}
-
-		if (m_SelectedEntity != entt::null && m_Scene->Registry.has<QuadRendererComponent>(m_SelectedEntity))
-		{
-			QuadRendererComponent& qrc = m_Scene->Registry.get<QuadRendererComponent>(m_SelectedEntity);
-			if (ImGui::CollapsingHeader("Quad Renderer Component"))
-			{
-				ImGui::DragFloat3("Scale", glm::value_ptr(qrc.Scale), 0.1f);
-				ImGui::ColorEdit4("Color", glm::value_ptr(qrc.Color));
-			}
-		}
-
 		ImGui::End();
 	}
 

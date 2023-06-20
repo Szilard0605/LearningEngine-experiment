@@ -5,6 +5,8 @@
 // GLM
 #include "gtc/type_ptr.hpp"
 
+glm::vec2 EditorLayer::s_MainViewportSize;
+
 EditorLayer::EditorLayer() : Layer("LearningEngine Editor")
 {
 	printf("Editor started\n");
@@ -22,7 +24,10 @@ void EditorLayer::OnAttach()
 	specs.Height = 720;
 	m_Framebuffer = Framebuffer::Create(specs);
 
+	s_MainViewportSize = { specs.Width, specs.Height };
+
 	m_EditorCamera = new PerspectiveCamera(60.0f, 1280.f / 720.0f, 1.0f, 10000.0f);
+	m_Scene->SetMainCamera(m_EditorCamera);
 
 	m_EntitiesPanel = EntityListPanel(m_Scene);
 	m_ContentBrowser = ContentBrowser(m_Scene);
@@ -102,11 +107,11 @@ void EditorLayer::OnImGuiRender()
 		{
 			m_Framebuffer->Resize(viewportWidth, viewportHeight);
 			m_EditorCamera->SetAspectRatio(viewportWidth / viewportHeight);
+
+			s_MainViewportSize = {viewportWidth, viewportHeight};
 		}
 
 		ImGui::Image((void*)texid, ImVec2(viewportWidth, viewportHeight));
-		
-		//(ImTextureID)iconTexture->GetTextureID(), { 100, 100 }, { 0, 1 }, { 1, 0 }
 
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(viewportWidth / 2.0f);
@@ -114,13 +119,18 @@ void EditorLayer::OnImGuiRender()
 		ImVec4 playbtn_col = m_PressedPlay ? ImVec4(0.0f, 0.0f, 1.0f, 0.3f) : ImVec4(1.0f, 1.0f, 1.0f, 0.3f);
 
 		ImGui::PushStyleColor(ImGuiCol_Button, playbtn_col);
-		if (ImGui::ImageButton((void*)m_TexPlayButton->GetTextureID(), {20, 20}, { 0, 1 }, { 1, 0 }))
+		if (ImGui::ImageButton((void*)m_TexPlayButton->GetTextureID(), { 20, 20 }, { 0, 1 }, { 1, 0 }))
 		{
 			m_PressedPlay = !m_PressedPlay;
 
-			printf("play = %s\n", m_PressedPlay ? "true" : "false");
-
-			m_PressedPlay ? m_Runtime.Start(m_Scene) : m_Runtime.Stop();
+			if (m_PressedPlay)
+			{
+				m_Runtime.Start(m_Scene);
+			}
+			else
+			{
+				m_Runtime.Stop();
+			}
 		}
 		ImGui::PopStyleColor();
 
@@ -207,7 +217,25 @@ void EditorLayer::OnUpdate(Timestep timestep)
 	}
 	else
 	{
-		m_Scene->Render(*m_EditorCamera);
+		m_Scene->Render(m_EditorCamera);
+
+		PerspectiveCamera* mainCamera = nullptr;
+		glm::mat4 cameraTransform;
+		{
+			auto view = m_Scene->Registry.view<TransformComponent, PerspectiveCameraComponent>();
+			for (auto entity : view)
+			{
+				auto [transform, camera] = view.get<TransformComponent, PerspectiveCameraComponent>(entity);
+
+
+				Renderer2D::Begin(*m_EditorCamera);
+
+				Renderer2D::DrawQuad(transform.Position, { 5, 5, 5}, { 0, 0, 0 }, {0, 0, 1, 1});
+
+				Renderer2D::End();
+			}
+		}
+
 
 		if (m_ViewportActive)
 		{

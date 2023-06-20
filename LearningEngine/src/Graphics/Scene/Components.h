@@ -25,3 +25,22 @@ struct QuadRendererComponent
 	glm::vec3 Scale = {1, 1, 1};
 	glm::vec4 Color = {1, 1, 1, 1};
 };
+
+struct PerspectiveCameraComponent
+{
+	const char* ID = "PerspectiveCameraComponent";
+
+	PerspectiveCamera* Camera = nullptr;
+	
+	bool MainCamera = false;;
+	
+	glm::vec3 FocalPoint = { 0.0f, 0.0f, 0.0f };
+	float Distance = 10.0f;
+	float Pitch = 0.0f;
+    float Yaw = 0.0f;
+	float FOV = 60.0f;
+	float AspectRatio = 1280.0f / 720.0f;
+	bool FixedAspectRatio = false;
+	float NearClip = 1.0f;
+	float FarClip = 10000.0f;
+};
