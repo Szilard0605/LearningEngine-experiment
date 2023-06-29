@@ -2,11 +2,16 @@ project "LE_Editor"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++17"
-	staticruntime "off"
+	staticruntime "on"
 
 	targetdir ("%{wks.location}/bin/" .. outputdir)
 	objdir ("%{wks.location}/bin-int/" .. outputdir)
 	debugdir ("%{wks.location}/bin/" .. outputdir)
+
+	dependson
+	{
+		"LearningEngine"
+	}
 
 	files
 	{

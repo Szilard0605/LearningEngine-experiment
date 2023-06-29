@@ -2,10 +2,17 @@ project "LearningEngine"
 	kind "StaticLib"
 	language "C++"
 	cppdialect "C++17"
-	staticruntime "off"
+	staticruntime "on"
 
 	targetdir ("%{wks.location}/bin/" .. outputdir)
 	objdir ("%{wks.location}/bin-int/" .. outputdir)
+
+	dependson 
+	{
+		"Assimp",
+		"Box2D",
+		"ImGui"
+	}
 
 	files
 	{
@@ -56,7 +63,7 @@ project "LearningEngine"
 		"glew64s.lib",
 		"glfw3_64.lib",
 		"opengl32.lib",
-		"assimp.lib"
+		"Assimp.lib"
 	}
 
 	flags { "NoPCH" }

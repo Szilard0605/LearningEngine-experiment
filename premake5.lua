@@ -17,6 +17,7 @@ workspace "LearningEngine"
 group "Dependencies" 
 	include "Dependencies/imgui"
 	include "Dependencies/box2d"
+	include "Dependencies/assimp"
 group ""
 
 include "LearningEngine"

@@ -3,7 +3,9 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 
 All rights reserved.
 
@@ -46,18 +48,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef AI_IOSTREAM_H_INC
 #define AI_IOSTREAM_H_INC
 
-#ifdef __GNUC__
-#   pragma GCC system_header
-#endif
-
-#include <assimp/types.h>
+#include "types.h"
 
 #ifndef __cplusplus
 #   error This header requires C++ to be used. aiFileIO.h is the \
     corresponding C interface.
 #endif
 
-namespace Assimp {
+namespace Assimp    {
 
 // ----------------------------------------------------------------------------------
 /** @brief CPP-API: Class to handle file I/O for C++
@@ -73,7 +71,7 @@ class ASSIMP_API IOStream
 {
 protected:
     /** Constructor protected, use IOSystem::Open() to create an instance. */
-    IOStream() AI_NO_EXCEPT;
+    IOStream();
 
 public:
     // -------------------------------------------------------------------
@@ -127,14 +125,16 @@ public:
 }; //! class IOStream
 
 // ----------------------------------------------------------------------------------
-AI_FORCE_INLINE
-IOStream::IOStream() AI_NO_EXCEPT {
+inline
+IOStream::IOStream() {
     // empty
 }
 
 // ----------------------------------------------------------------------------------
-AI_FORCE_INLINE
-IOStream::~IOStream() = default;
+inline
+IOStream::~IOStream() {
+    // empty
+}
 // ----------------------------------------------------------------------------------
 
 } //!namespace Assimp
