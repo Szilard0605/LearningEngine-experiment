@@ -11,8 +11,6 @@
 Model::Model(std::filesystem::path path, Material& material)
 	: m_Path(path)
 {
-	printf("loadmodel\n");
-
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path.string().c_str(), aiProcess_Triangulate);
 
@@ -56,7 +54,7 @@ Model::Model(std::filesystem::path path, Material& material)
 		}
 
 
-		Indices.reserve(scene->mMeshes[i]->mNumFaces * 3);
+		Indices.reserve((size_t)scene->mMeshes[i]->mNumFaces * 3);
 
 		for (uint32_t j = 0; j < scene->mMeshes[i]->mNumFaces; j++)
 		{
@@ -69,30 +67,20 @@ Model::Model(std::filesystem::path path, Material& material)
 		const aiMesh* model = scene->mMeshes[i];
 		const aiMaterial* mtl = scene->mMaterials[model->mMaterialIndex];
 
-		Texture2D* texture = nullptr;
-
-		int texIndex = 0;
-		
-		
-		aiString texpath;	// filename
-		aiReturn texFound = mtl->GetTexture(aiTextureType_BASE_COLOR, 0, &texpath);
-
-		//printf("%d mesh texture path: %s\n", i, texpath.C_Str());
-
-		if (texFound == AI_SUCCESS)
+		Texture2D* baseColorTexture = nullptr;
+		// Base Color textures
 		{
-			texture = Texture2D::Create(path.remove_filename().string() + texpath.C_Str());
+			aiString texpath;	// filename
+			aiReturn texFound = mtl->GetTexture(aiTextureType_DIFFUSE, 0, &texpath);
 
-			
-			//printf("%s/n", path.C_Str());
-
-			//printf("found: [mat %d] 0\n", m);
+			if (texFound == AI_SUCCESS)
+			{
+				baseColorTexture = Texture2D::Create(path.remove_filename().string() + texpath.C_Str());
+			}
 		}
-		
-		
+		material.SetTexture(baseColorTexture);
 
-		material.SetTexture(texture);
-		
+
 		m_Meshes.push_back(new Mesh(Vertices, Indices, material));
 	}
 

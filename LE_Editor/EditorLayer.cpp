@@ -33,13 +33,6 @@ void EditorLayer::OnAttach()
 	m_ContentBrowser = ContentBrowser(m_Scene);
 
 	m_TexPlayButton = Texture2D::Create("res/textures/Editor/play_button.png");
-
-	Shader* shader = Shader::Create("res/shaders/default_shader.shader");
-	Material mat(shader);
-	
-	//Mesh* cube = MeshFactory::CreateCube(10000, mat);
-	Model model("res/models/sponza/Sponza.gltf", mat);
-
 }
 
 void EditorLayer::OnDetach()

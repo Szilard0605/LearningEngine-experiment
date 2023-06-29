@@ -51,7 +51,6 @@ void Mesh::Render(PerspectiveCamera& camera, glm::vec3 position, glm::vec3 scale
 							  * glm::scale(glm::mat4(1.0f), scale);
 
 	m_Material->GetShader()->SetMatrix4f("u_Transform", transform);
-	m_Material->GetShader()->SetVec3f("camPos", camera.GetPosition());
 
 	m_VertexBuffer->SetData(m_Vertices.data(), m_Vertices.size() * sizeof(Vertex));
 
