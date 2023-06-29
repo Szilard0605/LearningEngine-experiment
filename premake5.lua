@@ -2,7 +2,7 @@ include "./premake/premake_customization/solution_items.lua"
 include "Dependencies.lua"
 
 workspace "LearningEngine"
-	architecture "x86"
+	architecture "x64"
     	startproject "Sandbox"
 
 	configurations { "Debug", "Release", "Dist" }

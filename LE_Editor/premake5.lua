@@ -39,7 +39,7 @@ project "LE_Editor"
 		systemversion "latest"
 
 	filter "configurations:Debug"
-		defines "HZ_DEBUG"
+		defines "LE_DEBUG"
 		runtime "Debug"
 		symbols "on"
 

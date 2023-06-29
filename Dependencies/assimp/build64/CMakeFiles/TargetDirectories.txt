@@ -1,0 +1,13 @@
+C:/Users/szila/source/repos/LearningEngine-experiment/Dependencies/assimp/build64/CMakeFiles/uninstall.dir
+C:/Users/szila/source/repos/LearningEngine-experiment/Dependencies/assimp/build64/CMakeFiles/UpdateAssimpLibsDebugSymbolsAndDLLs.dir
+C:/Users/szila/source/repos/LearningEngine-experiment/Dependencies/assimp/build64/CMakeFiles/INSTALL.dir
+C:/Users/szila/source/repos/LearningEngine-experiment/Dependencies/assimp/build64/CMakeFiles/ALL_BUILD.dir
+C:/Users/szila/source/repos/LearningEngine-experiment/Dependencies/assimp/build64/CMakeFiles/ZERO_CHECK.dir
+C:/Users/szila/source/repos/LearningEngine-experiment/Dependencies/assimp/build64/contrib/zlib/CMakeFiles/zlibstatic.dir
+C:/Users/szila/source/repos/LearningEngine-experiment/Dependencies/assimp/build64/contrib/zlib/CMakeFiles/INSTALL.dir
+C:/Users/szila/source/repos/LearningEngine-experiment/Dependencies/assimp/build64/contrib/zlib/CMakeFiles/ALL_BUILD.dir
+C:/Users/szila/source/repos/LearningEngine-experiment/Dependencies/assimp/build64/code/CMakeFiles/assimp.dir
+C:/Users/szila/source/repos/LearningEngine-experiment/Dependencies/assimp/build64/code/CMakeFiles/INSTALL.dir
+C:/Users/szila/source/repos/LearningEngine-experiment/Dependencies/assimp/build64/test/CMakeFiles/unit.dir
+C:/Users/szila/source/repos/LearningEngine-experiment/Dependencies/assimp/build64/test/CMakeFiles/INSTALL.dir
+C:/Users/szila/source/repos/LearningEngine-experiment/Dependencies/assimp/build64/test/headercheck/CMakeFiles/INSTALL.dir

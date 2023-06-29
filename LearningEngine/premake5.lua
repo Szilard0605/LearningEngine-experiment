@@ -46,15 +46,15 @@ project "LearningEngine"
 		"%{LibraryDir.GLFW}",
 		"%{LibraryDir.ImGui}",
 		"%{LibraryDir.Box2D}",
-		"%{LibraryDir.ASSIMP}"
+		"%{LibraryDir.ASSIMP64}"
 	}
 
 	links
 	{
 		"Box2D",
 		"ImGui",
-		"glew32s.lib",
-		"glfw3.lib",
+		"glew64s.lib",
+		"glfw3_64.lib",
 		"opengl32.lib",
 		"assimp.lib"
 	}
@@ -77,8 +77,8 @@ project "LearningEngine"
 		{
 			"Box2D",
 			"ImGui",
-			"glew32s.lib",
-			"glfw3.lib",
+			"glew64s.lib",
+			"glfw3_64.lib",
 			"opengl32.lib"
 		}
 
@@ -91,7 +91,7 @@ project "LearningEngine"
 		{
 			"Box2D",
 			"ImGui",
-			"glew32s.lib",
-			"glfw3.lib",
+			"glew64s.lib",
+			"glfw3_64.lib",
 			"opengl32.lib"
 		}
