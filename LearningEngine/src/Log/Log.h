@@ -19,6 +19,7 @@ enum class LogLevel
 class Log 
 {
 public:
+    static void Init();
     static void LogMessage(LogType type, LogLevel level, const std::string& message);
 
 };

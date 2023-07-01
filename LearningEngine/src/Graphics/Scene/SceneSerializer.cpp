@@ -99,8 +99,7 @@ Scene* SceneSerializer::Load(const std::filesystem::path path)
     for (json::iterator it = s_JSON.begin(); it != s_JSON.end(); ++it)
     {
         std::string key = it.key();
-        std::cout << "Key: " << key << std::endl;
-
+        
         Entity entity = scene->NewEntity(key);
 
         TagComponent& tag = entity.GetComponent<TagComponent>();

@@ -29,6 +29,8 @@ Application::~Application()
 
 void Application::Init()
 {
+	Log::Init();
+
 	if (!glfwInit())
 	{
 		LE_CORE_ERROR("Cannot initialize GLFW");

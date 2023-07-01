@@ -1,5 +1,25 @@
 #include "Log.h"
 
+#ifdef _WIN32
+    #include <windows.h>
+#endif
+
+#include "Core/Platform.h"
+
+void Log::Init()
+{
+
+    /* Note (Szilard): You need to enable this on windows, 
+                       because the executable console window does
+                       not enable ANSI escape sequences by default */                 
+#ifdef _WIN32
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD mode;
+    GetConsoleMode(hConsole, &mode);
+    SetConsoleMode(hConsole, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+#endif
+}
+
 void Log::LogMessage(LogType type, LogLevel level, const std::string& message) 
  {
     switch (type)

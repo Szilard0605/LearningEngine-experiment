@@ -1,11 +1,8 @@
 #include "Scene.h"
-
 #include "Entity.h"
-
 #include "Components.h"
-
 #include "Graphics/Renderer/Renderer2D.h"
-
+#include "Log/Log.h"
 
 Scene::Scene(const std::string name)
 	: m_Name(name)
@@ -68,8 +65,10 @@ void Scene::Render(PerspectiveCamera* camera)
 	}
 	
 	if (!mainCamera)
+	{
+		LE_CORE_ERROR("Scene: there is no main camera");
 		return;
-
+	}
 	Renderer2D::Begin(*mainCamera);
 
 	Registry.each([this](auto entity)
