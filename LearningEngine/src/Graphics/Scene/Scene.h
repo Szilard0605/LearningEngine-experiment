@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "entt.hpp"
+#include "entt/entt.hpp"
 #include <string>
 
 #include "Graphics/Camera/PerspectiveCamera.h"

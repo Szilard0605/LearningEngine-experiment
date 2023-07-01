@@ -19,7 +19,7 @@ WindowsWindow::WindowsWindow(const std::string title, const uint32_t width, cons
 
 	if (!m_window)
 	{
-		LE_LOG_ERROR("Cannot create GLFW window");
+		LE_CORE_ERROR("Cannot create GLFW window");
 
 		glfwTerminate();
 		return;

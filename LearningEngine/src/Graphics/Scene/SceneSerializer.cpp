@@ -26,7 +26,7 @@ void SceneSerializer::Serialize(Scene* scene)
 
         s_JSON[tagstr] = json::object();
 
-        if (scene->Registry.has<TransformComponent>(entityID))
+        if (scene->Registry.try_get<TransformComponent>(entityID))
         {
             //Save transform component
             TransformComponent& tc = scene->Registry.get<TransformComponent>(entityID);
@@ -44,7 +44,7 @@ void SceneSerializer::Serialize(Scene* scene)
             s_JSON[tagstr][tc.ID]["Size"][2] = tc.Size.z;
         }
 
-        if (scene->Registry.has<QuadRendererComponent>(entityID))
+        if (scene->Registry.try_get<QuadRendererComponent>(entityID))
         {
             QuadRendererComponent& qrc = scene->Registry.get<QuadRendererComponent>(entityID);
 
@@ -58,7 +58,7 @@ void SceneSerializer::Serialize(Scene* scene)
             s_JSON[tagstr][qrc.ID]["Color"][3] = qrc.Color.a;
         }
 
-        if (scene->Registry.has<PerspectiveCameraComponent>(entityID))
+        if (scene->Registry.try_get<PerspectiveCameraComponent>(entityID))
         {
             PerspectiveCameraComponent& pcc = scene->Registry.get<PerspectiveCameraComponent>(entityID);
 

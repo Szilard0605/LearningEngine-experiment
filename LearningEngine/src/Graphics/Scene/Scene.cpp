@@ -74,7 +74,7 @@ void Scene::Render(PerspectiveCamera* camera)
 
 	Registry.each([this](auto entity)
 	{
-		if(Registry.has<QuadRendererComponent>(entity))
+		if(Registry.try_get<QuadRendererComponent>(entity))
 		{
 			const TransformComponent& tc = Registry.get<TransformComponent>(entity);
 			const QuadRendererComponent& qrc = Registry.get<QuadRendererComponent>(entity);

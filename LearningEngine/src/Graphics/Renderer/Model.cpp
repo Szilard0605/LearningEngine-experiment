@@ -16,7 +16,7 @@ Model::Model(std::filesystem::path path, Material& material)
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
-		LE_LOG_ERROR("[ASSIMP] " + std::string(importer.GetErrorString()));
+		LE_CORE_ERROR("[ASSIMP] " + std::string(importer.GetErrorString()));
 		return;
 	}
 

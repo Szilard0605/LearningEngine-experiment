@@ -31,7 +31,7 @@ void Application::Init()
 {
 	if (!glfwInit())
 	{
-		LE_LOG_ERROR("Cannot initialize GLFW");
+		LE_CORE_ERROR("Cannot initialize GLFW");
 		return;
 	}
 
@@ -48,8 +48,8 @@ void Application::Init()
 
 	m_Renderer->UseDepthTesting(true);
 
-	LE_LOG_INFO("Application initialized!");
-	LE_LOG_INFO("OpenGL version: " + m_Renderer->GetVersionString());
+	LE_CORE_INFO("Application initialized!");
+	LE_CORE_INFO("OpenGL version: " + m_Renderer->GetVersionString());
 }
 
 

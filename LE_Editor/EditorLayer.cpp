@@ -1,6 +1,7 @@
 #include "EditorLayer.h"
 
 #include "imgui.h"
+#include "Log/Log.h"
 
 // GLM
 #include "gtc/type_ptr.hpp"
@@ -9,12 +10,12 @@ glm::vec2 EditorLayer::s_MainViewportSize;
 
 EditorLayer::EditorLayer() : Layer("LearningEngine Editor")
 {
-	printf("Editor started\n");
+	LE_CORE_INFO("Editor started");
 }
 
 void EditorLayer::OnAttach()
 {
-	printf("Editor attached\n");
+	LE_CORE_INFO("Editor attached");
 
 	m_Scene = new Scene("OtherScene");
 
@@ -150,6 +151,8 @@ void EditorLayer::OnImGuiRender()
 
 			if (ImGui::MenuItem("Load scene"))
 			{
+				LE_INFO("Loading a Scene");
+
 				std::string ScenePath;
 				if (Utils::FileDialog::OpenFile("LearingEngine Scene (*.lescene)\0*.lescene*\0", ScenePath))
 				{

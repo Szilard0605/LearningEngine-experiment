@@ -164,7 +164,7 @@ void EntityListPanel::Render()
 		// Displaying the components
 		if (m_SelectedEntity != entt::null)
 		{
-			if (m_Scene->Registry.has<TransformComponent>(m_SelectedEntity))
+			if (m_Scene->Registry.try_get<TransformComponent>(m_SelectedEntity))
 			{
 				TransformComponent& tc = m_Scene->Registry.get<TransformComponent>(m_SelectedEntity);
 				if (ImGui::CollapsingHeader("Transform Component"))
@@ -175,7 +175,7 @@ void EntityListPanel::Render()
 				}
 			}
 
-			if (m_Scene->Registry.has<QuadRendererComponent>(m_SelectedEntity))
+			if (m_Scene->Registry.try_get<QuadRendererComponent>(m_SelectedEntity))
 			{
 				QuadRendererComponent& qrc = m_Scene->Registry.get<QuadRendererComponent>(m_SelectedEntity);
 				if (ImGui::CollapsingHeader("Quad Renderer Component"))
@@ -185,7 +185,7 @@ void EntityListPanel::Render()
 				}
 			}
 
-			if (m_Scene->Registry.has<PerspectiveCameraComponent>(m_SelectedEntity))
+			if (m_Scene->Registry.try_get<PerspectiveCameraComponent>(m_SelectedEntity))
 			{
 				PerspectiveCameraComponent& pcc = m_Scene->Registry.get<PerspectiveCameraComponent>(m_SelectedEntity);
 				if (ImGui::CollapsingHeader("Perspective Camera Component"))
