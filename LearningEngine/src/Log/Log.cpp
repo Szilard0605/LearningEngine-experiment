@@ -1,27 +1,38 @@
 #include "Log.h"
 
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/sinks/basic_file_sink.h>
-
-Ref<spdlog::logger> LE_LOG::s_CoreLogger;
-Ref<spdlog::logger> LE_LOG::s_ClientLogger;
-
-void LE_LOG::Init()
-{
-	std::vector<spdlog::sink_ptr> logSinks;
-	logSinks.emplace_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
-	logSinks.emplace_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>("LE.log", true));
-
-	logSinks[0]->set_pattern("%^[%T] %n: %v%$");
-	logSinks[1]->set_pattern("[%T] [%l] %n: %v");
-
-	s_CoreLogger = std::make_shared<spdlog::logger>("LE_CORE", begin(logSinks), end(logSinks));
-	spdlog::register_logger(s_CoreLogger);
-	s_CoreLogger->set_level(spdlog::level::trace);
-	s_CoreLogger->flush_on(spdlog::level::trace);
-
-	s_ClientLogger = std::make_shared<spdlog::logger>("EDITOR", begin(logSinks), end(logSinks));
-	spdlog::register_logger(s_ClientLogger);
-	s_ClientLogger->set_level(spdlog::level::trace);
-	s_ClientLogger->flush_on(spdlog::level::trace);
+void Log::LogMessage(LogType type, LogLevel level, const std::string& message) {
+    switch (type) {
+    case LogType::Core:
+        switch (level)
+        {
+        case LogLevel::Info:
+            std::cout << "\033[32m[Core Info]:\033[0m " << message << std::endl;
+            break;
+        case LogLevel::Warning:
+            std::cout << "\033[33m[Core Warning]:\033[0m " << message << std::endl;
+            break;
+        case LogLevel::Error:
+            std::cout << "\033[31m[Core Error]:\033[0m " << message << std::endl;
+            break;
+        default:
+            break;
+        }        
+        break;
+    case LogType::Editor:
+        switch (level)
+        {
+        case LogLevel::Info:
+            std::cout << "\033[32m[Editor Info]:\033[0m " << message << std::endl;
+            break;
+        case LogLevel::Warning:
+            std::cout << "\033[33m[Editor Warning]:\033[0m " << message << std::endl;
+            break;
+        case LogLevel::Error:
+            std::cout << "\033[31m[Editor Error]:\033[0m " << message << std::endl;
+            break;
+        default:
+            break;
+        }
+        break;
+    }
 }

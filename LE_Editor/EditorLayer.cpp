@@ -151,7 +151,7 @@ void EditorLayer::OnImGuiRender()
 
 			if (ImGui::MenuItem("Load scene"))
 			{
-				LE_INFO("Loading a Scene");
+				LE_EDITOR_INFO("Loading a Scene");
 
 				std::string ScenePath;
 				if (Utils::FileDialog::OpenFile("LearingEngine Scene (*.lescene)\0*.lescene*\0", ScenePath))

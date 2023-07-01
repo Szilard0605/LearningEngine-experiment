@@ -42,7 +42,6 @@ void Application::Init()
 
 	Renderer2D::Init();
 	ImGuiCore::Init(*m_window);
-	LE_LOG::Init();
 
 	m_window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
 
