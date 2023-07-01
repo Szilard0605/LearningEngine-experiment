@@ -18,17 +18,17 @@ void Log::LogMessage(LogType type, LogLevel level, const std::string& message) {
             break;
         }        
         break;
-    case LogType::Editor:
+    case LogType::Client:
         switch (level)
         {
         case LogLevel::Info:
-            std::cout << "\033[32m[Editor Info]:\033[0m " << message << std::endl;
+            std::cout << "\033[32m[Client Info]:\033[0m " << message << std::endl;
             break;
         case LogLevel::Warning:
-            std::cout << "\033[33m[Editor Warning]:\033[0m " << message << std::endl;
+            std::cout << "\033[33m[Client Warning]:\033[0m " << message << std::endl;
             break;
         case LogLevel::Error:
-            std::cout << "\033[31m[Editor Error]:\033[0m " << message << std::endl;
+            std::cout << "\033[31m[Client Error]:\033[0m " << message << std::endl;
             break;
         default:
             break;
