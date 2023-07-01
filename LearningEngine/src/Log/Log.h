@@ -3,19 +3,21 @@
 #include <iostream>
 #include <string>
 
-enum class LogType {
+enum class LogType 
+{
     Core,
     Client
 };
 
-enum class LogLevel {
+enum class LogLevel 
+{
     Info,
     Warning,
     Error
 };
 
-class Log {
-
+class Log 
+{
 public:
     static void LogMessage(LogType type, LogLevel level, const std::string& message);
 

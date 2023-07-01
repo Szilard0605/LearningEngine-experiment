@@ -1,6 +1,6 @@
 #include "EditorRuntime.h"
 
-#include "entt/entt.hpp"
+#include "entt.hpp"
 
 EditorRuntime::EditorRuntime()
 {
