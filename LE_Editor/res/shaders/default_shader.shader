@@ -18,8 +18,6 @@ struct FragmentData
 
 layout(location = 0) out FragmentData fragmentdata;
 
-
-
 void main()
 {
 
@@ -28,14 +26,14 @@ void main()
 	//gl_Position = vec4(a_position, 1.0);
 
 	fragmentdata.Position = vec3(u_Transform * vec4(a_position, 0.0));
-	fragmentdata.Normal = mat3(transpose(inverse(u_Transform))) * a_normal;
+	fragmentdata.Normal = mat3(u_Transform) * a_normal;
 	fragmentdata.TexCoords = a_texcoords;
 };
 
 #shader fragment
 #version 450 core
 
-layout(location = 0) out vec4 color;
+layout(location = 0) out vec4 outColor;
 
 struct FragmentData
 {
@@ -49,7 +47,9 @@ layout(location = 0) in FragmentData fragmentdata;
 
 uniform sampler2D u_Texture;
 
+uniform float u_AmbientLightStrength;
+
 void main()
 {
-	color = texture(u_Texture, fragmentdata.TexCoords);
+	outColor = texture(u_Texture, fragmentdata.TexCoords);
 }

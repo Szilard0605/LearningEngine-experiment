@@ -28,7 +28,7 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices, Material
 	m_IndexBuffer = IndexBuffer::Create(indices.data(), indices.size());
 	//m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
-	m_Material = CreateRef<Material>(material);
+	m_Material = new Material(material);
 }
 
 Mesh::~Mesh()

@@ -34,6 +34,8 @@ void EditorLayer::OnAttach()
 	m_ContentBrowser = ContentBrowser(m_Scene);
 
 	m_TexPlayButton = Texture2D::Create("res/textures/Editor/play_button.png");
+
+	ShaderLibrary::Add(Shader::Create("res/shaders/default_shader.shader"), "DefaultShader");
 }
 
 void EditorLayer::OnDetach()

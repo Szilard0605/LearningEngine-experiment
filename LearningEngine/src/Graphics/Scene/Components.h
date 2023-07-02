@@ -2,6 +2,8 @@
 
 #include "glm.hpp"
 
+#include "Graphics/Renderer/Model.h"
+
 struct TagComponent
 {
 	const char* ID = "TagComponent";
@@ -43,4 +45,11 @@ struct PerspectiveCameraComponent
 	bool FixedAspectRatio = false;
 	float NearClip = 1.0f;
 	float FarClip = 10000.0f;
+};
+
+struct StaticModelComponent
+{
+	const char* ID = "StaticModelComponent";
+
+	Model* StaticModel = nullptr;
 };

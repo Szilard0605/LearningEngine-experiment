@@ -63,6 +63,41 @@
             ]
         }
     },
+    "MainCamera": {
+        "PerspectiveCameraComponent": {
+            "AspectRatio": 2.1823360919952393,
+            "Distance": 10.0,
+            "FOV": 60.0,
+            "FarClip": 10000.0,
+            "FixedAspectRatio": 2.1823360919952393,
+            "FocalPoint": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MainCamera": true,
+            "NearClip": 1.0,
+            "Pitch": -0.5,
+            "Yaw": 1.0
+        },
+        "TransformComponent": {
+            "Position": [
+                -9.899999618530273,
+                -6.800000190734863,
+                1.5
+            ],
+            "Rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Size": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        }
+    },
     "Narancs": {
         "QuadRendererComponent": {
             "Color": [

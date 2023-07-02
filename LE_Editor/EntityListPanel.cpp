@@ -156,6 +156,58 @@ void EntityListPanel::Render()
 
 					ImGui::EndMenu();
 				}
+
+				if (ImGui::BeginMenu("Static Mesh"))
+				{
+					if (ImGui::BeginMenu("Default shapes"))
+					{
+						if (ImGui::MenuItem("Cube"))
+						{
+							/* 
+							Note (Szilard):  Need to replace the MeshFactory with .fbx
+											 models for each default mesh shape, because
+											 it makes serializing easier
+							*/
+							StaticModelComponent smc;
+
+							// creating the cube mesh
+							Material* CubeMaterial = new Material(ShaderLibrary::GetShader("DefaultShader"));
+							Mesh* CubeMesh = MeshFactory::CreateCube(1.0f, *CubeMaterial);
+
+							// setting the cube's texture to a white colored 1x1 px texture
+							Texture2D* whiteTexture = Texture2D::Create(1, 1);
+							uint32_t white = 0xffffffff;
+							whiteTexture->SetData(&white, sizeof(uint32_t));
+							CubeMesh->GetMaterial()->SetTexture(whiteTexture);
+
+							// adding the mesh to the model
+							smc.StaticModel = new Model();
+							smc.StaticModel->AddMesh(CubeMesh);
+
+							m_Scene->Registry.emplace<StaticModelComponent>(m_SelectedEntity, smc);
+						}
+
+						ImGui::EndMenu();
+					}
+
+					if (ImGui::MenuItem("Load..."))
+					{
+						std::string MeshPath;
+						if (Utils::FileDialog::OpenFile("LearingEngine Scene (*.*)\0*.**\0", MeshPath))
+						{
+							StaticModelComponent smc;
+							Material mat(ShaderLibrary::GetShader("DefaultShader"));
+							smc.StaticModel = new Model(MeshPath, mat);
+
+							m_Scene->Registry.emplace<StaticModelComponent>(m_SelectedEntity, smc);
+						}
+					}
+
+					
+
+					ImGui::EndMenu();
+				}
+
 				ImGui::EndMenu();
 			}
 			ImGui::EndMenu();
@@ -240,6 +292,16 @@ void EntityListPanel::Render()
 					if (ImGui::DragFloat("Far clip", &pcc.FarClip))
 						pcc.Camera->SetFarClip(pcc.FarClip);
 
+				}
+			}
+
+			if (m_Scene->Registry.try_get<StaticModelComponent>(m_SelectedEntity))
+			{
+				StaticModelComponent& smc = m_Scene->Registry.get<StaticModelComponent>(m_SelectedEntity);
+				if (ImGui::CollapsingHeader("Static Mesh Component"))
+				{
+					/* Note (Szilard): 
+					   TODO: Needs to list the meshes of the models with the correspoing material */		
 				}
 			}
 		}

@@ -69,18 +69,30 @@ void Scene::Render(PerspectiveCamera* camera)
 		LE_CORE_ERROR("Scene: there is no main camera");
 		return;
 	}
-	Renderer2D::Begin(*mainCamera);
 
-	Registry.each([this](auto entity)
+	// Rendering 2D elements
 	{
-		if(Registry.try_get<QuadRendererComponent>(entity))
+		Renderer2D::Begin(*mainCamera);
+
+		auto view = Registry.view<TransformComponent, QuadRendererComponent>();
+
+		for (auto entity : view)
 		{
-			const TransformComponent& tc = Registry.get<TransformComponent>(entity);
-			const QuadRendererComponent& qrc = Registry.get<QuadRendererComponent>(entity);
+			auto [tc, qrc] = view.get<TransformComponent, QuadRendererComponent>(entity);
 			Renderer2D::DrawQuad(tc.Position, tc.Size + qrc.Scale, tc.Rotation, qrc.Color);
 		}
-	});
 
+		Renderer2D::End();
+	}
 
-	Renderer2D::End();
+	// Rendering 3D Meshes
+	{
+		auto view = Registry.view<TransformComponent, StaticModelComponent>();
+
+		for (auto entity : view)
+		{
+			auto [tc, smc] = view.get<TransformComponent, StaticModelComponent>(entity);
+			smc.StaticModel->Render(*mainCamera, tc.Position, tc.Size, tc.Rotation);
+		}
+	}
 }
