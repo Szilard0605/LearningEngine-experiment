@@ -12,7 +12,7 @@ ContentBrowser::ContentBrowser(Scene* scene)
 	m_CurrentDirectory = "res";
 
 	m_FileIcon = Texture2D::Create("res/textures/Editor/FileIcon.jpg");
-	m_FolderIcon = Texture2D::Create("res/textures/Editor/FolderIcon.jpg");
+	m_FolderIcon = Texture2D::Create("res/textures/Editor/FolderIcon.png");
 
 }
 
@@ -23,18 +23,21 @@ void ContentBrowser::Render()
 
 	ImGui::Begin("Content browser");
 	
-	// TEMPORARY UNTIL I IMPLEMENT PROJECTS
-	if (ImGui::IsKeyReleased(ImGuiKey_Escape))
-	{
+	ImGui::Text("Current Dir: ");
+	ImGui::SameLine();
+	ImGui::Text(m_CurrentDirectory.string().c_str());
+
+	ImGui::Separator();
+
+	if (ImGui::ArrowButton("##Left", ImGuiDir_Left)) {
 		std::filesystem::path parent = m_CurrentDirectory.parent_path();
 		std::filesystem::path base = "res";
-		if(parent != base.parent_path())
+		if (parent != base.parent_path())
 			m_CurrentDirectory = parent;
 	}
-	/* ---------------------------------- */
-	
+
 	float padding = 16.0f;
-	float thumbnailSize = 128.0f;
+	static float thumbnailSize = 128.0f;
 	float cellSize = thumbnailSize + padding;
 
 	float panelWidth = ImGui::GetContentRegionAvail().x;
@@ -53,11 +56,10 @@ void ContentBrowser::Render()
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - thumbnailSize
 			- ImGui::GetScrollX() - 2 * ImGui::GetStyle().ItemSpacing.x);
 		ImGui::PushID(path.filename().string().c_str());
-		ImGui::ImageButton((ImTextureID)iconTexture->GetTextureID(), { 100, 100 }, { 0, 1 }, { 1, 0 });
-	
+		ImGui::ImageButton((ImTextureID)iconTexture->GetTextureID(), { thumbnailSize, thumbnailSize }, { 0, 1 }, { 1, 0 });
+		
 		if (!directoryEntry.is_directory() && ImGui::BeginDragDropSource())
 		{
-
 			ImGui::EndDragDropSource();
 		}
 
@@ -78,9 +80,6 @@ void ContentBrowser::Render()
 
 	}
 
-
 	
 	ImGui::End();
-
-
 }
