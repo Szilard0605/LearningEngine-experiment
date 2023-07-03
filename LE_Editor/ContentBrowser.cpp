@@ -1,14 +1,12 @@
 #include "ContentBrowser.h"
 
 #include "imgui.h"
-
-static Texture2D* testImage;
+#include "IconsFontAwesome5.h"
+#include "Log/Log.h"
 
 ContentBrowser::ContentBrowser(Scene* scene)
 	: m_Scene(scene)
 {
-	testImage = Texture2D::Create("res/textures/ball.png");
-
 	m_CurrentDirectory = "res";
 
 	m_FileIcon = Texture2D::Create("res/textures/Editor/FileIcon.jpg");
@@ -21,7 +19,26 @@ void ContentBrowser::Render()
 	if (!m_Scene)
 		return;
 
-	ImGui::Begin("Content browser");
+	ImGui::Begin("Content browser");	
+
+	// Dir Column
+	ImGui::BeginChild("##DirColumn", { 200, 0 }, true);
+	ImGui::PushItemWidth(200);
+
+	std::filesystem::path directory_path = "res";
+
+	DisplayDirectoryTree(directory_path);
+
+	ImGui::PopItemWidth();
+	ImGui::EndChild();
+
+	ImGui::SameLine();
+
+	ImGui::BeginChild("##FileColumn", ImGui::GetContentRegionAvail(), true);
+	
+
+
+	ImGui::SameLine();
 	
 	ImGui::Text("Current Dir: ");
 	ImGui::SameLine();
@@ -29,18 +46,11 @@ void ContentBrowser::Render()
 
 	ImGui::Separator();
 
-	if (ImGui::ArrowButton("##Left", ImGuiDir_Left)) {
-		std::filesystem::path parent = m_CurrentDirectory.parent_path();
-		std::filesystem::path base = "res";
-		if (parent != base.parent_path())
-			m_CurrentDirectory = parent;
-	}
-
-	float padding = 16.0f;
-	static float thumbnailSize = 128.0f;
+	float padding = 10.0f;
+	float panelWidth = ImGui::GetContentRegionAvail().x;
+	float thumbnailSize = 64;
 	float cellSize = thumbnailSize + padding;
 
-	float panelWidth = ImGui::GetContentRegionAvail().x;
 	int columnCount = (int)(panelWidth / cellSize);
 	if (columnCount < 1)
 		columnCount = 1;
@@ -55,31 +65,84 @@ void ContentBrowser::Render()
 
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - thumbnailSize
 			- ImGui::GetScrollX() - 2 * ImGui::GetStyle().ItemSpacing.x);
+
 		ImGui::PushID(path.filename().string().c_str());
-		ImGui::ImageButton((ImTextureID)iconTexture->GetTextureID(), { thumbnailSize, thumbnailSize }, { 0, 1 }, { 1, 0 });
+		ImVec2 size = ImVec2(thumbnailSize, thumbnailSize);
+		ImVec2 uv0 = ImVec2(0.0f, 0.0f);                       
+		ImVec2 uv1 = ImVec2(1, 1);
+		ImVec4 bg_col = ImVec4(0.0f, 0.0f, 0.0f, 1.0f); 
+		ImVec4 tint_col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+		ImGui::ImageButton((ImTextureID)iconTexture->GetTextureID(), size, uv0, uv1, -1, bg_col, tint_col);
 		
 		if (!directoryEntry.is_directory() && ImGui::BeginDragDropSource())
 		{
 			ImGui::EndDragDropSource();
 		}
-
-		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
-		{
-			if (directoryEntry.is_directory())
-			{
-				m_CurrentDirectory /= path.filename();
+		else if (ImGui::IsItemHovered()) {
+			if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+				if (directoryEntry.is_directory())
+				{
+					m_CurrentDirectory /= path.filename();
+				}
 			}
 		}
 
-		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (cellSize / 2.0f) - (ImGui::CalcTextSize(path.filename().string().c_str()).x / 2.0f)); 
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (thumbnailSize / 2.0f) - (ImGui::CalcTextSize(path.filename().string().c_str()).x / 2.0f));
 		
 		ImGui::TextWrapped(path.filename().string().c_str());
 
 		ImGui::NextColumn();
 		ImGui::PopID();
-
 	}
 
-	
+	ImGui::EndChild();
+
 	ImGui::End();
+}
+
+void ContentBrowser::DisplayDirectoryTree(std::filesystem::path directory_path) {
+	if (!std::filesystem::is_directory(directory_path)) {
+		std::cerr << "Error: " << directory_path << " is not a valid directory" << std::endl;
+		return;
+	}
+
+	std::string directory_name = directory_path.filename().string();
+	const char* imgui_folder_icon = ICON_FA_FOLDER_OPEN;
+	bool open = ImGui::TreeNode(directory_name.c_str(), "%s", directory_name.c_str());
+	
+	if (!std::filesystem::equivalent(directory_path, "res")) {
+		if (open) {
+			imgui_folder_icon = ICON_FA_FOLDER_OPEN;
+		}
+		else {
+			imgui_folder_icon = ICON_FA_FOLDER;
+		}
+	}
+	
+	if (ImGui::IsItemClicked())
+	{
+		m_CurrentDirectory = directory_path;
+	}
+
+	ImGui::SameLine();
+	ImGui::Text(imgui_folder_icon);
+
+	if (open) {
+		for (auto& directory_entry : std::filesystem::directory_iterator(directory_path)) {
+			std::filesystem::path file_path = directory_entry.path();
+			if (directory_entry.is_directory()) {				
+				DisplayDirectoryTree(file_path);
+			}
+			else if (directory_entry.is_regular_file()) {
+				std::string file_name = file_path.filename().generic_string();
+				ImGui::Text("%s %s", ICON_FA_FILE, file_name.c_str());
+				if (ImGui::IsItemActivated() && !ImGui::IsItemHovered())
+				{
+
+				}
+			}
+		}
+
+		ImGui::TreePop();
+	}
 }
