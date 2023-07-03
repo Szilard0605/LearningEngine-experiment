@@ -35,11 +35,25 @@ void ContentBrowser::Render()
 	ImGui::SameLine();
 
 	ImGui::BeginChild("##FileColumn", ImGui::GetContentRegionAvail(), true);
-	
 
+	if (ImGui::BeginPopupContextWindow("New Folder"))
+	{
+		static char folderName[128] = "";
+		if (ImGui::InputText("Folder Name", folderName, IM_ARRAYSIZE(folderName), ImGuiInputTextFlags_EnterReturnsTrue))
+		{
+			std::string newPath = (m_CurrentDirectory / folderName).string();
+			std::filesystem::create_directory(newPath);
+			ImGui::CloseCurrentPopup();
+		}
+		if (ImGui::Button("Create"))
+		{
+			std::string newPath = (m_CurrentDirectory / folderName).string();
+			std::filesystem::create_directory(newPath);
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
 
-	ImGui::SameLine();
-	
 	ImGui::Text("Current Dir: ");
 	ImGui::SameLine();
 	ImGui::Text(m_CurrentDirectory.string().c_str());
@@ -56,6 +70,7 @@ void ContentBrowser::Render()
 		columnCount = 1;
 
 	ImGui::Columns(columnCount, 0, false);
+	std::filesystem::path pathToDelete = "res";
 
 	for (auto& directoryEntry : std::filesystem::directory_iterator(m_CurrentDirectory))
 	{
@@ -74,6 +89,15 @@ void ContentBrowser::Render()
 		ImVec4 tint_col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 		ImGui::ImageButton((ImTextureID)iconTexture->GetTextureID(), size, uv0, uv1, -1, bg_col, tint_col);
 		
+		if (ImGui::BeginPopupContextWindow("Delete")) {
+			if (ImGui::Button("Delete")) {
+				std::filesystem::remove(path);
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
+		}
+
 		if (!directoryEntry.is_directory() && ImGui::BeginDragDropSource())
 		{
 			ImGui::EndDragDropSource();
