@@ -4,6 +4,9 @@
 #include <fstream>
 #include <sstream>
 #include "glm.hpp"
+#include <string>
+
+#include "Log/Log.h"
 
 OGLShader::OGLShader(const std::string& vertex, const std::string& fragment)
 {
@@ -72,7 +75,7 @@ OGLShader::OGLShader(const std::string& path)
 		glDeleteShader(vs);
 		glDeleteShader(fs);
 	}
-	else printf("Can't open shader file: %s\n", path.c_str());
+	else LE_CORE_ERROR(std::string("Can't open shader file: ") + path);
 }
 
 

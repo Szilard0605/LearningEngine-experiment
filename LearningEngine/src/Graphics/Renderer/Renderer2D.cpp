@@ -165,8 +165,6 @@ void Renderer2D::Clear()
 
 void Renderer2D::NextBatch()
 {
-	printf("Next batch\n");
-
 	StartBatch();
 	Flush();
 }
@@ -199,17 +197,12 @@ void Renderer2D::Flush()
 
 		s_RenderStats.DrawCalls++;
 	}
-
-	//printf("-----------2D Renderer stats-------\nDraw calls: %d\nIndexes: %d\n", s_RenderStats.DrawCalls, g_RenderData.QuadIndexCount);
-
 }
 
 
 
 void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec3& scale, const float rotation, const glm::vec4& color)
 {
-	//printf("-----\n%d Quad: [%f, %f] | [%f, %f] \n", g_RenderData.QuadCount, position.x, position.y, scale.x, scale.y);
-
 	constexpr size_t quadVertexCount = 4;
 	const float textureIndex = 0.0f; // White Texture
 	constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };

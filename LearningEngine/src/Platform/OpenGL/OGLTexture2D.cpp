@@ -89,7 +89,8 @@ void OGLTexture2D::CreateTextureFromImage(Image& image)
 
 		glTextureSubImage2D(m_texture, 0, 0, 0, props.Width, props.Height, dataFormat, GL_UNSIGNED_BYTE, m_Image.GetRawData());
 	}
-	else printf("Cannot load texture image: %s\n", m_Image.GetFilePath().c_str());
+	//else printf("Cannot load texture image: %s\n", m_Image.GetFilePath().c_str());
+	else LE_CORE_ERROR(std::string("Cannot load texture image: ") + m_Image.GetFilePath());
 }
 
 

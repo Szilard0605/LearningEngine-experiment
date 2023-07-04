@@ -1,14 +1,13 @@
 #include "Application.h"
 
-//#include "Vendor/OpenGL/opengl_impl.h"
-#include "Log/Log.h"
-#include "Graphics/ImGui/ImGuiCore.h"
-#include "Timestep.h"
+#include "glfw3.h"
 #include "imgui.h"
 
-#include "glfw3.h"
+#include "Timestep.h"
 
-#include "Core/Base.h"
+#include "Graphics/ImGui/ImGuiCore.h"
+#include "Log/Log.h"
+#include "Utils/Random.h"
 
 Application* Application::s_Instance = nullptr;
 
@@ -47,7 +46,11 @@ void Application::Init()
 
 	m_window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
 
+	// Note (Szilard): Might need to remove this from here
 	m_Renderer->UseDepthTesting(true);
+	// ---------------------------------------------------
+
+	Utils::Random::InitSeed();
 
 	LE_CORE_INFO("Application initialized!");
 	LE_CORE_INFO("OpenGL version: " + m_Renderer->GetVersionString());

@@ -33,7 +33,7 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices, Material
 
 Mesh::~Mesh()
 {
-	printf("Mesh destructor called!\n");
+
 }
 
 void Mesh::Render(PerspectiveCamera& camera, glm::vec3 position, glm::vec3 scale, glm::vec3 rotation)

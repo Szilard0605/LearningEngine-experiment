@@ -9,8 +9,6 @@ OGLVertexArray::OGLVertexArray()
 
 OGLVertexArray::~OGLVertexArray()
 {
-	printf("vertexarray destructor\n");
-
 	glDeleteVertexArrays(1, &m_vertexarray);
 }
 
@@ -74,7 +72,7 @@ void OGLVertexArray::AddVertexBuffer(VertexBuffer* vertexBuffer)
 					element.Normalized ? GL_TRUE : GL_FALSE,
 					layout.GetStride(),
 					(const void*)element.Offset);
-					m_vertexbufferindex++;
+				m_vertexbufferindex++;
 				break;
 			}
 			case ShaderDataType::Int:
@@ -85,8 +83,8 @@ void OGLVertexArray::AddVertexBuffer(VertexBuffer* vertexBuffer)
 			{
 				glEnableVertexAttribArray(m_vertexbufferindex);
 				glVertexAttribIPointer(m_vertexbufferindex, element.GetComponentCount(), ShaderDataTypeToOpenGLBaseType(element.Type), layout.GetStride(), (const void*)element.Offset);
-				
-				
+
+
 				m_vertexbufferindex++;
 				break;
 			}
@@ -103,9 +101,6 @@ void OGLVertexArray::AddVertexBuffer(VertexBuffer* vertexBuffer)
 				}
 				break;
 			}
-
-			default:
-				printf("Unknown shader data type\n");
 		}
 	}
 

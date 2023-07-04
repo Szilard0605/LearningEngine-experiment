@@ -9,10 +9,7 @@
 
 #include <fstream>
 
-
-
 using json = nlohmann::json;
-
 static json s_JSON;
 
 void SceneSerializer::Serialize(Scene* scene)

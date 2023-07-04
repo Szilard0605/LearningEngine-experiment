@@ -28,6 +28,6 @@ public:
 #define LE_CORE_WARN(message) ::Log::LogMessage(LogType::Core, LogLevel::Warning, message)
 #define LE_CORE_ERROR(message) ::Log::LogMessage(LogType::Core, LogLevel::Error, message)
 
-#define LE_EDITOR_INFO(message) ::Log::LogMessage(LogType::Client, LogLevel::Info, message)
-#define LE_EDITOR_WARN(message) ::Log::LogMessage(LogType::Client, LogLevel::Warning, message)
-#define LE_EDITOR_ERROR(message) ::Log::LogMessage(LogType::Client, LogLevel::Error, message)
+#define LE_CLIENT_INFO(message) ::Log::LogMessage(LogType::Client, LogLevel::Info, message)
+#define LE_CLIENT_WARN(message) ::Log::LogMessage(LogType::Client, LogLevel::Warning, message)
+#define LE_CLIENT_ERROR(message) ::Log::LogMessage(LogType::Client, LogLevel::Error, message)

@@ -31,8 +31,8 @@
 #include "Graphics/Camera/PerspectiveCamera.h"
 
 #include "Assets/Asset.h"
-#include "Assets/Assets.h"
 #include "Assets/AssetManager.h"
+#include "Assets/AssetRegistry.h"
 
 #include "Physics/Physics2DBody.h"
 #include "Physics/Physics2DWorld.h"
@@ -40,3 +40,4 @@
 #include "Events/Events.h"
 
 #include "Utils/FileDialog.h"
+#include "Utils/Random.h"
