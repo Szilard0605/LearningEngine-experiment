@@ -31,6 +31,41 @@
             ]
         }
     },
+    "MainCamera": {
+        "PerspectiveCameraComponent": {
+            "AspectRatio": 1.7777777910232544,
+			"FixedAspectRatio": false,
+            "Distance": 10.0,
+            "FOV": 60.0,
+            "FarClip": 10000.0,
+            "FocalPoint": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MainCamera": true,
+            "NearClip": 1.0,
+            "Pitch": 0.0,
+            "Yaw": 0.0
+        },
+        "TransformComponent": {
+            "Position": [
+                0.0,
+                0.0,
+                2.0
+            ],
+            "Rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Size": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        }
+    },
     "Piros": {
         "QuadRendererComponent": {
             "Color": [

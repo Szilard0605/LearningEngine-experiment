@@ -1,17 +1,34 @@
 #pragma once
 
 #include <string>
+#include <filesystem>
 
-enum class AssetType
+enum class AssetType : uint16_t
 {
-	Image, Texture2D
+	None, Texture2D
+};
+
+typedef uint32_t AssetHandle;
+
+struct AssetData
+{
+	AssetType Type;
+	std::filesystem::path Path;
 };
 
 class Asset
 {
 public:
+
+	Asset() = default;
+
+	Asset(AssetData data)
+		: Data(data)
+	{
+
+	}
 	~Asset() = default;
 
-	virtual AssetType GetType() const = 0;
+	AssetData Data;
 };
 

@@ -3,7 +3,6 @@
 #include "imgui.h"
 #include "LearningEngine.h"
 
-
 #include "EditorLayer.h"
 
 // GLM
@@ -12,7 +11,7 @@
 #include <IconsFontAwesome5.h>
 #include <Log/Log.h>
 
-EntityListPanel::EntityListPanel(Scene* scene)
+EntityListPanel::EntityListPanel(Scene *scene)
 	: m_Scene(scene)
 {
 }
@@ -22,7 +21,7 @@ void EntityListPanel::Render()
 	if (!m_Scene)
 		return;
 
-	//Entity window
+	// Entity window
 	{
 		ImGui::Begin("Entities", nullptr, ImGuiWindowFlags_NoCollapse);
 
@@ -42,8 +41,8 @@ void EntityListPanel::Render()
 			ImGuiTreeNodeFlags flags = ((m_SelectedEntity == entityID) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
 			flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
 
-			TagComponent& tc = m_Scene->Registry.get<TagComponent>(entityID);
-			bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entityID, flags, tc.Tag.c_str());
+			TagComponent &tc = m_Scene->Registry.get<TagComponent>(entityID);
+			bool opened = ImGui::TreeNodeEx((void *)(uint64_t)(uint32_t)entityID, flags, tc.Tag.c_str());
 
 			if (ImGui::BeginPopupContextItem())
 			{
@@ -54,7 +53,7 @@ void EntityListPanel::Render()
 					if (m_SelectedEntity != entt::null)
 					{
 						m_DeleteEntity = true;
-					}					
+					}
 				}
 				if (ImGui::MenuItem("Duplicate"))
 				{
@@ -78,7 +77,7 @@ void EntityListPanel::Render()
 
 			if (opened)
 			{
-				
+
 				ImGui::TreePop();
 			}
 		}
@@ -98,9 +97,9 @@ void EntityListPanel::Render()
 			center = ImGui::GetWindowViewport()->GetCenter();
 			ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
-			TagComponent& tc = m_Scene->Registry.get<TagComponent>(m_SelectedEntity);
+			TagComponent &tc = m_Scene->Registry.get<TagComponent>(m_SelectedEntity);
 			ImGui::Text((std::string("Are you sure you want to delete this entity? (") + tc.Tag + ")").c_str());
-		
+
 			ImVec2 crAvail = ImGui::GetContentRegionAvail();
 			ImGui::SetCursorPosX(((crAvail.x - ImGui::CalcTextSize("Delete").x) * 0.5f) - ImGui::CalcTextSize("Delete").x);
 			if (ImGui::Button("Delete") || Input::IsKeyPressed(Key::Enter))
@@ -120,7 +119,6 @@ void EntityListPanel::Render()
 			if (ImGui::Button("Cancel") || Input::IsKeyPressed(Key::Escape))
 			{
 				ImGui::CloseCurrentPopup();
-				
 			}
 
 			m_DeleteEntity = false;
@@ -141,12 +139,13 @@ void EntityListPanel::Render()
 		// Displaying the components
 		if (m_SelectedEntity != entt::null)
 		{
-			TagComponent& tc = m_Scene->Registry.get<TagComponent>(m_SelectedEntity);
-			
+			TagComponent &tc = m_Scene->Registry.get<TagComponent>(m_SelectedEntity);
+
 			// Rename entity
-			char* input = (char*)tc.Tag.c_str();
+			char *input = (char *)tc.Tag.c_str();
 			auto checked = true;
-			if (ImGui::Checkbox("##visible", &checked)) {
+			if (ImGui::Checkbox("##visible", &checked))
+			{
 				checked = !checked;
 			}
 			ImGui::SameLine();
@@ -159,14 +158,14 @@ void EntityListPanel::Render()
 
 			if (m_Scene->Registry.try_get<TransformComponent>(m_SelectedEntity))
 			{
-				TransformComponent& tc = m_Scene->Registry.get<TransformComponent>(m_SelectedEntity);
+				TransformComponent &tc = m_Scene->Registry.get<TransformComponent>(m_SelectedEntity);
 				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 				if (ImGui::CollapsingHeader("Transform Component"))
 				{
-					ImGuiContext& g = *GImGui;
+					ImGuiContext &g = *GImGui;
 					ImGui::BeginColumns("##transform", 2, ImGuiColumnsFlags_NoResize || ImGuiColumnsFlags_NoBorder);
 					ImGui::SetColumnWidth(0, 70);
-					
+
 					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4.0f);
 					ImGui::Text("Position:");
 					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.0f);
@@ -184,11 +183,11 @@ void EntityListPanel::Render()
 
 			if (m_Scene->Registry.try_get<QuadRendererComponent>(m_SelectedEntity))
 			{
-				QuadRendererComponent& qrc = m_Scene->Registry.get<QuadRendererComponent>(m_SelectedEntity);
+				QuadRendererComponent &qrc = m_Scene->Registry.get<QuadRendererComponent>(m_SelectedEntity);
 				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 				if (ImGui::CollapsingHeader("Quad Renderer Component"))
 				{
-					ImGui::BeginColumns("##quadrenderer", 2, ImGuiColumnsFlags_NoResize ||ImGuiColumnsFlags_NoBorder );
+					ImGui::BeginColumns("##quadrenderer", 2, ImGuiColumnsFlags_NoResize || ImGuiColumnsFlags_NoBorder);
 					ImGui::SetColumnWidth(0, 70);
 					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4.0f);
 					ImGui::Text("Scale:");
@@ -199,14 +198,15 @@ void EntityListPanel::Render()
 					ImGui::ColorEdit4("##color", glm::value_ptr(qrc.Color));
 					ImGui::EndColumns();
 				}
-				if (ImGui::Button("Remove Component", ImVec2(ImGui::GetContentRegionAvail().x, 0))) {
+				if (ImGui::Button("Remove Component", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
+				{
 					m_Scene->Registry.remove<QuadRendererComponent>(m_SelectedEntity);
 				}
 			}
 
 			if (m_Scene->Registry.try_get<PerspectiveCameraComponent>(m_SelectedEntity))
 			{
-				PerspectiveCameraComponent& pcc = m_Scene->Registry.get<PerspectiveCameraComponent>(m_SelectedEntity);
+				PerspectiveCameraComponent &pcc = m_Scene->Registry.get<PerspectiveCameraComponent>(m_SelectedEntity);
 				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 				if (ImGui::CollapsingHeader("Perspective Camera Component"))
 				{
@@ -221,7 +221,7 @@ void EntityListPanel::Render()
 
 					if (ImGui::DragFloat("Distance", &pcc.Distance))
 						pcc.Camera->SetDistance(pcc.Distance);
-					
+
 					if (ImGui::DragFloat("Yaw", &pcc.Yaw))
 						pcc.Camera->SetYaw(pcc.Yaw);
 
@@ -230,18 +230,17 @@ void EntityListPanel::Render()
 
 					if (ImGui::DragFloat("FOV", &pcc.FOV))
 						pcc.Camera->SetFOV(pcc.FOV);
-					
-				
+
 					ImGui::Separator();
 
 					ImGui::PushItemWidth(100.0f);
 					ImGui::BeginDisabled(pcc.FixedAspectRatio);
 					if (ImGui::DragFloat("AspectRatio", &pcc.AspectRatio))
 						pcc.Camera->SetAspectRatio(pcc.AspectRatio);
-					
+
 					ImGui::PopItemWidth();
 					ImGui::EndDisabled();
-					
+
 					if (ImGui::Checkbox("Fixed", &pcc.FixedAspectRatio) && pcc.FixedAspectRatio)
 					{
 						glm::vec2 vpSize = EditorLayer::GetMainViewportSize();
@@ -250,29 +249,29 @@ void EntityListPanel::Render()
 						pcc.Camera->SetAspectRatio(pcc.AspectRatio);
 					}
 
-
 					ImGui::Separator();
-
 
 					if (ImGui::DragFloat("Near clip", &pcc.NearClip))
 						pcc.Camera->SetNearClip(pcc.NearClip);
 
 					if (ImGui::DragFloat("Far clip", &pcc.FarClip))
 						pcc.Camera->SetFarClip(pcc.FarClip);
-
 				}
-				if (ImGui::Button("Remove Component", ImVec2(ImGui::GetContentRegionAvail().x, 0))) {
+				if (ImGui::Button("Remove Component", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
+				{
 					m_Scene->Registry.remove<PerspectiveCameraComponent>(m_SelectedEntity);
 				}
-			}	
-			
+			}
+
 			ImGui::Separator();
 
-			if (ImGui::Button("Add Component", ImVec2(ImGui::GetContentRegionAvail().x, 0))) {
+			if (ImGui::Button("Add Component", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
+			{
 				ImGui::OpenPopup("ContextMenu");
 			}
 
-			if (ImGui::BeginPopup("ContextMenu")) {
+			if (ImGui::BeginPopup("ContextMenu"))
+			{
 				if (ImGui::MenuItem("Quad Renderer Component"))
 				{
 					QuadRendererComponent qrc;
@@ -286,9 +285,18 @@ void EntityListPanel::Render()
 				}
 				ImGui::EndPopup();
 			}
+
+			if (m_Scene->Registry.try_get<StaticModelComponent>(m_SelectedEntity))
+			{
+				StaticModelComponent &smc = m_Scene->Registry.get<StaticModelComponent>(m_SelectedEntity);
+				if (ImGui::CollapsingHeader("Static Mesh Component"))
+				{
+					/* Note (Szilard):
+					   TODO: Needs to list the meshes of the models with the correspoing material */
+				}
+			}
 		}
 		ImGui::End();
 		ImGui::PopStyleVar(2);
 	}
-
 }

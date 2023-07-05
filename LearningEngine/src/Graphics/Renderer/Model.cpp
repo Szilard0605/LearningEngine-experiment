@@ -93,3 +93,8 @@ void Model::Render(PerspectiveCamera& camera, glm::vec3 position, glm::vec3 scal
 		m_Meshes[i]->Render(camera, position, scale, rotation);
 	}
 }
+
+void Model::AddMesh(Mesh* mesh)
+{
+	m_Meshes.push_back(mesh);
+}

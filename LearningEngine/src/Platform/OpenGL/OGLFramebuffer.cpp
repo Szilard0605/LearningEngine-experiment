@@ -88,8 +88,7 @@ void OGLFramebuffer::Invalidate()
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
-		printf("Framebuffer is incomplete! %x\n", glCheckFramebufferStatus(GL_FRAMEBUFFER));
-		//GL_FRAMEBUFFER_UNDEFINED
+		LE_CORE_ERROR(std::string("Framebuffer is incomplete! Error: ") + std::to_string(glCheckFramebufferStatus(GL_FRAMEBUFFER)));
 	}
 
 	Unbind();

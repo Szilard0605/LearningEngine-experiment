@@ -1,13 +1,19 @@
 #pragma once
 
-#include "Assets.h"
 #include "Asset.h"
+
+#include <map>
+#include <filesystem>
 
 class AssetManager
 {
 public:
-
-	template<typename T, typename... Args>
-	static Asset CreateAsset(Args... args);
+	static AssetHandle CreateAsset(AssetData data);
+	static AssetHandle CreateAsset(AssetType type);
+	static AssetHandle CreateAssetFromFile(std::filesystem::path path);
+	static void LoadAssetsFromRegistry(std::filesystem::path path);
+	static void SaveAsset(AssetHandle handle, std::filesystem::path path);
+	static AssetType GetAssetTypeFromFileExtension(std::filesystem::path path);
+	static Asset& GetAssetByHandle(AssetHandle handle);
 };
 
