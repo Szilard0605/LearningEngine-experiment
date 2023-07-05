@@ -83,6 +83,11 @@ void EditorLayer::OnImGuiRender()
 	ImGuiStyle& style = ImGui::GetStyle();
 	float minWinSizeX = style.WindowMinSize.x;
 	style.WindowMinSize.x = 370.0f;
+	style.FramePadding = ImVec2(4.0f, 4.0f);
+	style.WindowBorderSize = 0.0f;
+	style.WindowMenuButtonPosition = ImGuiDir_None;
+	style.WindowPadding = ImVec2(5.0f, 5.0f);
+	style.ChildBorderSize = 0.0f;
 	if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
 	{
 		ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
@@ -97,25 +102,9 @@ void EditorLayer::OnImGuiRender()
 	{
 		ImGui::Begin("Viewport");
 
-		float viewportWidth = ImGui::GetContentRegionAvail().x;
-		float viewportHeight = ImGui::GetContentRegionAvail().y;
-
-		uint32_t texid = m_Framebuffer->GetColorAttachmentID(0);
-
-		Framebuffer::FramebufferSpecifications fbSpecs = m_Framebuffer->GetSpecification();
-		if (fbSpecs.Width != viewportWidth || fbSpecs.Height != viewportHeight)
-		{
-			m_Framebuffer->Resize(viewportWidth, viewportHeight);
-			m_EditorCamera->SetAspectRatio(viewportWidth / viewportHeight);
-
-			s_MainViewportSize = {viewportWidth, viewportHeight};
-		}
-
-		ImGui::Image((void*)texid, ImVec2(viewportWidth, viewportHeight));
-
-		ImGui::SameLine();
-		ImGui::SetCursorPosX(viewportWidth / 2.0f);
-
+		ImGui::BeginGroup();
+		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+		ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x / 2.0f);
 		ImVec4 playbtn_col = m_PressedPlay ? ImVec4(0.0f, 0.0f, 1.0f, 0.3f) : ImVec4(1.0f, 1.0f, 1.0f, 0.3f);
 
 		ImGui::PushStyleColor(ImGuiCol_Button, playbtn_col);
@@ -133,6 +122,25 @@ void EditorLayer::OnImGuiRender()
 			}
 		}
 		ImGui::PopStyleColor();
+
+		ImGui::PopItemWidth();
+		ImGui::EndGroup();
+
+		float viewportWidth = ImGui::GetContentRegionAvail().x;
+		float viewportHeight = ImGui::GetContentRegionAvail().y;
+
+		uint32_t texid = m_Framebuffer->GetColorAttachmentID(0);
+
+		Framebuffer::FramebufferSpecifications fbSpecs = m_Framebuffer->GetSpecification();
+		if (fbSpecs.Width != viewportWidth || fbSpecs.Height != viewportHeight)
+		{
+			m_Framebuffer->Resize(viewportWidth, viewportHeight);
+			m_EditorCamera->SetAspectRatio(viewportWidth / viewportHeight);
+
+			s_MainViewportSize = {viewportWidth, viewportHeight};
+		}
+
+		ImGui::Image((void*)texid, ImVec2(viewportWidth, viewportHeight));
 
 		m_ViewportActive = ImGui::IsWindowFocused();
 		m_ViewportHovered = ImGui::IsWindowHovered();

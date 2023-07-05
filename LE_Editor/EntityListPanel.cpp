@@ -1,13 +1,16 @@
 #include "EntityListPanel.h"
 
 #include "imgui.h"
-
 #include "LearningEngine.h"
+
 
 #include "EditorLayer.h"
 
 // GLM
 #include "gtc/type_ptr.hpp"
+#include <imgui_internal.h>
+#include <IconsFontAwesome5.h>
+#include <Log/Log.h>
 
 EntityListPanel::EntityListPanel(Scene* scene)
 	: m_Scene(scene)
@@ -21,7 +24,7 @@ void EntityListPanel::Render()
 
 	//Entity window
 	{
-		ImGui::Begin("Entities");
+		ImGui::Begin("Entities", nullptr, ImGuiWindowFlags_NoCollapse);
 
 		// Right-click on blank space
 		if (ImGui::BeginPopupContextWindow(0, 1, false))
@@ -33,7 +36,8 @@ void EntityListPanel::Render()
 			ImGui::EndPopup();
 		}
 
-		m_Scene->Registry.each([this](auto entityID)
+		auto view = m_Scene->Registry.view<TransformComponent>();
+		for (auto entityID : view)
 		{
 			ImGuiTreeNodeFlags flags = ((m_SelectedEntity == entityID) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
 			flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
@@ -50,17 +54,19 @@ void EntityListPanel::Render()
 					if (m_SelectedEntity != entt::null)
 					{
 						m_DeleteEntity = true;
+					}					
+				}
+				if (ImGui::MenuItem("Duplicate"))
+				{
+					if (m_SelectedEntity != entt::null)
+					{
+						Entity entity = m_Scene->NewEntity("Entity");
 					}
 				}
-
-				// Rename entity
-				ImGui::PushItemWidth(100.0f);
-				char* input = (char*)tc.Tag.c_str();
-				if (ImGui::InputTextWithHint("##name", "Rename", input, 30))
+				if (ImGui::MenuItem("Create Entity"))
 				{
-					tc.Tag = input;
+					Entity entity = m_Scene->NewEntity("Entity");
 				}
-				ImGui::PopItemWidth();
 
 				ImGui::EndPopup();
 			}
@@ -72,10 +78,10 @@ void EntityListPanel::Render()
 
 			if (opened)
 			{
-
+				
 				ImGui::TreePop();
 			}
-		});
+		}
 
 		if (ImGui::IsWindowFocused())
 		{
@@ -124,70 +130,84 @@ void EntityListPanel::Render()
 
 		ImGui::End();
 	}
+
 	// Adding Components window
 	{
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10.0f, 10.0f));
 
-		ImGui::Begin("Components");
-
-		// Right-click on blank space
-		if (m_SelectedEntity != entt::null && ImGui::BeginPopupContextWindow(0, 1, false))
-		{
-			if (ImGui::BeginMenu("Add Component"))
-			{
-				if (ImGui::MenuItem("Quad Renderer Component"))
-				{
-					QuadRendererComponent qrc;
-					m_Scene->Registry.emplace<QuadRendererComponent>(m_SelectedEntity, qrc);
-				}
-
-				if (ImGui::BeginMenu("Camera"))
-				{
-					if (ImGui::MenuItem("Perspective Camera Component"))
-					{
-						PerspectiveCameraComponent pcc;
-						pcc.Camera = new PerspectiveCamera(pcc.FOV, pcc.AspectRatio, pcc.NearClip, pcc.FarClip);
-						m_Scene->Registry.emplace<PerspectiveCameraComponent>(m_SelectedEntity, pcc);
-					}
-
-					if (ImGui::MenuItem("Orthographic Camera Component"))
-					{
-
-					}
-
-					ImGui::EndMenu();
-				}
-				ImGui::EndMenu();
-			}
-			ImGui::EndMenu();
-		}
+		ImGui::Begin("Components", nullptr, ImGuiWindowFlags_NoCollapse);
 
 		// Displaying the components
 		if (m_SelectedEntity != entt::null)
 		{
+			TagComponent& tc = m_Scene->Registry.get<TagComponent>(m_SelectedEntity);
+			
+			// Rename entity
+			char* input = (char*)tc.Tag.c_str();
+			auto checked = true;
+			if (ImGui::Checkbox("##visible", &checked)) {
+				checked = !checked;
+			}
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth());
+			if (ImGui::InputText("##input", input, 30))
+			{
+				tc.Tag = input;
+			}
+			ImGui::PopItemWidth();
+
 			if (m_Scene->Registry.try_get<TransformComponent>(m_SelectedEntity))
 			{
 				TransformComponent& tc = m_Scene->Registry.get<TransformComponent>(m_SelectedEntity);
+				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 				if (ImGui::CollapsingHeader("Transform Component"))
 				{
-					ImGui::DragFloat3("Position", glm::value_ptr(tc.Position), 0.1f);
-					ImGui::DragFloat3("Size", glm::value_ptr(tc.Size), 0.1f);
-					ImGui::DragFloat3("Rotation", glm::value_ptr(tc.Rotation), 0.1f);
+					ImGuiContext& g = *GImGui;
+					ImGui::BeginColumns("##transform", 2, ImGuiColumnsFlags_NoResize || ImGuiColumnsFlags_NoBorder);
+					ImGui::SetColumnWidth(0, 70);
+					
+					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4.0f);
+					ImGui::Text("Position:");
+					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.0f);
+					ImGui::Text("Rotation:");
+					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.0f);
+					ImGui::Text("Scale:");
+
+					ImGui::NextColumn();
+					ImGui::DragFloat3("##position", glm::value_ptr(tc.Position), 0.1f, -1000, 1000, "%.2f");
+					ImGui::DragFloat3("##rotation", glm::value_ptr(tc.Rotation), 0.1f, -1000, 1000, "%.2f");
+					ImGui::DragFloat3("##scale", glm::value_ptr(tc.Size), 0.1f, -1000, 1000, "%.2f");
+					ImGui::EndColumns();
 				}
 			}
 
 			if (m_Scene->Registry.try_get<QuadRendererComponent>(m_SelectedEntity))
 			{
 				QuadRendererComponent& qrc = m_Scene->Registry.get<QuadRendererComponent>(m_SelectedEntity);
+				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 				if (ImGui::CollapsingHeader("Quad Renderer Component"))
 				{
-					ImGui::DragFloat3("Scale", glm::value_ptr(qrc.Scale), 0.1f);
-					ImGui::ColorEdit4("Color", glm::value_ptr(qrc.Color));
+					ImGui::BeginColumns("##quadrenderer", 2, ImGuiColumnsFlags_NoResize ||ImGuiColumnsFlags_NoBorder );
+					ImGui::SetColumnWidth(0, 70);
+					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4.0f);
+					ImGui::Text("Scale:");
+					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.0f);
+					ImGui::Text("Color:");
+					ImGui::NextColumn();
+					ImGui::DragFloat3("##scale", glm::value_ptr(qrc.Scale), 0.1f, -1000, 1000, "%.2f");
+					ImGui::ColorEdit4("##color", glm::value_ptr(qrc.Color));
+					ImGui::EndColumns();
+				}
+				if (ImGui::Button("Remove Component", ImVec2(ImGui::GetContentRegionAvail().x, 0))) {
+					m_Scene->Registry.remove<QuadRendererComponent>(m_SelectedEntity);
 				}
 			}
 
 			if (m_Scene->Registry.try_get<PerspectiveCameraComponent>(m_SelectedEntity))
 			{
 				PerspectiveCameraComponent& pcc = m_Scene->Registry.get<PerspectiveCameraComponent>(m_SelectedEntity);
+				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 				if (ImGui::CollapsingHeader("Perspective Camera Component"))
 				{
 					ImGui::Checkbox("Main camera", &pcc.MainCamera);
@@ -241,9 +261,34 @@ void EntityListPanel::Render()
 						pcc.Camera->SetFarClip(pcc.FarClip);
 
 				}
+				if (ImGui::Button("Remove Component", ImVec2(ImGui::GetContentRegionAvail().x, 0))) {
+					m_Scene->Registry.remove<PerspectiveCameraComponent>(m_SelectedEntity);
+				}
+			}	
+			
+			ImGui::Separator();
+
+			if (ImGui::Button("Add Component", ImVec2(ImGui::GetContentRegionAvail().x, 0))) {
+				ImGui::OpenPopup("ContextMenu");
+			}
+
+			if (ImGui::BeginPopup("ContextMenu")) {
+				if (ImGui::MenuItem("Quad Renderer Component"))
+				{
+					QuadRendererComponent qrc;
+					m_Scene->Registry.emplace<QuadRendererComponent>(m_SelectedEntity, qrc);
+				}
+				if (ImGui::MenuItem("Perspective Camera Component"))
+				{
+					PerspectiveCameraComponent pcc;
+					pcc.Camera = new PerspectiveCamera(pcc.FOV, pcc.AspectRatio, pcc.NearClip, pcc.FarClip);
+					m_Scene->Registry.emplace<PerspectiveCameraComponent>(m_SelectedEntity, pcc);
+				}
+				ImGui::EndPopup();
 			}
 		}
 		ImGui::End();
+		ImGui::PopStyleVar(2);
 	}
 
 }

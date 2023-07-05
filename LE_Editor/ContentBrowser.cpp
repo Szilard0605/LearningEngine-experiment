@@ -3,6 +3,7 @@
 #include "imgui.h"
 #include "IconsFontAwesome5.h"
 #include "Log/Log.h"
+#include <imgui_internal.h>
 
 ContentBrowser::ContentBrowser(Scene* scene)
 	: m_Scene(scene)
@@ -32,6 +33,8 @@ void ContentBrowser::Render()
 	ImGui::PopItemWidth();
 	ImGui::EndChild();
 
+	ImGui::SameLine();
+	ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
 	ImGui::SameLine();
 
 	ImGui::BeginChild("##FileColumn", ImGui::GetContentRegionAvail(), true);
@@ -87,16 +90,7 @@ void ContentBrowser::Render()
 		ImVec2 uv1 = ImVec2(1, 1);
 		ImVec4 bg_col = ImVec4(0.0f, 0.0f, 0.0f, 1.0f); 
 		ImVec4 tint_col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
-		ImGui::ImageButton((ImTextureID)iconTexture->GetTextureID(), size, uv0, uv1, -1, bg_col, tint_col);
-		
-		if (ImGui::BeginPopupContextWindow("Delete")) {
-			if (ImGui::Button("Delete")) {
-				std::filesystem::remove(path);
-				ImGui::CloseCurrentPopup();
-			}
-
-			ImGui::EndPopup();
-		}
+		ImGui::ImageButton((ImTextureID)iconTexture->GetTextureID(), size, uv0, uv1, -1, bg_col, tint_col);		
 
 		if (!directoryEntry.is_directory() && ImGui::BeginDragDropSource())
 		{
@@ -108,6 +102,10 @@ void ContentBrowser::Render()
 				{
 					m_CurrentDirectory /= path.filename();
 				}
+			}
+			else if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+			{
+				pathToDelete = path;
 			}
 		}
 
