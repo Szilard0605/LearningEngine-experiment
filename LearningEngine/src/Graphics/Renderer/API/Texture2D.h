@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include "Assets/Asset.h"
 #include "Graphics/Renderer/Image.h"
 
 struct Texture2DProperties

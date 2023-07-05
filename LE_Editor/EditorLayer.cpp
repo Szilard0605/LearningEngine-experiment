@@ -33,13 +33,24 @@ void EditorLayer::OnAttach()
 	m_EntitiesPanel = EntityListPanel(m_Scene);
 	m_ContentBrowser = ContentBrowser(m_Scene);
 
+	/* ---- Loading Assets ------
+	 Note (Szilard): We should load registry from the project 
+	 directory when projects are implemented */
+	AssetManager::LoadAssetsFromRegistry("res/AssetRegistry.lereg");
+
+	//---------------------------
 	m_TexPlayButton = Texture2D::Create("res/textures/Editor/play_button.png");
 
+	// Setting the default shader of the project
 	ShaderLibrary::Add(Shader::Create("res/shaders/default_shader.shader"), "DefaultShader");
 }
 
 void EditorLayer::OnDetach()
 {
+	/* ---- Saving Assets ------
+	 Note (Szilard): We should save the assets into registry 
+	 when project saved when projects are implemented */
+	AssetManager::SaveAllAssets("res/AssetRegistry.lereg");
 }
 
 void EditorLayer::OnEvent(Event& event)
@@ -268,6 +279,7 @@ void EditorLayer::OnUpdate(Timestep timestep)
 			}
 		}
 	}
+
 
 	m_Framebuffer->Unbind();
 }

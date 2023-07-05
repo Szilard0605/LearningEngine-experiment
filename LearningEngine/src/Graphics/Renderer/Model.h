@@ -14,6 +14,7 @@ class Model
 {
 public:
 	Model() = default;
+	Model(std::filesystem::path path);
 	Model(std::filesystem::path path, Material& material);
 
 	std::vector<Mesh*>& GetMeshes() { return m_Meshes; }

@@ -203,8 +203,6 @@ void EntityListPanel::Render()
 						}
 					}
 
-					
-
 					ImGui::EndMenu();
 				}
 

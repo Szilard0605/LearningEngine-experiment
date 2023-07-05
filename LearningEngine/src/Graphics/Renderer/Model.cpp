@@ -1,6 +1,7 @@
 #include "Model.h"
 
 #include "Log/Log.h"
+#include "Graphics/Renderer/ShaderLibrary.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -8,9 +9,17 @@
 
 #include "API/API.h"
 
+Model::Model(std::filesystem::path path)
+{
+	Material defMaterial = ShaderLibrary::GetShader("DefaultShader");
+	Model(path, defMaterial);
+}
+
 Model::Model(std::filesystem::path path, Material& material)
 	: m_Path(path)
 {
+	LE_CORE_INFO(std::string("Loading model ") + path.string());
+
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path.string().c_str(), aiProcess_Triangulate);
 

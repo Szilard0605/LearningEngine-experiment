@@ -12,6 +12,7 @@ public:
 	static AssetHandle CreateAsset(AssetType type);
 	static AssetHandle CreateAssetFromFile(std::filesystem::path path);
 	static void LoadAssetsFromRegistry(std::filesystem::path path);
+	static void SaveAllAssets(std::filesystem::path path);
 	static void SaveAsset(AssetHandle handle, std::filesystem::path path);
 	static AssetType GetAssetTypeFromFileExtension(std::filesystem::path path);
 	static Asset& GetAssetByHandle(AssetHandle handle);

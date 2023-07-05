@@ -33,6 +33,7 @@
 #include "Assets/Asset.h"
 #include "Assets/AssetManager.h"
 #include "Assets/AssetRegistry.h"
+#include "Assets/AssetLoader.h"
 
 #include "Physics/Physics2DBody.h"
 #include "Physics/Physics2DWorld.h"

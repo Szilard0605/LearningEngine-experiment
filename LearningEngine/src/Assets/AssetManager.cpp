@@ -34,6 +34,14 @@ void AssetManager::LoadAssetsFromRegistry(std::filesystem::path path)
 	AssetRegistry::LoadAssets(path);
 }
 
+void AssetManager::SaveAllAssets(std::filesystem::path path)
+{
+	for (auto it = s_AssetMap.begin(); it != s_AssetMap.end(); it++)
+	{
+		AssetRegistry::SaveAsset(it->first, path);
+	}
+}
+
 AssetHandle AssetManager::CreateAssetFromFile(std::filesystem::path path)
 {
 	// Deserialize Asset file (.leasset)
