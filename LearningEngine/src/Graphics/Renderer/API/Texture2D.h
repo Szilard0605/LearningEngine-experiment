@@ -5,6 +5,7 @@
 #include "Assets/Asset.h"
 #include "Graphics/Renderer/Image.h"
 
+
 struct Texture2DProperties
 {
 	uint32_t Width;

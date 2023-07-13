@@ -7,4 +7,5 @@
 #include "VertexArray.h"
 #include "VertexBuffer.h"
 #include "Texture2D.h"
+#include "CubeMap.h"
 #include "Framebuffer.h"

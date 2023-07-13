@@ -8,11 +8,18 @@ Image::Image(ImageProperties properties)
 
 }
 
-Image::Image(std::string path)
+Image::Image(std::string path, bool verticalflip)
+{
+	stbi_set_flip_vertically_on_load(verticalflip);
+	m_RawImageData = stbi_load(path.c_str(), &m_Properties.Width, &m_Properties.Height, &m_Properties.ColorChannels, 0);
+}
+
+Image::Image(std::string path, ImageFormat format, bool verticalflip)
 	: m_FilePath(path)
 {
-	stbi_set_flip_vertically_on_load(1);
-	m_RawImageData = stbi_load(path.c_str(), &m_Properties.Width, &m_Properties.Height, &m_Properties.ColorChannels, 0);
+	stbi_set_flip_vertically_on_load(verticalflip);
+	m_RawImageData = stbi_load(path.c_str(), &m_Properties.Width, &m_Properties.Height, &m_Properties.ColorChannels, (int)format);
+	m_Properties.ColorChannels = (int)format;
 }
 
 void Image::SetRawData(unsigned char* data)

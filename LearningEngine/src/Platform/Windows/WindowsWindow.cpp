@@ -32,6 +32,8 @@ WindowsWindow::WindowsWindow(const std::string title, const uint32_t width, cons
 	glfwMakeContextCurrent(m_window);
 	glfwSetWindowUserPointer(m_window, &m_WindowData);
 
+	glfwSwapInterval(0);
+
 	glfwSetWindowSizeCallback(m_window, [](GLFWwindow* window, int width, int height) 
 	{
 		WindowData* nw = static_cast<WindowData*>(glfwGetWindowUserPointer(window));

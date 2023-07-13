@@ -60,7 +60,6 @@ OGLTexture2D::OGLTexture2D(Image& image)
 
 void OGLTexture2D::CreateTextureFromImage(Image& image)
 {
-
 	if (m_Image.GetRawData())
 	{
 		ImageProperties& props = m_Image.GetProperties();
@@ -84,15 +83,16 @@ void OGLTexture2D::CreateTextureFromImage(Image& image)
 		glTextureParameteri(m_texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTextureParameteri(m_texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+	
 		glTextureParameteri(m_texture, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTextureParameteri(m_texture, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 		glTextureSubImage2D(m_texture, 0, 0, 0, props.Width, props.Height, dataFormat, GL_UNSIGNED_BYTE, m_Image.GetRawData());
+
 	}
 	//else printf("Cannot load texture image: %s\n", m_Image.GetFilePath().c_str());
 	else LE_CORE_ERROR(std::string("Cannot load texture image: ") + m_Image.GetFilePath());
 }
-
 
 OGLTexture2D::~OGLTexture2D()
 {
@@ -104,9 +104,9 @@ void OGLTexture2D::Bind(uint32_t slot)
 	glBindTextureUnit(slot, m_texture);
 }
 
+
 void OGLTexture2D::SetData(const void* data, uint32_t size)
 {
 	uint32_t bpp = m_DataFormat == GL_RGBA ? 4 : 3;
-	//HZ_CORE_ASSERT(size == m_Width * m_Height * bpp, "Data must be entire texture!");
 	glTextureSubImage2D(m_texture, 0, 0, 0, m_Properties.Width, m_Properties.Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
 }

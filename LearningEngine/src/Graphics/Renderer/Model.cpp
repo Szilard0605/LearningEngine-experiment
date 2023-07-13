@@ -21,7 +21,8 @@ Model::Model(std::filesystem::path path, Material& material)
 	LE_CORE_INFO(std::string("Loading model ") + path.string());
 
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(path.string().c_str(), aiProcess_Triangulate);
+	const aiScene* scene = importer.ReadFile(path.string().c_str(), aiProcess_Triangulate | aiProcess_GenSmoothNormals |
+		aiProcess_CalcTangentSpace);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
@@ -36,15 +37,28 @@ Model::Model(std::filesystem::path path, Material& material)
 
 		for (uint32_t j = 0; j < scene->mMeshes[i]->mNumVertices; j++)
 		{
-			const float vertex_X = scene->mMeshes[i]->mVertices[j].x;
-			const float vertex_Y = scene->mMeshes[i]->mVertices[j].y;
-			const float vertex_Z = scene->mMeshes[i]->mVertices[j].z;
-
-			const float normal_X = scene->mMeshes[i]->mVertices[j].x;
-			const float normal_Y = scene->mMeshes[i]->mVertices[j].y;
-			const float normal_Z = scene->mMeshes[i]->mVertices[j].z;
 
 			Vertex vertex;
+
+
+			vertex.Position =  { scene->mMeshes[i]->mVertices[j].x,
+								 scene->mMeshes[i]->mVertices[j].y,
+								 scene->mMeshes[i]->mVertices[j].z   };
+			
+			vertex.Normal =	   { scene->mMeshes[i]->mNormals[j].x,
+								 scene->mMeshes[i]->mNormals[j].y,
+								 scene->mMeshes[i]->mNormals[j].z    };
+			
+			if (scene->mMeshes[i]->HasTangentsAndBitangents())
+			{
+				vertex.Tangent = {   scene->mMeshes[i]->mTangents[j].x,
+									 scene->mMeshes[i]->mTangents[j].y,
+									 scene->mMeshes[i]->mTangents[j].z};
+
+				vertex.Bitangent = { scene->mMeshes[i]->mBitangents[j].x,
+									 scene->mMeshes[i]->mBitangents[j].y,
+									 scene->mMeshes[i]->mBitangents[j].z};
+			}
 
 			if (scene->mMeshes[i]->mTextureCoords[0]) 
 			{
@@ -57,8 +71,7 @@ Model::Model(std::filesystem::path path, Material& material)
 				vertex.TexCoords = glm::vec2(0.0f, 0.0f);
 			}
 
-			vertex.Position = glm::vec3(vertex_X, vertex_Y, vertex_Z);
-			vertex.Normal = glm::vec3(normal_X, normal_Y, normal_Z);
+
 			Vertices.push_back(vertex);
 		}
 
@@ -88,6 +101,19 @@ Model::Model(std::filesystem::path path, Material& material)
 			}
 		}
 		material.SetTexture(baseColorTexture);
+
+		Texture2D* normalMapTexture = nullptr;
+		// Base Color textures
+		{
+			aiString texpath;	// filename
+			aiReturn texFound = mtl->GetTexture(aiTextureType_NORMALS, 0, &texpath);
+
+			if (texFound == AI_SUCCESS)
+			{
+				normalMapTexture = Texture2D::Create(path.remove_filename().string() + texpath.C_Str());
+			}
+		}
+		material.SetNormalMap(normalMapTexture);
 
 
 		m_Meshes.push_back(new Mesh(Vertices, Indices, material));
