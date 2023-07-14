@@ -25,6 +25,8 @@ void EntityListPanel::Render()
 	{
 		ImGui::Begin("Entities", nullptr, ImGuiWindowFlags_NoCollapse);
 
+		std::vector<Entity> entities;
+
 		// Right-click on blank space
 		if (ImGui::BeginPopupContextWindow(0, 1, false))
 		{
@@ -34,52 +36,92 @@ void EntityListPanel::Render()
 			}
 			ImGui::EndPopup();
 		}
+		if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanAvailWidth)) {
 
-		auto view = m_Scene->Registry.view<TransformComponent>();
-		for (auto entityID : view)
-		{
-			ImGuiTreeNodeFlags flags = ((m_SelectedEntity == entityID) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
-			flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
-
-			TagComponent &tc = m_Scene->Registry.get<TagComponent>(entityID);
-			bool opened = ImGui::TreeNodeEx((void *)(uint64_t)(uint32_t)entityID, flags, tc.Tag.c_str());
-
-			if (ImGui::BeginPopupContextItem())
+			auto view = m_Scene->Registry.view<TransformComponent>();
+			for (auto entityID : view)
 			{
-				m_SelectedEntity = entityID;
+				ImGuiTreeNodeFlags flags = ((m_SelectedEntity == entityID) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
+				flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
 
-				if (ImGui::MenuItem("Delete"))
-				{
-					if (m_SelectedEntity != entt::null)
-					{
-						m_DeleteEntity = true;
-					}
+				TagComponent& tc = m_Scene->Registry.get<TagComponent>(entityID);
+				auto entityname = std::string(tc.Tag.c_str()) + std::to_string((uint64_t)(uint32_t)entityID);
+				
+				bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entityID, flags, entityname.c_str());
+
+				if (ImGui::BeginDragDropSource()) {
+					ImGui::SetDragDropPayload("Entity", &entityID, sizeof(entt::entity));
+					ImGui::Text(entityname.c_str());
+					ImGui::EndDragDropSource();
 				}
-				if (ImGui::MenuItem("Duplicate"))
+
+				if (ImGui::BeginPopupContextItem())
 				{
-					if (m_SelectedEntity != entt::null)
+					m_SelectedEntity = entityID;
+
+					if (ImGui::MenuItem("Delete"))
+					{
+						if (m_SelectedEntity != entt::null)
+						{
+							m_DeleteEntity = true;
+						}
+					}
+					if (ImGui::MenuItem("Duplicate"))
+					{
+						if (m_SelectedEntity != entt::null)
+						{
+							Entity entity = m_Scene->NewEntity("Entity");
+						}
+					}
+					if (ImGui::MenuItem("Create Entity"))
 					{
 						Entity entity = m_Scene->NewEntity("Entity");
+						entity.SetParent(entityID);
+						entities.push_back(entity);
 					}
+
+					ImGui::EndPopup();
 				}
-				if (ImGui::MenuItem("Create Entity"))
+
+				if (ImGui::IsItemClicked())
 				{
-					Entity entity = m_Scene->NewEntity("Entity");
+					m_SelectedEntity = entityID;
 				}
 
-				ImGui::EndPopup();
+				if (opened)
+				{
+					if (ImGui::BeginDragDropTarget())
+					{
+						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Entity"))
+						{
+							entt::entity payload_n = *(const entt::entity*)payload->Data;
+							Entity payload_e = Entity("Entity", payload_n, m_Scene);
+							payload_e.SetParent(entityID);
+						}
+						ImGui::EndDragDropTarget();
+					}
+					
+					for (auto i=0; i < m_Scene->Registry.size(); i++) {
+						auto entity = m_Scene->GetEntityByTag(tc.Tag);
+						entities.push_back(entity);
+					}
+
+					for (auto entity : entities) {
+						if (entity.GetParent() != entt::null) {
+							TagComponent& tc = m_Scene->Registry.get<TagComponent>(entity.GetParent());
+							auto entityname = std::string(tc.Tag.c_str()) + std::to_string((uint64_t)(uint32_t)entity.GetParent());
+							ImGuiTreeNodeFlags flags = ((m_SelectedEntity == entity.GetParent()) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
+							flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
+							bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity.GetParent(), flags, entityname.c_str());
+
+						}
+					}
+
+					ImGui::TreePop();
+				}
 			}
 
-			if (ImGui::IsItemClicked())
-			{
-				m_SelectedEntity = entityID;
-			}
-
-			if (opened)
-			{
-
-				ImGui::TreePop();
-			}
+			ImGui::TreePop();
 		}
 
 		if (ImGui::IsWindowFocused())
@@ -131,6 +173,7 @@ void EntityListPanel::Render()
 
 	// Adding Components window
 	{
+
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10.0f, 10.0f));
 
@@ -143,11 +186,8 @@ void EntityListPanel::Render()
 
 			// Rename entity
 			char *input = (char *)tc.Tag.c_str();
-			auto checked = true;
-			if (ImGui::Checkbox("##visible", &checked))
-			{
-				checked = !checked;
-			}
+			
+
 			ImGui::SameLine();
 			ImGui::PushItemWidth(ImGui::GetWindowWidth());
 			if (ImGui::InputText("##input", input, 30))
@@ -184,6 +224,8 @@ void EntityListPanel::Render()
 			if (m_Scene->Registry.try_get<QuadRendererComponent>(m_SelectedEntity))
 			{
 				QuadRendererComponent &qrc = m_Scene->Registry.get<QuadRendererComponent>(m_SelectedEntity);
+				ImGui::Checkbox("##visible", &qrc.enabled);
+				ImGui::SameLine();
 				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 				if (ImGui::CollapsingHeader("Quad Renderer Component"))
 				{

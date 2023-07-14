@@ -13,6 +13,7 @@ class Entity
 		~Entity();
 
 		std::string GetName() { return m_Name; }
+		
 
 		void SetHandle(entt::entity handle)
 		{
@@ -27,6 +28,16 @@ class Entity
 		Scene* GetScene()
 		{
 			return m_Scene;
+		}
+
+		void SetParent(entt::entity parent)
+		{
+			ParentEntity = parent;
+		}
+
+		entt::entity GetParent()
+		{
+			return ParentEntity;
 		}
 
 		template<typename T, typename... Args>
@@ -65,4 +76,5 @@ class Entity
 		Scene* m_Scene;
 		std::string m_Name;
 		entt::entity m_EntityHandle { entt::null };
+		entt::entity ParentEntity = entt::null;
 };

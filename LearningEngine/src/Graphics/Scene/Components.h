@@ -4,14 +4,20 @@
 
 #include "Graphics/Renderer/Model.h"
 
-struct TagComponent
+struct BaseComponent
+{
+	bool enabled = true;
+
+};
+
+struct TagComponent : public BaseComponent
 {
 	const char* ID = "TagComponent";
 
 	std::string Tag;
 };
 
-struct TransformComponent
+struct TransformComponent : public BaseComponent
 {
 	const char* ID = "TransformComponent";
 
@@ -20,15 +26,15 @@ struct TransformComponent
 	glm::vec3 Rotation = {0, 0, 0};
 };
 
-struct QuadRendererComponent
+struct QuadRendererComponent : public BaseComponent
 {
 	const char* ID = "QuadRendererComponent";
 
-	glm::vec3 Scale = {1, 1, 1};
+	glm::vec3 Scale = { 1, 1, 1 };
 	glm::vec4 Color = {1, 1, 1, 1};
 };
 
-struct PerspectiveCameraComponent
+struct PerspectiveCameraComponent : public BaseComponent
 {
 	const char* ID = "PerspectiveCameraComponent";
 
@@ -47,7 +53,7 @@ struct PerspectiveCameraComponent
 	float FarClip = 10000.0f;
 };
 
-struct StaticModelComponent
+struct StaticModelComponent : public BaseComponent
 {
 	const char* ID = "StaticModelComponent";
 
