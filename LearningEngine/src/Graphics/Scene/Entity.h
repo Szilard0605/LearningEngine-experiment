@@ -5,6 +5,8 @@
 
 #include "Scene.h"
 
+#include "Components.h"
+
 class Entity
 {
 	public:
@@ -12,7 +14,11 @@ class Entity
 		Entity(const std::string& name, entt::entity handle, Scene* scene);
 		~Entity();
 
-		std::string GetName() { return m_Name; }
+		std::string GetName() 
+		{ 
+			TagComponent& tag  = GetComponent<TagComponent>();
+			return tag.Tag;
+		}
 		
 
 		void SetHandle(entt::entity handle)
@@ -30,14 +36,21 @@ class Entity
 			return m_Scene;
 		}
 
-		void SetParent(entt::entity parent)
+		inline void SetParent(entt::entity parent)
 		{
-			ParentEntity = parent;
+			// Set the parent
+			HierarchyComponent& childHC = m_Scene->Registry.get<HierarchyComponent>(m_EntityHandle);
+			childHC.Parent = (int)parent;
+
+			// Add child to parent entity
+			HierarchyComponent& parentHC  = m_Scene->Registry.get<HierarchyComponent>(parent);
+			parentHC.Children.push_back((int)m_EntityHandle);
 		}
 
 		entt::entity GetParent()
 		{
-			return ParentEntity;
+			HierarchyComponent& hc = m_Scene->Registry.get<HierarchyComponent>(m_EntityHandle);
+			return (entt::entity)hc.Parent;
 		}
 
 		template<typename T, typename... Args>

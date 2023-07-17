@@ -16,6 +16,72 @@ EntityListPanel::EntityListPanel(Scene *scene)
 {
 }
 
+void EntityListPanel::DisplayHierarchy(entt::entity entity)
+{
+	ImGui::PushID(reinterpret_cast<const void*>(static_cast<intptr_t>(entity)));
+
+	HierarchyComponent& hc = m_Scene->Registry.get<HierarchyComponent>(entity);
+	bool hasChild = hc.Children.size() > 0;
+	bool hasParent = hc.Parent != -1;
+
+	TagComponent& tc = m_Scene->Registry.get<TagComponent>(entity);
+	auto entityname = std::string(tc.Tag.c_str()) + std::to_string((uint64_t)(uint32_t)entity);
+
+	ImGuiTreeNodeFlags flags = ((m_SelectedEntity == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
+	flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
+
+	if (!hasChild)
+		flags |= ImGuiTreeNodeFlags_Leaf;
+
+
+	bool nodeOpen = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, entityname.c_str());
+
+	if (ImGui::IsItemClicked())
+		m_SelectedEntity = entity;
+
+	if (ImGui::BeginDragDropSource())
+	{
+		ImGui::SetDragDropPayload("Entity", &entity, sizeof(int));
+		ImGui::Text(entityname.c_str());
+		ImGui::EndDragDropSource();
+	}
+
+	if (ImGui::BeginDragDropTarget())
+	{
+		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Entity"))
+		{
+			entt::entity payload_n = *(const entt::entity*)payload->Data;
+
+			TagComponent& childTC = m_Scene->Registry.get<TagComponent>(payload_n);
+			Entity payload_e = Entity(childTC.Tag, payload_n, m_Scene);
+
+			TagComponent& parentTC = m_Scene->Registry.get<TagComponent>(entity);
+			Entity parent_e = Entity(parentTC.Tag, entity, m_Scene);
+
+			payload_e.SetParent(entity);
+		}
+		ImGui::EndDragDropTarget();
+	}
+
+	if (hasChild)
+	{
+		if (nodeOpen)
+		{
+			for (int i = 0; i < hc.Children.size(); i++)
+			{
+				DisplayHierarchy((entt::entity)hc.Children[i]);
+			}
+
+		}
+	}
+
+	if(nodeOpen)
+		ImGui::TreePop();
+
+	ImGui::PopID();
+}
+
+
 void EntityListPanel::Render()
 {
 	if (!m_Scene)
@@ -25,8 +91,6 @@ void EntityListPanel::Render()
 	{
 		ImGui::Begin("Entities", nullptr, ImGuiWindowFlags_NoCollapse);
 
-		std::vector<Entity> entities;
-
 		// Right-click on blank space
 		if (ImGui::BeginPopupContextWindow(0, 1, false))
 		{
@@ -34,93 +98,21 @@ void EntityListPanel::Render()
 			{
 				Entity entity = m_Scene->NewEntity("Entity");
 			}
+
 			ImGui::EndPopup();
 		}
-		if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanAvailWidth)) {
 
+		if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanAvailWidth))
+		{
+			// Render Entity hierarchy
 			auto view = m_Scene->Registry.view<TransformComponent>();
-			for (auto entityID : view)
+
+			for (auto it = view.begin(); it < view.end(); it++)
 			{
-				ImGuiTreeNodeFlags flags = ((m_SelectedEntity == entityID) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
-				flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
-
-				TagComponent& tc = m_Scene->Registry.get<TagComponent>(entityID);
-				auto entityname = std::string(tc.Tag.c_str()) + std::to_string((uint64_t)(uint32_t)entityID);
-				
-				bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entityID, flags, entityname.c_str());
-
-				if (ImGui::BeginDragDropSource()) {
-					ImGui::SetDragDropPayload("Entity", &entityID, sizeof(entt::entity));
-					ImGui::Text(entityname.c_str());
-					ImGui::EndDragDropSource();
-				}
-
-				if (ImGui::BeginPopupContextItem())
-				{
-					m_SelectedEntity = entityID;
-
-					if (ImGui::MenuItem("Delete"))
-					{
-						if (m_SelectedEntity != entt::null)
-						{
-							m_DeleteEntity = true;
-						}
-					}
-					if (ImGui::MenuItem("Duplicate"))
-					{
-						if (m_SelectedEntity != entt::null)
-						{
-							Entity entity = m_Scene->NewEntity("Entity");
-						}
-					}
-					if (ImGui::MenuItem("Create Entity"))
-					{
-						Entity entity = m_Scene->NewEntity("Entity");
-						entity.SetParent(entityID);
-						entities.push_back(entity);
-					}
-
-					ImGui::EndPopup();
-				}
-
-				if (ImGui::IsItemClicked())
-				{
-					m_SelectedEntity = entityID;
-				}
-
-				if (opened)
-				{
-					if (ImGui::BeginDragDropTarget())
-					{
-						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Entity"))
-						{
-							entt::entity payload_n = *(const entt::entity*)payload->Data;
-							Entity payload_e = Entity("Entity", payload_n, m_Scene);
-							payload_e.SetParent(entityID);
-						}
-						ImGui::EndDragDropTarget();
-					}
-					
-					for (auto i=0; i < m_Scene->Registry.size(); i++) {
-						auto entity = m_Scene->GetEntityByTag(tc.Tag);
-						entities.push_back(entity);
-					}
-
-					for (auto entity : entities) {
-						if (entity.GetParent() != entt::null) {
-							TagComponent& tc = m_Scene->Registry.get<TagComponent>(entity.GetParent());
-							auto entityname = std::string(tc.Tag.c_str()) + std::to_string((uint64_t)(uint32_t)entity.GetParent());
-							ImGuiTreeNodeFlags flags = ((m_SelectedEntity == entity.GetParent()) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
-							flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
-							bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity.GetParent(), flags, entityname.c_str());
-
-						}
-					}
-
-					ImGui::TreePop();
-				}
+				HierarchyComponent& hc = m_Scene->Registry.get<HierarchyComponent>(view[it.index()]);
+				if (hc.Parent == -1)
+					DisplayHierarchy(view[it.index()]);
 			}
-
 			ImGui::TreePop();
 		}
 
@@ -139,7 +131,7 @@ void EntityListPanel::Render()
 			center = ImGui::GetWindowViewport()->GetCenter();
 			ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
-			TagComponent &tc = m_Scene->Registry.get<TagComponent>(m_SelectedEntity);
+			TagComponent& tc = m_Scene->Registry.get<TagComponent>(m_SelectedEntity);
 			ImGui::Text((std::string("Are you sure you want to delete this entity? (") + tc.Tag + ")").c_str());
 
 			ImVec2 crAvail = ImGui::GetContentRegionAvail();
@@ -173,7 +165,7 @@ void EntityListPanel::Render()
 
 	// Adding Components window
 	{
-
+		
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10.0f, 10.0f));
 
@@ -182,27 +174,29 @@ void EntityListPanel::Render()
 		// Displaying the components
 		if (m_SelectedEntity != entt::null)
 		{
-			TagComponent &tc = m_Scene->Registry.get<TagComponent>(m_SelectedEntity);
+			TagComponent& tc = m_Scene->Registry.get<TagComponent>(m_SelectedEntity);
 
 			// Rename entity
-			char *input = (char *)tc.Tag.c_str();
-			
+			char* input = (char*)tc.Tag.c_str();
+
 
 			ImGui::SameLine();
 			ImGui::PushItemWidth(ImGui::GetWindowWidth());
+
 			if (ImGui::InputText("##input", input, 30))
 			{
 				tc.Tag = input;
 			}
+
 			ImGui::PopItemWidth();
 
 			if (m_Scene->Registry.try_get<TransformComponent>(m_SelectedEntity))
 			{
-				TransformComponent &tc = m_Scene->Registry.get<TransformComponent>(m_SelectedEntity);
+				TransformComponent& tc = m_Scene->Registry.get<TransformComponent>(m_SelectedEntity);
 				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 				if (ImGui::CollapsingHeader("Transform Component"))
 				{
-					ImGuiContext &g = *GImGui;
+					ImGuiContext& g = *GImGui;
 					ImGui::BeginColumns("##transform", 2, ImGuiColumnsFlags_NoResize || ImGuiColumnsFlags_NoBorder);
 					ImGui::SetColumnWidth(0, 70);
 
@@ -223,7 +217,7 @@ void EntityListPanel::Render()
 
 			if (m_Scene->Registry.try_get<QuadRendererComponent>(m_SelectedEntity))
 			{
-				QuadRendererComponent &qrc = m_Scene->Registry.get<QuadRendererComponent>(m_SelectedEntity);
+				QuadRendererComponent& qrc = m_Scene->Registry.get<QuadRendererComponent>(m_SelectedEntity);
 				ImGui::Checkbox("##visible", &qrc.enabled);
 				ImGui::SameLine();
 				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
@@ -240,6 +234,7 @@ void EntityListPanel::Render()
 					ImGui::ColorEdit4("##color", glm::value_ptr(qrc.Color));
 					ImGui::EndColumns();
 				}
+
 				if (ImGui::Button("Remove Component", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
 				{
 					m_Scene->Registry.remove<QuadRendererComponent>(m_SelectedEntity);
@@ -248,7 +243,7 @@ void EntityListPanel::Render()
 
 			if (m_Scene->Registry.try_get<PerspectiveCameraComponent>(m_SelectedEntity))
 			{
-				PerspectiveCameraComponent &pcc = m_Scene->Registry.get<PerspectiveCameraComponent>(m_SelectedEntity);
+				PerspectiveCameraComponent& pcc = m_Scene->Registry.get<PerspectiveCameraComponent>(m_SelectedEntity);
 				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 				if (ImGui::CollapsingHeader("Perspective Camera Component"))
 				{
@@ -299,6 +294,7 @@ void EntityListPanel::Render()
 					if (ImGui::DragFloat("Far clip", &pcc.FarClip))
 						pcc.Camera->SetFarClip(pcc.FarClip);
 				}
+
 				if (ImGui::Button("Remove Component", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
 				{
 					m_Scene->Registry.remove<PerspectiveCameraComponent>(m_SelectedEntity);
@@ -330,7 +326,7 @@ void EntityListPanel::Render()
 
 			if (m_Scene->Registry.try_get<StaticModelComponent>(m_SelectedEntity))
 			{
-				StaticModelComponent &smc = m_Scene->Registry.get<StaticModelComponent>(m_SelectedEntity);
+				StaticModelComponent& smc = m_Scene->Registry.get<StaticModelComponent>(m_SelectedEntity);
 				if (ImGui::CollapsingHeader("Static Mesh Component"))
 				{
 					/* Note (Szilard):

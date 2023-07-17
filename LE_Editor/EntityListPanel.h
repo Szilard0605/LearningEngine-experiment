@@ -12,6 +12,9 @@ public:
 
 	void Render();
 private:
+
+	void DisplayHierarchy(entt::entity entity);
+
 	Scene* m_Scene = nullptr;
 
 	bool m_DeleteEntity = false;

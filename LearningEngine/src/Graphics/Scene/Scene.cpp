@@ -18,13 +18,15 @@ Entity Scene::NewEntity(const std::string name)
 {
 	entt::entity entity = Registry.create();
 
+	HierarchyComponent hc;
+	Registry.emplace<HierarchyComponent>(entity, hc);
+
 	TransformComponent tc;
 	Registry.emplace<TransformComponent>(entity, tc);
 
 	TagComponent tagComponent;
 	tagComponent.Tag = name;
 	Registry.emplace<TagComponent>(entity, tagComponent);
-
 
 	return Entity(name, entity, this);
 }

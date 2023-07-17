@@ -1,13 +1,21 @@
 #pragma once
 
-#include "glm.hpp"
-
 #include "Graphics/Renderer/Model.h"
+
+#include "glm.hpp"
+#include <vector>
+
+
+
+struct HierarchyComponent
+{
+	int Parent = -1;
+	std::vector<int> Children;
+};
 
 struct BaseComponent
 {
 	bool enabled = true;
-
 };
 
 struct TagComponent : public BaseComponent
