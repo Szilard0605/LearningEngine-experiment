@@ -25,7 +25,7 @@ void EntityListPanel::DisplayHierarchy(entt::entity entity)
 	bool hasParent = hc.Parent != -1;
 
 	TagComponent& tc = m_Scene->Registry.get<TagComponent>(entity);
-	auto entityname = std::string(tc.Tag.c_str()) + std::to_string((uint64_t)(uint32_t)entity);
+	auto entityStr = tc.Tag.c_str();
 
 	ImGuiTreeNodeFlags flags = ((m_SelectedEntity == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
 	flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
@@ -34,7 +34,7 @@ void EntityListPanel::DisplayHierarchy(entt::entity entity)
 		flags |= ImGuiTreeNodeFlags_Leaf;
 
 
-	bool nodeOpen = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, entityname.c_str());
+	bool nodeOpen = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, entityStr);
 
 	if (ImGui::IsItemClicked())
 		m_SelectedEntity = entity;
@@ -42,7 +42,7 @@ void EntityListPanel::DisplayHierarchy(entt::entity entity)
 	if (ImGui::BeginDragDropSource())
 	{
 		ImGui::SetDragDropPayload("Entity", &entity, sizeof(int));
-		ImGui::Text(entityname.c_str());
+		ImGui::Text(entityStr);
 		ImGui::EndDragDropSource();
 	}
 
