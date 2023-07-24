@@ -12,6 +12,8 @@ public:
 	void Stop();
 	void Update(Timestep timeStep);
 
+	Scene* GetScene() { return m_Scene; }
+
 private:
 	Scene* m_Scene = nullptr;
 };

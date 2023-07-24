@@ -13,6 +13,8 @@
 #include "Core/Input.h"
 #include "Core/Timestep.h"
 
+#include "Log/Log.h"
+
 #include "Graphics/Renderer/API/API.h"
 
 #include "Graphics/Renderer/Renderer2D.h"

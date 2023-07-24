@@ -10,6 +10,11 @@ Scene::Scene(const std::string name)
 	
 }
 
+Scene::Scene(Scene& other)
+{
+
+}
+
 Scene::~Scene()
 {
 }
@@ -39,6 +44,50 @@ Entity& Scene::GetEntityByTag(std::string name)
 			return Entity (name, entity, this);
 	}
 }
+
+
+template<typename... Component>
+static void CopyComponent(entt::registry& dst, entt::registry& src, entt::entity srcEntity, entt::entity dstEntity)
+{
+	([&]()
+	{
+		if (src.try_get<Component>(srcEntity))
+		{
+			auto& srcComponent = src.get<Component>(srcEntity);
+			dst.emplace_or_replace<Component>(dstEntity, srcComponent);
+
+			if(dst.try_get<Component>(dstEntity))
+				printf("added component to entity: %d\n", dstEntity);
+
+		}
+	}(), ...);
+}
+
+
+template<typename... Component>
+static void CopyComponent(Components<Component...>, entt::registry& dst, entt::registry& src, entt::entity srcEntity, entt::entity dstEntity)
+{
+	CopyComponent<Component...>(dst, src, srcEntity, dstEntity);
+}
+
+Scene* Scene::Copy(Scene* scene)
+{
+	Scene* retScene = new Scene(scene->GetName());
+
+	auto& srcRegistry = scene->Registry;
+	auto& dstRegistry = retScene->Registry;
+
+	auto view = srcRegistry.view<TransformComponent>();
+	for (auto entity : view)
+	{
+		Entity newEntity = retScene->NewEntity(srcRegistry.get<TagComponent>(entity).Tag);
+
+		CopyComponent(EveryComponent{}, dstRegistry, srcRegistry, entity, newEntity.GetHandle());
+	}
+
+	return retScene;
+}
+
 
 void Scene::Render(PerspectiveCamera* camera)
 {
@@ -93,6 +142,21 @@ void Scene::Render(PerspectiveCamera* camera)
 		{
 			auto [tc, smc] = view.get<TransformComponent, StaticModelComponent>(entity);
 			smc.StaticModel->Render(*mainCamera, tc.Position, tc.Size, tc.Rotation);
+		}
+	}
+}
+
+void Scene::OnViewportResize(uint32_t width, uint32_t height)
+{
+	auto view = Registry.view<PerspectiveCameraComponent>();
+	for (auto entity : view)
+	{
+		auto camera = view.get<PerspectiveCameraComponent>(entity);
+
+		if (camera.FixedAspectRatio)
+		{
+			camera.AspectRatio = (float)width / (float)height;
+			camera.Camera->SetAspectRatio(camera.AspectRatio);
 		}
 	}
 }

@@ -12,7 +12,7 @@ EditorRuntime::~EditorRuntime()
 
 void EditorRuntime::Start(Scene* scene)
 {
-	m_Scene = scene;
+	m_Scene = Scene::Copy(scene);
 }
 
 void EditorRuntime::Stop()

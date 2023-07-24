@@ -1,6 +1,7 @@
 #pragma once
 
 #include "glm.hpp"
+#include <variant>
 
 #include "Graphics/Renderer/Model.h"
 
@@ -53,3 +54,11 @@ struct StaticModelComponent
 
 	Model* StaticModel = nullptr;
 };
+
+template <typename... Component>
+struct Components
+{
+
+};
+
+using EveryComponent = Components<TransformComponent, TagComponent, QuadRendererComponent, PerspectiveCameraComponent, StaticModelComponent>;

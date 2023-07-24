@@ -35,42 +35,41 @@ void OGLCubeMap::Unbind()
 
 static std::vector<unsigned char> LoadFaceFromPos(Image image, int x, int y, int w, int h, CubeMapLayout layout)
 {
-	if (layout == CubeMapLayout::HorizontalCross)
+
+	int cellSize = w;
+	int startPosX = x;
+	int startPosY = y;
+	int width = w;  // Width of the region
+	int height = h;  // Height of the region
+	int image_channels = 3;
+
+	std::vector<unsigned char> pixels((width * height) * image_channels);
+	pixels.resize((width * height) * image_channels);
+
+	unsigned char* image_data = image.GetRawData();
+	int image_width = image.GetProperties().Width;
+
+	for (int y = 0; y < height; y++)
 	{
-		int cellSize = w;
-		int startPosX = x;
-		int startPosY = y;
-		int width = w;  // Width of the region
-		int height = h;  // Height of the region
-		int image_channels = 3;
-
-		std::vector<unsigned char> pixels((width * height) * image_channels);
-		pixels.resize((width * height) * image_channels);
-
-		unsigned char* image_data = image.GetRawData();
-		int image_width = image.GetProperties().Width;
-
-		for (int y = 0; y < height; y++)
+		for (int x = 0; x < width; x++)
 		{
-			for (int x = 0; x < width; x++)
+			unsigned char* pixel = &image_data[((startPosY + y) * image_width + (startPosX + x)) * image_channels];
+
+
+			for (int ch = 0; ch < image_channels; ch++)
 			{
-				unsigned char* pixel = &image_data[((startPosY + y) * image_width + (startPosX + x)) * image_channels];
+				//pixels[((y * width + x) * image_channels) + ch] = pixel[ch];
 
-
-				for (int ch = 0; ch < image_channels; ch++)
-				{
-					//pixels[((y * width + x) * image_channels) + ch] = pixel[ch];
-
-					pixels[(y * width + x) * image_channels + ch] = pixel[ch];
-				}
-
+				pixels[(y * width + x) * image_channels + ch] = pixel[ch];
 			}
-		}
-		return pixels;
-	}
 
-	// placeholder code
-	return std::vector<unsigned char>();
+		}
+	}
+	
+	if (pixels.size())
+		return pixels;
+	else
+		return std::vector<unsigned char>();
 }
 
 static int CubeMapFaceToOGL(CubeMapFace face)

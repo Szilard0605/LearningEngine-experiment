@@ -14,6 +14,7 @@ class Scene
 {
 	public:
 		Scene() = default;
+		Scene(Scene& other);
 		Scene(const std::string name);
 		~Scene();
 
@@ -26,6 +27,10 @@ class Scene
 		
 		void SetMainCamera(PerspectiveCamera* camera) { m_MainCamera = camera; }
 		PerspectiveCamera* GetMainCamera() { return m_MainCamera; }
+
+		void OnViewportResize(uint32_t width, uint32_t height);
+
+		static Scene* Copy(Scene* scene);
 
 		entt::registry Registry;
 

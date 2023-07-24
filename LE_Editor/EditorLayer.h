@@ -28,6 +28,7 @@ public:
 	static glm::vec2 GetMainViewportSize() { return s_MainViewportSize; };
 
 private:
+
 	Scene* m_Scene;
 	Framebuffer* m_Framebuffer;
 	PerspectiveCamera* m_EditorCamera;

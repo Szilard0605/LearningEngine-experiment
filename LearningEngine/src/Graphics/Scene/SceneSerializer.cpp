@@ -9,6 +9,8 @@
 
 #include <fstream>
 
+#include <Log/Log.h>
+
 using json = nlohmann::json;
 static json s_JSON;
 
@@ -90,7 +92,9 @@ Scene* SceneSerializer::Load(const std::filesystem::path path)
     s_JSON = json::parse(SceneFile);
     SceneFile.close();
 
-    Scene* scene = new Scene(path.filename().string());
+    Scene* scene = new Scene(path.filename().replace_extension().string());
+
+    LE_CORE_INFO(std::string("Loading scene: ") + path.filename().replace_extension().string());
 
     // Iterate through the first-level keys
     for (json::iterator it = s_JSON.begin(); it != s_JSON.end(); ++it)

@@ -8,17 +8,26 @@
 
 // GLM
 #include "gtc/type_ptr.hpp"
+#include <src/Log/Log.h>
 
 EntityListPanel::EntityListPanel(Scene* scene)
 	: m_Scene(scene)
 {
 }
 
+void EntityListPanel::SetScene(Scene* scene)
+{
+	m_Scene = scene;
+	m_SelectedEntity = entt::null;
+}
+
 void EntityListPanel::Render()
 {
 	if (!m_Scene)
+	{
+		LE_CLIENT_ERROR("There is no scene!");
 		return;
-
+	}
 	//Entity window
 	{
 		ImGui::Begin("Entities");
@@ -35,6 +44,7 @@ void EntityListPanel::Render()
 
 		m_Scene->Registry.each([this](auto entityID)
 		{
+			
 			ImGuiTreeNodeFlags flags = ((m_SelectedEntity == entityID) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
 			flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
 

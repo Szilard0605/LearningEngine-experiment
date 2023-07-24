@@ -17,7 +17,7 @@ void EditorLayer::OnAttach()
 {
 	LE_CORE_INFO("Editor attached");
 
-	m_Scene = new Scene("OtherScene");
+	m_Scene = new Scene("Scene");
 
 	Framebuffer::FramebufferSpecifications specs;
 	specs.Attachments = { Framebuffer::FramebufferTextureFormat::RGBA8,Framebuffer::FramebufferTextureFormat::RED_INTEGER, Framebuffer::FramebufferTextureFormat::Depth };
@@ -120,7 +120,7 @@ void EditorLayer::OnImGuiRender()
 		{
 			m_Framebuffer->Resize(viewportWidth, viewportHeight);
 			m_EditorCamera->SetAspectRatio(viewportWidth / viewportHeight);
-
+			m_Scene->OnViewportResize(viewportWidth, viewportHeight);
 			s_MainViewportSize = {viewportWidth, viewportHeight};
 		}
 
@@ -139,10 +139,12 @@ void EditorLayer::OnImGuiRender()
 			if (m_PressedPlay)
 			{
 				m_Runtime.Start(m_Scene);
+				m_EntitiesPanel.SetScene(m_Runtime.GetScene());
 			}
 			else
 			{
 				m_Runtime.Stop();
+				m_EntitiesPanel.SetScene(m_Scene);
 			}
 		}
 		ImGui::PopStyleColor();

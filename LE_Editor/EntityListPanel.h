@@ -11,6 +11,7 @@ public:
 	EntityListPanel(Scene* scene);
 
 	void Render();
+	void SetScene(Scene* scene);
 private:
 	Scene* m_Scene = nullptr;
 
