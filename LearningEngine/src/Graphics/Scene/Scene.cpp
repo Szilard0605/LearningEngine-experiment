@@ -36,6 +36,33 @@ Entity Scene::NewEntity(const std::string name)
 	return Entity(name, entity, this);
 }
 
+void Scene::DestroyEntity(entt::entity entity)
+{
+	HierarchyComponent& hc = Registry.get<HierarchyComponent>(entity);
+
+	if (hc.Parent != -1)
+	{
+		HierarchyComponent& parentHC = Registry.get<HierarchyComponent>((entt::entity)hc.Parent);
+		for (auto it = parentHC.Children.begin(); it < parentHC.Children.end(); it++)
+		{
+			if (*it == (int)entity)
+			{
+				parentHC.Children.erase(it);
+			}
+		}
+	}
+
+	if (hc.Children.size())
+	{
+		for (auto it = hc.Children.begin(); it < hc.Children.end(); it++)
+		{
+			hc.Children.erase(it);
+		}
+	}
+
+	Registry.destroy(entity);
+}
+
 Entity& Scene::GetEntityByTag(std::string name)
 {
 	auto view = Registry.view<TagComponent>();
@@ -57,10 +84,6 @@ static void CopyComponent(entt::registry& dst, entt::registry& src, entt::entity
 		{
 			auto& srcComponent = src.get<Component>(srcEntity);
 			dst.emplace_or_replace<Component>(dstEntity, srcComponent);
-
-			if(dst.try_get<Component>(dstEntity))
-				printf("added component to entity: %d\n", dstEntity);
-
 		}
 	}(), ...);
 }
@@ -79,12 +102,14 @@ Scene* Scene::Copy(Scene* scene)
 	auto& srcRegistry = scene->Registry;
 	auto& dstRegistry = retScene->Registry;
 
-	auto view = srcRegistry.view<TransformComponent>();
-	for (auto entity : view)
-	{
-		Entity newEntity = retScene->NewEntity(srcRegistry.get<TagComponent>(entity).Tag);
+	// Render Entity hierarchy
+	auto view = scene->Registry.view<TransformComponent>();
 
-		CopyComponent(EveryComponent{}, dstRegistry, srcRegistry, entity, newEntity.GetHandle());
+	for (auto it = view.begin(); it < view.end(); it++)
+	{
+		Entity newEntity = retScene->NewEntity(srcRegistry.get<TagComponent>(view[it.index()]).Tag);
+
+		CopyComponent(EveryComponent{}, dstRegistry, srcRegistry, view[it.index()], newEntity.GetHandle());
 	}
 
 	return retScene;
@@ -149,7 +174,7 @@ void Scene::Render(PerspectiveCamera* camera)
 	}
 }
 
-void Scene::OnViewportResize(uint32_t width, uint32_t height)
+void Scene::OnViewportResize(float width, float height)
 {
 	auto view = Registry.view<PerspectiveCameraComponent>();
 	for (auto entity : view)
@@ -158,7 +183,7 @@ void Scene::OnViewportResize(uint32_t width, uint32_t height)
 
 		if (camera.FixedAspectRatio)
 		{
-			camera.AspectRatio = (float)width / (float)height;
+			camera.AspectRatio = width / height;
 			camera.Camera->SetAspectRatio(camera.AspectRatio);
 		}
 	}

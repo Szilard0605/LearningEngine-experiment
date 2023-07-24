@@ -29,6 +29,7 @@ void EditorLayer::OnAttach()
 
 	m_EditorCamera = new PerspectiveCamera(60.0f, 1280.f / 720.0f, 1.0f, 10000.0f);
 	m_Scene->SetMainCamera(m_EditorCamera);
+	m_Scene->OnViewportResize(s_MainViewportSize.x, s_MainViewportSize.y);
 
 	m_EntitiesPanel = EntityListPanel(m_Scene);
 	m_ContentBrowser = ContentBrowser(m_Scene);
@@ -151,7 +152,7 @@ void EditorLayer::OnImGuiRender()
 		{
 			m_Framebuffer->Resize(viewportWidth, viewportHeight);
 			m_EditorCamera->SetAspectRatio(viewportWidth / viewportHeight);
-
+			m_Scene->OnViewportResize(viewportWidth, viewportHeight);
 			s_MainViewportSize = {viewportWidth, viewportHeight};
 		}
 
@@ -182,6 +183,11 @@ void EditorLayer::OnImGuiRender()
 					m_Scene = SceneSerializer::Load(ScenePath);
 					m_EntitiesPanel = EntityListPanel(m_Scene);
 					m_ContentBrowser = ContentBrowser(m_Scene);
+					if (m_PressedPlay)
+					{
+						m_Runtime.Stop();
+						m_PressedPlay = false;
+					}
 				}
 			}
 			ImGui::EndMenu();

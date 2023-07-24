@@ -74,4 +74,4 @@ struct Components
 
 };
 
-using EveryComponent = Components<TransformComponent, TagComponent, QuadRendererComponent, PerspectiveCameraComponent, StaticModelComponent>;
+using EveryComponent = Components<TransformComponent, TagComponent, HierarchyComponent, QuadRendererComponent, PerspectiveCameraComponent, StaticModelComponent>;

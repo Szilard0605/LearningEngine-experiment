@@ -19,6 +19,7 @@ class Scene
 		~Scene();
 
 		Entity NewEntity(const std::string name);
+		void DestroyEntity(entt::entity entity);
 		Entity& GetEntityByTag(std::string name);
 		void Render(PerspectiveCamera* camera = nullptr);
 
@@ -28,7 +29,7 @@ class Scene
 		void SetMainCamera(PerspectiveCamera* camera) { m_MainCamera = camera; }
 		PerspectiveCamera* GetMainCamera() { return m_MainCamera; }
 
-		void OnViewportResize(uint32_t width, uint32_t height);
+		void OnViewportResize(float width, float height);
 
 		static Scene* Copy(Scene* scene);
 

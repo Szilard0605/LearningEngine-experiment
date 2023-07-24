@@ -48,30 +48,33 @@ void EntityListPanel::DisplayHierarchy(entt::entity entity)
 
 	if (ImGui::BeginDragDropTarget())
 	{
+
 		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Entity"))
-		{
+		{ 
 			entt::entity payload_n = *(const entt::entity*)payload->Data;
 
-			TagComponent& childTC = m_Scene->Registry.get<TagComponent>(payload_n);
-			Entity payload_e = Entity(childTC.Tag, payload_n, m_Scene);
+			HierarchyComponent& payloadHC = m_Scene->Registry.get<HierarchyComponent>(payload_n);
 
-			TagComponent& parentTC = m_Scene->Registry.get<TagComponent>(entity);
-			Entity parent_e = Entity(parentTC.Tag, entity, m_Scene);
+			if ((entt::entity)payloadHC.Parent != entity)
+			{
+				TagComponent& childTC = m_Scene->Registry.get<TagComponent>(payload_n);
+				Entity payload_e = Entity(childTC.Tag, payload_n, m_Scene);
 
-			payload_e.SetParent(entity);
+				TagComponent& parentTC = m_Scene->Registry.get<TagComponent>(entity);
+				Entity parent_e = Entity(parentTC.Tag, entity, m_Scene);
+
+				payload_e.SetParent(entity);
+			}
 		}
 		ImGui::EndDragDropTarget();
 	}
 
-	if (hasChild)
+	if (hasChild && nodeOpen)
 	{
-		if (nodeOpen)
+		for (int i = 0; i < hc.Children.size(); i++)
 		{
-			for (int i = 0; i < hc.Children.size(); i++)
-			{
+			if((entt::entity)i != entt::null)
 				DisplayHierarchy((entt::entity)hc.Children[i]);
-			}
-
 		}
 	}
 
@@ -94,7 +97,7 @@ void EntityListPanel::Render()
 	{
 		LE_CLIENT_ERROR("There is no scene!");
 		return;
-
+	}
 	// Entity window
 	{
 		ImGui::Begin("Entities", nullptr, ImGuiWindowFlags_NoCollapse);
@@ -148,7 +151,7 @@ void EntityListPanel::Render()
 			{
 				if (m_SelectedEntity != entt::null)
 				{
-					m_Scene->Registry.destroy(m_SelectedEntity);
+					m_Scene->DestroyEntity(m_SelectedEntity);
 					m_SelectedEntity = entt::null;
 					ImGui::CloseCurrentPopup();
 				}

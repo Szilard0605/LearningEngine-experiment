@@ -24,7 +24,6 @@ public:
 	bool OnMouseScrolled(MouseScrolledEvent& event);
 
 	void OnUpdate(Timestep timestep) override;
-
 	static glm::vec2 GetMainViewportSize() { return s_MainViewportSize; };
 
 private:
