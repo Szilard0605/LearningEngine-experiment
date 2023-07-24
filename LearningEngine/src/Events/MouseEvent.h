@@ -32,8 +32,8 @@ class MouseMoveEvent : public Event
 			
 		}
 
-		EventType GetType() const override { return EventType::MOUSE_MOVED; }
-		static EventType GetStaticType() { return EventType::MOUSE_MOVED; }
+		EventType GetType() const override { return EventType::MOUSE_IS_MOVED; }
+		static EventType GetStaticType() { return EventType::MOUSE_IS_MOVED; }
 		glm::vec2 GetPosition() { return m_Position; }
 };
 

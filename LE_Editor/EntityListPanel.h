@@ -13,9 +13,13 @@ public:
 	void Render();
 	void SetScene(Scene* scene);
 private:
+
+	void DisplayHierarchy(entt::entity entity);
+
 	Scene* m_Scene = nullptr;
 
 	bool m_DeleteEntity = false;
+	bool m_Enable = true;
 
 	entt::entity m_SelectedEntity = entt::null;
 };

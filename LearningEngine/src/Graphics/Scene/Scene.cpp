@@ -23,13 +23,15 @@ Entity Scene::NewEntity(const std::string name)
 {
 	entt::entity entity = Registry.create();
 
+	HierarchyComponent hc;
+	Registry.emplace<HierarchyComponent>(entity, hc);
+
 	TransformComponent tc;
 	Registry.emplace<TransformComponent>(entity, tc);
 
 	TagComponent tagComponent;
 	tagComponent.Tag = name;
 	Registry.emplace<TagComponent>(entity, tagComponent);
-
 
 	return Entity(name, entity, this);
 }
@@ -128,7 +130,8 @@ void Scene::Render(PerspectiveCamera* camera)
 		for (auto entity : view)
 		{
 			auto [tc, qrc] = view.get<TransformComponent, QuadRendererComponent>(entity);
-			Renderer2D::DrawQuad(tc.Position, tc.Size + qrc.Scale, tc.Rotation, qrc.Color);
+			if (qrc.enabled)
+				Renderer2D::DrawQuad(tc.Position, tc.Size + qrc.Scale, tc.Rotation, qrc.Color);
 		}
 
 		Renderer2D::End();
