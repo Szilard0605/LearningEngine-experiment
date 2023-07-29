@@ -21,6 +21,7 @@ struct QuadVertex
 	glm::vec4 Color;
 	glm::vec2 TexCoord;
 	float TexIndex;
+	int Entity;
 };
 
 struct s_QuadRenderData
@@ -87,7 +88,8 @@ void Renderer2D::Init()
 		{ ShaderDataType::Float3, "a_position" },
 		{ ShaderDataType::Float4, "a_color" },
 		{ ShaderDataType::Float2, "a_texcoord" },
-		{ ShaderDataType::Float, "a_texindex" }
+		{ ShaderDataType::Float, "a_texindex" },
+		{ ShaderDataType::Int,  "a_entity"	},
 	});
 
 	g_RenderData.vertexarray = VertexArray::Create();
@@ -174,6 +176,7 @@ void Renderer2D::StartBatch()
 	g_RenderData.QuadIndexCount = 0;
 	g_RenderData.QuadCount = 0;
 	g_RenderData.QuadVertexBufferPtr = g_RenderData.QuadVertexBufferBase;
+	g_RenderData.QuadVertexBufferPtr->Entity = -1;
 	g_RenderData.TextureSlotIndex = 1;
 
 	s_RenderStats.DrawCalls++;
@@ -201,7 +204,7 @@ void Renderer2D::Flush()
 
 
 
-void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec3& scale, const float rotation, const glm::vec4& color)
+void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec3& scale, const float rotation, const glm::vec4& color, int entity)
 {
 	constexpr size_t quadVertexCount = 4;
 	const float textureIndex = 0.0f; // White Texture
@@ -218,6 +221,7 @@ void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec3& scale, con
 		g_RenderData.QuadVertexBufferPtr->Color = color;
 		g_RenderData.QuadVertexBufferPtr->TexCoord = textureCoords[i];
 		g_RenderData.QuadVertexBufferPtr->TexIndex = textureIndex;
+		g_RenderData.QuadVertexBufferPtr->Entity = entity;
 
 		g_RenderData.QuadVertexBufferPtr++;
 	}
@@ -277,7 +281,7 @@ void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec3& scale, con
 	//g_RenderData.Textures[g_RenderData.QuadCount] = &texture;
 }
 
-void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec3& scale, const glm::vec3& rotation, const glm::vec4& color)
+void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec3& scale, const glm::vec3& rotation, const glm::vec4& color, int entity)
 {
 	constexpr size_t quadVertexCount = 4;
 	const float textureIndex = 0.0f; // White Texture
@@ -296,6 +300,7 @@ void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec3& scale, con
 		g_RenderData.QuadVertexBufferPtr->Color = color;
 		g_RenderData.QuadVertexBufferPtr->TexCoord = textureCoords[i];
 		g_RenderData.QuadVertexBufferPtr->TexIndex = textureIndex;
+		g_RenderData.QuadVertexBufferPtr->Entity = entity;
 
 		g_RenderData.QuadVertexBufferPtr++;
 	}

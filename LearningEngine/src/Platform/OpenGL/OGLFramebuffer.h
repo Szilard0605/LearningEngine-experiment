@@ -17,12 +17,14 @@ public:
 	virtual void Resize(uint32_t width, uint32_t height) override;
 	virtual FramebufferSpecifications GetSpecification() override { return m_Specification; };
 	virtual uint32_t GetColorAttachmentID(uint32_t slot) override;
+	virtual int ReadPixel(uint32_t attachment, int x, int y) override;
+
 private:
 	uint32_t m_Framebuffer = 0;
 	FramebufferSpecifications m_Specification;
 	std::vector<uint32_t> m_ColorAttachments;
 	uint32_t m_DepthAttachment;
-
+	uint32_t m_RedIntegerAttachment;
 	uint32_t m_TestColorAttachment;
 };
 

@@ -24,6 +24,9 @@ project "LearningEngine"
 		"src/utils/stb_image/**.cpp",
 		"./Dependencies/glm/include/**.hpp",
 		"./Dependencies/glm/include/**.inl",
+
+		"../Dependencies/ImGuizmo/ImGuizmo.h",
+		"../Dependencies/ImGuizmo/ImGuizmo.cpp"
 	}
 
 	defines
@@ -44,7 +47,8 @@ project "LearningEngine"
 		"%{IncludeDir.Box2D}",
 		"%{IncludeDir.ASSIMP}",
 		"%{IncludeDir.ENTT}",
-		"%{IncludeDir.JSON}"		
+		"%{IncludeDir.JSON}",
+		"%{IncludeDir.ImGuizmo}"
 	}
 	
 	libdirs

@@ -66,25 +66,51 @@ void OGLFramebuffer::Invalidate()
 	if (m_Framebuffer)
 	{
 		glDeleteFramebuffers(1, &m_Framebuffer);
+		glDeleteTextures(1, &m_TestColorAttachment);
+		glDeleteTextures(1, &m_RedIntegerAttachment);
+		glDeleteTextures(1, &m_DepthAttachment);
 	}
 
 	glCreateFramebuffers(1, &m_Framebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer);
 
+
+	// Color
 	glCreateTextures(GL_TEXTURE_2D, 1, &m_TestColorAttachment);
 	glBindTexture(GL_TEXTURE_2D, m_TestColorAttachment);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Specification.Width, m_Specification.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_TestColorAttachment, 0);
 
+	// Red integer 
+	glCreateTextures(GL_TEXTURE_2D, 1, &m_RedIntegerAttachment);
+	glBindTexture(GL_TEXTURE_2D, m_RedIntegerAttachment);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32I, m_Specification.Width, m_Specification.Height, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, nullptr);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + 1, GL_TEXTURE_2D, m_RedIntegerAttachment, 0);
+
+
+	//Depth
 	glCreateTextures(GL_TEXTURE_2D, 1, &m_DepthAttachment);
 	glBindTexture(GL_TEXTURE_2D, m_DepthAttachment);
-	//glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, m_Specification.Width, m_Specification.Height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
 	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH24_STENCIL8, m_Specification.Width, m_Specification.Height);
 
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthAttachment, 0);
+
+	GLenum buffers[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
+	glDrawBuffers(2, buffers);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
@@ -92,6 +118,7 @@ void OGLFramebuffer::Invalidate()
 	}
 
 	Unbind();
+
 }
 
 OGLFramebuffer::OGLFramebuffer(FramebufferSpecifications& specs)
@@ -145,4 +172,13 @@ uint32_t OGLFramebuffer::GetColorAttachmentID(uint32_t slot)
 	}*/
 
 	return m_TestColorAttachment;
+}
+
+int OGLFramebuffer::ReadPixel(uint32_t attachment, int x, int y)
+{
+	int pixelData = 0;
+	glReadBuffer(GL_COLOR_ATTACHMENT0 + attachment);
+	uint32_t error = glGetError();
+	glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_INT, &pixelData);
+	return pixelData;
 }

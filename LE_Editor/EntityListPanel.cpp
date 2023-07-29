@@ -207,7 +207,6 @@ void EntityListPanel::Render()
 				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 				if (ImGui::CollapsingHeader("Transform Component"))
 				{
-					ImGuiContext& g = *GImGui;
 					ImGui::BeginColumns("##transform", 2, ImGuiColumnsFlags_NoResize || ImGuiColumnsFlags_NoBorder);
 					ImGui::SetColumnWidth(0, 70);
 
@@ -220,8 +219,15 @@ void EntityListPanel::Render()
 
 					ImGui::NextColumn();
 					ImGui::DragFloat3("##position", glm::value_ptr(tc.Position), 0.1f, -1000, 1000, "%.2f");
-					ImGui::DragFloat3("##rotation", glm::value_ptr(tc.Rotation), 0.1f, -1000, 1000, "%.2f");
+
+					glm::vec3& degRot = glm::degrees(tc.Rotation);
+					ImGui::DragFloat3("##rotation", glm::value_ptr(degRot), 0.1f, -1000, 1000, "%.2f");
+					tc.Rotation = glm::radians(degRot);
+					
 					ImGui::DragFloat3("##scale", glm::value_ptr(tc.Size), 0.1f, -1000, 1000, "%.2f");
+
+					
+
 					ImGui::EndColumns();
 				}
 			}
