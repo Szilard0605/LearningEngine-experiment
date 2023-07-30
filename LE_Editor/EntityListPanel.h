@@ -12,6 +12,9 @@ public:
 
 	void Render();
 	void SetScene(Scene* scene);
+
+	entt::entity GetSelectedEntity() { return m_SelectedEntity; }
+	void SetSelectedEntity(entt::entity entity) { m_SelectedEntity = entity; }
 private:
 
 	void DisplayHierarchy(entt::entity entity);

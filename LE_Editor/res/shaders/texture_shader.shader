@@ -5,10 +5,9 @@ layout(location = 0) in vec3 a_position;
 layout(location = 1) in vec4 a_color;
 layout(location = 2) in vec2 a_texcoord;
 layout(location = 3) in float a_texindex;
+layout(location = 4) in int a_entity;
 
 uniform mat4 u_ViewProjection;
-
-
 
 struct VertexOutput
 {
@@ -17,15 +16,16 @@ struct VertexOutput
 };
 
 layout(location = 0) out VertexOutput Output;
-layout(location = 3) out flat float v_TexIndex;
+layout(location = 2) out flat float v_TexIndex;
+layout(location = 3) out flat int v_Entity;
 
-
+ 
 void main()
 {
 	Output.Color = a_color;
 	Output.TexCoord = a_texcoord;
 	v_TexIndex = a_texindex;
-
+	v_Entity = a_entity;
 	
 	
 	gl_Position = u_ViewProjection * vec4(a_position, 1.0);
@@ -36,6 +36,7 @@ void main()
 
 
 layout(location = 0) out vec4 o_color;
+layout(location = 1) out int o_entity;
 
 struct VertexOutput
 {
@@ -45,14 +46,15 @@ struct VertexOutput
 
 
 layout(location = 0) in VertexOutput Input;
-layout(location = 3) in flat float v_TexIndex;
-
+layout(location = 2) in flat float v_TexIndex;
+layout(location = 3) in flat int v_Entity;
 
 layout(binding = 0) uniform sampler2D u_Textures[32];
 
 
 void main()
 {
+
 	vec4 texColor = Input.Color;
 
 	switch (int(v_TexIndex))
@@ -95,4 +97,6 @@ void main()
 		discard;
 	
 	o_color = texColor;
+	o_entity = v_Entity;
+
 }

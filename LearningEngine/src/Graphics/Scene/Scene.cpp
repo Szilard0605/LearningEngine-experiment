@@ -156,7 +156,7 @@ void Scene::Render(PerspectiveCamera* camera)
 		{
 			auto [tc, qrc] = view.get<TransformComponent, QuadRendererComponent>(entity);
 			if (qrc.enabled)
-				Renderer2D::DrawQuad(tc.Position, tc.Size + qrc.Scale, tc.Rotation, qrc.Color);
+				Renderer2D::DrawQuad(tc.Position, tc.Size + qrc.Scale, glm::degrees(tc.Rotation), qrc.Color, (int)entity);
 		}
 
 		Renderer2D::End();
