@@ -5,6 +5,13 @@
 
 // GLM
 #include "gtc/type_ptr.hpp"
+#include <imgui_internal.h>
+
+#include "gtx/matrix_decompose.hpp"
+
+#include "ImGuizmo.h"
+
+#include "ImGuizmo.h"
 
 glm::vec2 EditorLayer::s_MainViewportSize;
 
@@ -27,7 +34,7 @@ void EditorLayer::OnAttach()
 
 	s_MainViewportSize = { specs.Width, specs.Height };
 
-	m_EditorCamera = new PerspectiveCamera(60.0f, 1280.f / 720.0f, 1.0f, 10000.0f);
+	m_EditorCamera = new PerspectiveCamera(60.0f, specs.Width / specs.Height, 1.0f, 10000.0f);
 	m_Scene->SetMainCamera(m_EditorCamera);
 	m_Scene->OnViewportResize(s_MainViewportSize.x, s_MainViewportSize.y);
 
@@ -39,8 +46,13 @@ void EditorLayer::OnAttach()
 	 directory when projects are implemented */
 	AssetManager::LoadAssetsFromRegistry("res/AssetRegistry.lereg");
 
+	m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
+
 	//---------------------------
 	m_TexPlayButton = Texture2D::Create("res/textures/Editor/play_button.png");
+	m_TranslateIcon = Texture2D::Create("res/textures/Editor/icon_translate.png");
+	m_RotateIcon = Texture2D::Create("res/textures/Editor/icon_rotate.png");
+	m_ScaleIcon = Texture2D::Create("res/textures/Editor/icon_scale.png");
 
 	// Setting the default shader of the project
 	ShaderLibrary::Add(Shader::Create("res/shaders/default_shader.shader"), "DefaultShader");
@@ -56,6 +68,7 @@ void EditorLayer::OnDetach()
 
 void EditorLayer::OnEvent(Event& event)
 {
+	event.Dispatch<KeyEvent>(BIND_EVENT_FN(EditorLayer::OnKeyChange));
 	event.Dispatch<MouseMoveEvent>(BIND_EVENT_FN(EditorLayer::OnMouseMove));
 	event.Dispatch<MouseButtonEvent>(BIND_EVENT_FN(EditorLayer::OnMouseButtonChange));
 }
@@ -114,10 +127,111 @@ void EditorLayer::OnImGuiRender()
 
 	//Viewport window
 	{
-		ImGui::Begin("Viewport");
 
-		ImGui::BeginGroup();
 		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
+
+		ImGuiWindowClass window_class;
+		window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoTabBar;
+		ImGui::SetNextWindowClass(&window_class);
+
+		ImGui::Begin("##Viewport", nullptr, ImGuiWindowFlags_NoTitleBar);
+
+		float viewportWidth = ImGui::GetContentRegionAvail().x;
+		float viewportHeight = ImGui::GetContentRegionAvail().y;
+
+		auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
+		auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
+		auto viewportOffset = ImGui::GetWindowPos();
+
+		m_ViewportBounds[0] = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y };
+		m_ViewportBounds[1] = { viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
+
+
+		uint32_t texid = m_Framebuffer->GetColorAttachmentID(0);
+
+		Framebuffer::FramebufferSpecifications fbSpecs = m_Framebuffer->GetSpecification();
+		if (fbSpecs.Width != viewportWidth || fbSpecs.Height != viewportHeight)
+		{
+			m_Framebuffer->Resize((uint32_t)viewportWidth, (uint32_t)viewportHeight);
+			m_EditorCamera->SetAspectRatio(viewportWidth / viewportHeight);
+			m_Scene->OnViewportResize(viewportWidth, viewportHeight);
+			s_MainViewportSize = { viewportWidth, viewportHeight };
+		}
+
+		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+		//vpSize = { viewportPanelSize.x, viewportPanelSize.y };
+
+		ImGui::Image(reinterpret_cast<void*>(texid), viewportPanelSize, { 0, 1 }, {1, 0});
+
+		ImGui::SameLine();
+
+		// Rendering the gizmo type selector
+		ImGui::SetCursorPos({0, 0});
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, {0, 0, 0, 0});
+		ImGui::PushStyleColor(ImGuiCol_Button, {0, 0, 0, 0});
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, { 0.0f, 0.0f, 0.0f, 0.0f });
+
+		float opButtonSize = 30;
+		float opPadding = 2.0f;
+
+		bool translateHovered = false;
+		bool rotateHovered = false;
+		bool scaleHovered = false;
+
+		ImVec4 tintColor = m_GizmoType == ImGuizmo::OPERATION::TRANSLATE ? ImVec4(1, 1, 1, 1) : ImVec4(1, 1, 1, 0.5f);
+
+		if (ImGui::ImageButton(reinterpret_cast<void*>(m_TranslateIcon->GetTextureID()), { opButtonSize, opButtonSize }, { 0, 0 }, { 1, 1 }, -1, { 0, 0, 0, 0 }, tintColor))
+			m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
+
+		translateHovered = ImGui::IsItemHovered();
+		
+		tintColor = m_GizmoType == ImGuizmo::OPERATION::ROTATE ? ImVec4(1, 1, 1, 1) : ImVec4(1, 1, 1, 0.5f);
+		
+		ImGui::SetCursorPos({ opButtonSize + opPadding, 0 });
+		if (ImGui::ImageButton(reinterpret_cast<void*>(m_RotateIcon->GetTextureID()), { opButtonSize, opButtonSize }, { 0, 0 }, { 1, 1 }, -1, { 0, 0, 0, 0 }, tintColor))
+			m_GizmoType = ImGuizmo::OPERATION::ROTATE;
+
+		rotateHovered = ImGui::IsItemHovered();
+
+		tintColor = m_GizmoType == ImGuizmo::OPERATION::SCALE ? ImVec4(1, 1, 1, 1) : ImVec4(1, 1, 1, 0.5f);
+
+		ImGui::SetCursorPos({ opButtonSize * 2 + opPadding, 0 });
+		if (ImGui::ImageButton(reinterpret_cast<void*>(m_ScaleIcon->GetTextureID()), { opButtonSize, opButtonSize }, { 0, 1 }, { 1, 0 }, -1, { 0, 0, 0, 0 }, tintColor))
+			m_GizmoType = ImGuizmo::OPERATION::SCALE;
+
+		scaleHovered = ImGui::IsItemHovered();
+
+		m_OperationIconHovered = translateHovered || rotateHovered || scaleHovered;
+
+		ImGui::PopStyleColor(3);
+		//-----------------------------------------
+
+		m_ViewportActive = ImGui::IsWindowFocused();
+		m_ViewportHovered = ImGui::IsWindowHovered();
+
+		
+
+	
+		UpdateGizmos();
+
+		ImGui::End();
+		ImGui::PopStyleVar();
+
+		//ImGui::PopItemWidth();
+	}
+	
+	// Tool bar
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
+
+		ImGuiWindowClass window_class;
+		window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoTabBar;
+		ImGui::SetNextWindowClass(&window_class);
+
+		ImGui::SetNextWindowClass(&window_class);
+		ImGui::Begin("##toolbar", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 		ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x / 2.0f);
 		ImVec4 playbtn_col = m_PressedPlay ? ImVec4(0.0f, 0.0f, 1.0f, 0.3f) : ImVec4(1.0f, 1.0f, 1.0f, 0.3f);
 
@@ -138,30 +252,9 @@ void EditorLayer::OnImGuiRender()
 			}
 		}
 		ImGui::PopStyleColor();
-
-		ImGui::PopItemWidth();
-		ImGui::EndGroup();
-
-		float viewportWidth = ImGui::GetContentRegionAvail().x;
-		float viewportHeight = ImGui::GetContentRegionAvail().y;
-
-		uint32_t texid = m_Framebuffer->GetColorAttachmentID(0);
-
-		Framebuffer::FramebufferSpecifications fbSpecs = m_Framebuffer->GetSpecification();
-		if (fbSpecs.Width != viewportWidth || fbSpecs.Height != viewportHeight)
-		{
-			m_Framebuffer->Resize(viewportWidth, viewportHeight);
-			m_EditorCamera->SetAspectRatio(viewportWidth / viewportHeight);
-			m_Scene->OnViewportResize(viewportWidth, viewportHeight);
-			s_MainViewportSize = {viewportWidth, viewportHeight};
-		}
-
-		ImGui::Image((void*)texid, ImVec2(viewportWidth, viewportHeight));
-
-		m_ViewportActive = ImGui::IsWindowFocused();
-		m_ViewportHovered = ImGui::IsWindowHovered();
-
+		ImGui::PopStyleVar(2);
 		ImGui::End();
+
 	}
 
 	if (ImGui::BeginMainMenuBar())
@@ -195,14 +288,68 @@ void EditorLayer::OnImGuiRender()
 		ImGui::EndMainMenuBar();
 	}
 	
-
-
 	ImGui::End();
 
 }
 
-bool EditorLayer::OnKeyChange(KeyEvent& keyevent)
+void EditorLayer::UpdateGizmos()
 {
+	entt::entity selectedEntity = m_EntitiesPanel.GetSelectedEntity();
+
+	if (m_Scene->Registry.valid(selectedEntity))
+	{
+
+		ImGuizmo::SetOrthographic(false);
+		ImGuizmo::SetDrawlist();
+
+		ImGuizmo::SetRect(m_ViewportBounds[0].x, m_ViewportBounds[0].y, m_ViewportBounds[1].x - m_ViewportBounds[0].x, m_ViewportBounds[1].y - m_ViewportBounds[0].y);
+
+		// Editor camera
+		const glm::mat4& cameraProjection = m_EditorCamera->GetProjectionMatrix();
+		glm::mat4 cameraView = m_EditorCamera->GetViewMatrix();
+
+		// Entity transform
+		//auto& tc = selectedEntity.GetComponent<TransformComponent>();
+		auto& tc = m_Scene->Registry.get<TransformComponent>(selectedEntity);
+		glm::mat4 transform = tc.GetTransform();
+
+		// Snapping
+		bool snap = Input::IsKeyPressed(Key::LeftControl);
+		float snapValue = 0.5f; // Snap to 0.5m for translation/scale
+		// Snap to 45 degrees for rotation
+		if (m_GizmoType == ImGuizmo::OPERATION::ROTATE)
+			snapValue = 45.0f;
+
+		float snapValues[3] = { snapValue, snapValue, snapValue };
+
+		ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
+			(ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transform),
+			nullptr, snap ? snapValues : nullptr);
+
+		if (ImGuizmo::IsUsing())
+		{
+			glm::vec3 translation, scale;
+			glm::quat orientation;
+			glm::vec3 skew;
+			glm::vec4 perspective;
+
+			glm::decompose(transform, scale, orientation, translation, skew, perspective);
+			// Convert the quaternion to vec3 (Euler angles)
+			glm::vec3 rotation = glm::eulerAngles(orientation);
+
+			//printf("eulerAngle: {%f, %f, %f}\n", eulerRotation.x, eulerRotation.y, eulerRotation.z);
+
+			glm::vec3 deltaRotation = rotation - tc.Rotation;
+			tc.Position = translation;
+			tc.Rotation += deltaRotation;
+			tc.Size = scale;
+		}
+	}
+}
+
+bool EditorLayer::OnKeyChange(KeyEvent& keyevent)
+{ 
+
 	return false;
 }
 
@@ -212,6 +359,20 @@ bool EditorLayer::OnMouseButtonChange(MouseButtonEvent& event)
 	{
 		LastMousePos = { -1, -1 };
 	}
+		
+	if (event.GetButton() == MouseButton::LEFT_CLICK && event.GetAction() == KeyAction::PRESSED &&
+		m_ViewportHovered && !ImGuizmo::IsOver() && !m_OperationIconHovered)
+	{
+		if (m_Scene->Registry.valid(m_HoveredEntity))
+		{
+			m_EntitiesPanel.SetSelectedEntity(m_HoveredEntity);
+		}
+		else
+		{
+			m_EntitiesPanel.SetSelectedEntity(entt::null);
+		}
+	}
+
 	return true;
 }
 
@@ -242,6 +403,8 @@ void EditorLayer::OnUpdate(Timestep timestep)
 	Renderer2D::ClearColor(glm::vec4(0.5, 0.5, 0.5, 1));
 
 
+
+
 	if (m_PressedPlay)
 	{
 		m_Runtime.Update(timestep);
@@ -250,7 +413,7 @@ void EditorLayer::OnUpdate(Timestep timestep)
 	{
 		m_Scene->Render(m_EditorCamera);
 
-		PerspectiveCamera* mainCamera = nullptr;
+		/*PerspectiveCamera* mainCamera = nullptr;
 		glm::mat4 cameraTransform;
 		{
 			auto view = m_Scene->Registry.view<TransformComponent, PerspectiveCameraComponent>();
@@ -261,15 +424,35 @@ void EditorLayer::OnUpdate(Timestep timestep)
 
 				Renderer2D::Begin(*m_EditorCamera);
 
-				Renderer2D::DrawQuad(transform.Position, { 5, 5, 5}, { 0, 0, 0 }, {0, 0, 1, 1});
+				Renderer2D::DrawQuad(transform.Position, { 5, 5, 5}, { 0, 0, 0 }, {0, 0, 1, 1}, entity);
 
 				Renderer2D::End();
 			}
-		}
+		}*/
 
 
 		if (m_ViewportActive)
 		{
+
+			auto [mx, my] = ImGui::GetMousePos();
+			mx -= m_ViewportBounds[0].x;
+			my -= m_ViewportBounds[0].y;
+			glm::vec2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0];
+			my = viewportSize.y - my;
+			int mouseX = (int)mx;
+			int mouseY = (int)my;
+
+			if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
+			{
+				int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
+				m_HoveredEntity = pixelData == -1 ? entt::null : (entt::entity)pixelData;
+
+				if (m_Scene->Registry.valid(m_HoveredEntity))
+				{
+					TagComponent& tc = m_Scene->Registry.get<TagComponent>(m_HoveredEntity);
+				}
+			}
+
 			float speed = 0.1f;
 
 			if (Input::IsKeyPressed(Key::LeftShift))
@@ -296,6 +479,8 @@ void EditorLayer::OnUpdate(Timestep timestep)
 		}
 	}
 
+
+	//printf("Hovered entity: %d\n", (int)m_HoveredEntity);
 
 	m_Framebuffer->Unbind();
 }

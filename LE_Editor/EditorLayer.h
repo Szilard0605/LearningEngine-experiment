@@ -24,6 +24,9 @@ public:
 	bool OnMouseScrolled(MouseScrolledEvent& event);
 
 	void OnUpdate(Timestep timestep) override;
+
+	void UpdateGizmos();
+
 	static glm::vec2 GetMainViewportSize() { return s_MainViewportSize; };
 
 private:
@@ -35,8 +38,13 @@ private:
 	bool m_ViewportHovered = false;
 
 	static glm::vec2 s_MainViewportSize;
+	glm::vec2 m_ViewportBounds[2];
 
 	glm::vec2 LastMousePos = {-1, -1};
+
+	entt::entity m_HoveredEntity;
+
+	int m_GizmoType = -1;
 
 	// Panels
 	EntityListPanel m_EntitiesPanel;
@@ -44,6 +52,12 @@ private:
 
 	Texture2D* m_TexPlayButton;
 	bool m_PressedPlay = false;
+
+	Texture2D* m_TranslateIcon;
+	Texture2D* m_RotateIcon;
+	Texture2D* m_ScaleIcon;
+	bool m_OperationIconHovered = false;
+
 
 	EditorRuntime m_Runtime;
 };

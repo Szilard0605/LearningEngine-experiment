@@ -20,10 +20,10 @@ public:
 	static void ClearColor(const glm::vec4& color);
 
 
-	static void DrawQuad(const glm::vec3& position, const glm::vec3& scale, const float rotation, const glm::vec4& color);
+	static void DrawQuad(const glm::vec3& position, const glm::vec3& scale, const float rotation, const glm::vec4& color, int entity = -1);
 	static void DrawQuad(const glm::vec3& position, const glm::vec3& scale, const float rotation, const glm::vec4& color, Texture2D* texture);
 									   						  	  
-	static void DrawQuad(const glm::vec3& position, const glm::vec3& scale, const glm::vec3& rotation, const glm::vec4& color);
+	static void DrawQuad(const glm::vec3& position, const glm::vec3& scale, const glm::vec3& rotation, const glm::vec4& color, int entity = -1);
 	static void DrawQuad(const glm::vec3& position, const glm::vec3& scale, const glm::vec3& rotation, const glm::vec4& color, Texture2D* texture);
 									   						  	  
 	//static void DrawQuad(const glm::vec3& position, const glm::vec3& scale, const glm::vec3& rotation, const glm::vec4& color, GLSubTexture2D& texture);
