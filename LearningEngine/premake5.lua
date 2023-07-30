@@ -25,8 +25,11 @@ project "LearningEngine"
 		"./Dependencies/glm/include/**.hpp",
 		"./Dependencies/glm/include/**.inl",
 
-		"../Dependencies/ImGuizmo/ImGuizmo.h",
-		"../Dependencies/ImGuizmo/ImGuizmo.cpp"
+		"./Dependencies/ImGuizmo/**.h",
+		"./Dependencies/ImGuizmo/**.cpp",
+		
+		"./Dependencies/tinyxml2/**.h",
+		"./Dependencies/tinyxml2/**.cpp"
 	}
 
 	defines
@@ -48,7 +51,8 @@ project "LearningEngine"
 		"%{IncludeDir.ASSIMP}",
 		"%{IncludeDir.ENTT}",
 		"%{IncludeDir.JSON}",
-		"%{IncludeDir.ImGuizmo}"
+		"%{IncludeDir.ImGuizmo}",
+		"%{IncludeDir.TinyXML}"
 	}
 	
 	libdirs
