@@ -1,5 +1,10 @@
 #include "EditorLayer.h"
 
+// might need to change this
+#include "ImGuizmo.cpp"
+#include "ImGuizmo.h"
+
+
 #include "imgui.h"
 #include "Log/Log.h"
 
@@ -9,9 +14,6 @@
 
 #include "gtx/matrix_decompose.hpp"
 
-#include "ImGuizmo.h"
-
-#include "ImGuizmo.h"
 
 glm::vec2 EditorLayer::s_MainViewportSize;
 

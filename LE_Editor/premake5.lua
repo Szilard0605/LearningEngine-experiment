@@ -17,6 +17,7 @@ project "LE_Editor"
 	{
 		"**.h",
 		"**.cpp"
+		
 	}
 
 	includedirs
