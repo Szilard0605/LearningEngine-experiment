@@ -6,6 +6,8 @@
 // GLM
 #include "gtc/type_ptr.hpp"
 
+#include "ImGuizmo.h"
+
 glm::vec2 EditorLayer::s_MainViewportSize;
 
 EditorLayer::EditorLayer() : Layer("LearningEngine Editor")

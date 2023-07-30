@@ -26,7 +26,8 @@ project "LE_Editor"
 		"%{wks.location}/LearningEngine/src",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.ImGui}",
-		"%{IncludeDir.ENTT}"
+		"%{IncludeDir.ENTT}",
+		"%{IncludeDir.ImGuizmo}"
 	}
 	
 	defines
