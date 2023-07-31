@@ -13,6 +13,7 @@
 #include <imgui_internal.h>
 
 #include "gtx/matrix_decompose.hpp"
+#include "Utils/Serializer.h"
 
 
 glm::vec2 EditorLayer::s_MainViewportSize;
@@ -265,7 +266,21 @@ void EditorLayer::OnImGuiRender()
 		{
 			if (ImGui::MenuItem("Save scene"))
 			{
-				SceneSerializer::Serialize(m_Scene);
+				//SceneSerializer::Serialize(m_Scene);
+
+				Serializer serializer("Data");
+
+				serializer.AddChildElement("Person");
+				serializer.AddAttribute("name", "John");
+				serializer.AddAttribute("age", "30");
+				serializer.SetCurrentElement();
+
+				serializer.AddChildElement("Address", "123 Main St");
+				serializer.AddAttribute("city", "New York");
+				serializer.AddAttribute("country", "USA");
+
+				serializer.SaveToFile("output.xml");
+				
 			}
 
 			if (ImGui::MenuItem("Load scene"))

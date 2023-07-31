@@ -1,14 +1,11 @@
 #include "LearningEngine.h"
-
 #include "EditorLayer.h"
-
-#include "imgui.h"
 
 class Editor : public Application
 {
 public:
 	Editor()
-		: Application("LearningEngine Editor", 1280, 720)
+		: Application("LearningEngine Editor", 1920, 1080)
 	{
 		Application::Init();
 
@@ -22,7 +19,7 @@ public:
 	}
 };
 
-/*#ifndef _DEBUG
+/*#if def _DEBUG
 int _stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 #else
 int main()
