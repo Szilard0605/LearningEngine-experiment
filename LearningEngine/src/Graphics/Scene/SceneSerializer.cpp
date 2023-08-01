@@ -11,11 +11,16 @@
 
 #include <Log/Log.h>
 
+#include "gtc/type_ptr.hpp"
+
+#include "Utils/JSONHelper.h"
+
 using json = nlohmann::json;
 static json s_JSON;
 
 void SceneSerializer::Serialize(Scene* scene)
 {
+
     s_JSON = nullptr;
 
     scene->Registry.each([scene](auto entityID)
@@ -25,47 +30,36 @@ void SceneSerializer::Serialize(Scene* scene)
 
         s_JSON[tagstr] = json::object();
 
-        if (scene->Registry.try_get<TransformComponent>(entityID))
+        TransformComponent* transformComponent = scene->Registry.try_get<TransformComponent>(entityID);
+        if (transformComponent)
         {
             //Save transform component
-            TransformComponent& tc = scene->Registry.get<TransformComponent>(entityID);
+            TransformComponent& tc = *transformComponent;
 
-            s_JSON[tagstr][tc.ID]["Position"][0] = tc.Position.x;
-            s_JSON[tagstr][tc.ID]["Position"][1] = tc.Position.y;
-            s_JSON[tagstr][tc.ID]["Position"][2] = tc.Position.z;
-
-            s_JSON[tagstr][tc.ID]["Rotation"][0] = tc.Rotation.x;
-            s_JSON[tagstr][tc.ID]["Rotation"][1] = tc.Rotation.y;
-            s_JSON[tagstr][tc.ID]["Rotation"][2] = tc.Rotation.z;
-
-            s_JSON[tagstr][tc.ID]["Size"][0] = tc.Size.x;
-            s_JSON[tagstr][tc.ID]["Size"][1] = tc.Size.y;
-            s_JSON[tagstr][tc.ID]["Size"][2] = tc.Size.z;
+            s_JSON[tagstr][tc.ID]["Position"] = { tc.Position.x, tc.Position.y, tc.Position.z };
+            s_JSON[tagstr][tc.ID]["Rotation"] = { tc.Rotation.x, tc.Rotation.y, tc.Rotation.z };
+            s_JSON[tagstr][tc.ID]["Size"] =     { tc.Size.x,     tc.Size.y,     tc.Size.z     };
         }
 
-        if (scene->Registry.try_get<QuadRendererComponent>(entityID))
-        {
-            QuadRendererComponent& qrc = scene->Registry.get<QuadRendererComponent>(entityID);
+        QuadRendererComponent* quadRendererComponent = scene->Registry.try_get<QuadRendererComponent>(entityID);
 
-            s_JSON[tagstr][qrc.ID]["Scale"][0] = qrc.Scale.x;
-            s_JSON[tagstr][qrc.ID]["Scale"][1] = qrc.Scale.y;
-            s_JSON[tagstr][qrc.ID]["Scale"][2] = qrc.Scale.z;
-           
-            s_JSON[tagstr][qrc.ID]["Color"][0] = qrc.Color.r;
-            s_JSON[tagstr][qrc.ID]["Color"][1] = qrc.Color.g;
-            s_JSON[tagstr][qrc.ID]["Color"][2] = qrc.Color.b;
-            s_JSON[tagstr][qrc.ID]["Color"][3] = qrc.Color.a;
+        if (quadRendererComponent)
+        {
+            QuadRendererComponent& qrc = *quadRendererComponent;
+
+            s_JSON[tagstr][qrc.ID]["Scale"] = { qrc.Scale.x, qrc.Scale.y, qrc.Scale.z };
+            s_JSON[tagstr][qrc.ID]["Color"] = { qrc.Color.r, qrc.Color.g, qrc.Color.b, qrc.Color.a };
         }
 
-        if (scene->Registry.try_get<PerspectiveCameraComponent>(entityID))
+
+        PerspectiveCameraComponent perspectiveCamComponent = scene->Registry.try_get<PerspectiveCameraComponent>(entityID);
+        if (perspectiveCamComponent)
         {
-            PerspectiveCameraComponent& pcc = scene->Registry.get<PerspectiveCameraComponent>(entityID);
+            PerspectiveCameraComponent& pcc = *perspectiveCamComponent;
 
             s_JSON[tagstr][pcc.ID]["MainCamera"] = pcc.MainCamera;
 
-            s_JSON[tagstr][pcc.ID]["FocalPoint"][0] = pcc.FocalPoint.x;
-            s_JSON[tagstr][pcc.ID]["FocalPoint"][1] = pcc.FocalPoint.y;
-            s_JSON[tagstr][pcc.ID]["FocalPoint"][2] = pcc.FocalPoint.z;
+            s_JSON[tagstr][pcc.ID]["FocalPoint"] = { pcc.FocalPoint.x, pcc.FocalPoint.y, pcc.FocalPoint.z };
 
             s_JSON[tagstr][pcc.ID]["Distance"] = pcc.Distance;
             s_JSON[tagstr][pcc.ID]["Pitch"] = pcc.Pitch;
@@ -100,65 +94,57 @@ Scene* SceneSerializer::Load(const std::filesystem::path path)
     for (json::iterator it = s_JSON.begin(); it != s_JSON.end(); ++it)
     {
         std::string key = it.key();
+        json head = it.value();
         
         Entity entity = scene->NewEntity(key);
 
         TagComponent& tag = entity.GetComponent<TagComponent>();
         tag.Tag = key;
 
-        if (it.value().contains("TransformComponent"))
+        if (head.contains("TransformComponent"))
         {
             TransformComponent tc;
 
-            tc.Position = { (float)it.value()[tc.ID]["Position"][0],
-                            (float)it.value()[tc.ID]["Position"][1],
-                            (float)it.value()[tc.ID]["Position"][2]};
-
-            tc.Rotation = { (float)it.value()[tc.ID]["Rotation"][0],
-                            (float)it.value()[tc.ID]["Rotation"][1],
-                            (float)it.value()[tc.ID]["Rotation"][2]};
-
-            tc.Size     = { (float)it.value()[tc.ID]["Size"][0],
-                            (float)it.value()[tc.ID]["Size"][1],
-                            (float)it.value()[tc.ID]["Size"][2]};
+            for (int i = 0; i < 3; i++)
+            {
+                tc.Position[i] = (float)head[tc.ID]["Position"][i];
+                tc.Rotation[i] = (float)head[tc.ID]["Rotation"][i];
+                tc.Size[i]     = (float)head[tc.ID]["Size"][i];
+            }
             
             entity.AddOrReplaceComponent<TransformComponent>(tc);
         }
 
-        if (it.value().contains("QuadRendererComponent"))
+        if (head.contains("QuadRendererComponent"))
         {
             QuadRendererComponent qrc;
 
-            qrc.Scale = { (float)it.value()[qrc.ID]["Scale"][0],
-                          (float)it.value()[qrc.ID]["Scale"][1],
-                          (float)it.value()[qrc.ID]["Scale"][2]};
+            for (int i = 0; i < 3; i++)
+                qrc.Scale[i] = (float)head[qrc.ID]["Scale"][i];
 
-            qrc.Color = { (float)it.value()[qrc.ID]["Color"][0],
-                          (float)it.value()[qrc.ID]["Color"][1],
-                          (float)it.value()[qrc.ID]["Color"][2],
-                          (float)it.value()[qrc.ID]["Color"][3]};
-
+            for (int i = 0; i < 4; i++)
+                qrc.Color[i] = (float)head[qrc.ID]["Color"][i];
+            
             entity.AddOrReplaceComponent<QuadRendererComponent>(qrc);
         }
 
-        if (it.value().contains("PerspectiveCameraComponent"))
+        if (head.contains("PerspectiveCameraComponent"))
         {
             PerspectiveCameraComponent pcc;
 
-            pcc.MainCamera = it.value()[pcc.ID]["MainCamera"];
+            pcc.MainCamera = head[pcc.ID]["MainCamera"];
 
-            pcc.FocalPoint = {(float)it.value()[pcc.ID]["FocalPoint"][0],
-                              (float)it.value()[pcc.ID]["FocalPoint"][1], 
-                              (float)it.value()[pcc.ID]["FocalPoint"][2]};
+            for (int i = 0; i < 3; i++)
+                pcc.FocalPoint[i] = (float)head[pcc.ID]["FocalPoint"][i];
 
-            pcc.Distance = (float)it.value()[pcc.ID]["Distance"];
-            pcc.Pitch = (float)it.value()[pcc.ID]["Pitch"];
-            pcc.Yaw = (float)it.value()[pcc.ID]["Yaw"];
-            pcc.FOV = (float)it.value()[pcc.ID]["FOV"];
-            pcc.AspectRatio = (float)it.value()[pcc.ID]["AspectRatio"];
-            pcc.FixedAspectRatio = (float)it.value()[pcc.ID]["FixedAspectRatio"];
-            pcc.NearClip = (float)it.value()[pcc.ID]["NearClip"];
-            pcc.FarClip = (float)it.value()[pcc.ID]["FarClip"];
+            pcc.Distance         =  (float)head[pcc.ID]["Distance"];
+            pcc.Pitch            =  (float)head[pcc.ID]["Pitch"];
+            pcc.Yaw              =  (float)head[pcc.ID]["Yaw"];
+            pcc.FOV              =  (float)head[pcc.ID]["FOV"];
+            pcc.AspectRatio      =  (float)head[pcc.ID]["AspectRatio"];
+            pcc.FixedAspectRatio =  (float)head[pcc.ID]["FixedAspectRatio"];
+            pcc.NearClip         =  (float)head[pcc.ID]["NearClip"];
+            pcc.FarClip          =  (float)head[pcc.ID]["FarClip"];
 
             pcc.Camera = new PerspectiveCamera(pcc.FOV, pcc.AspectRatio, pcc.NearClip, pcc.FarClip);
 
