@@ -159,7 +159,7 @@ void Scene::Render(PerspectiveCamera* camera)
 		{
 			auto [tc, qrc] = view.get<TransformComponent, QuadRendererComponent>(entity);
 			if (qrc.enabled)
-				Renderer2D::DrawQuad(tc.Position, tc.Size + qrc.Scale, glm::degrees(tc.Rotation), qrc.Color, (int)entity);
+				Renderer2D::DrawQuad(tc.Position, tc.Scale, glm::degrees(tc.Rotation), qrc.Color, (int)entity);
 		}
 
 		Renderer2D::End();
@@ -172,7 +172,7 @@ void Scene::Render(PerspectiveCamera* camera)
 		for (auto entity : view)
 		{
 			auto [tc, smc] = view.get<TransformComponent, StaticModelComponent>(entity);
-			smc.StaticModel->Render(*mainCamera, tc.Position, tc.Size, tc.Rotation);
+			smc.StaticModel->Render(*mainCamera, tc.Position, tc.Scale, tc.Rotation);
 		}
 	}
 }

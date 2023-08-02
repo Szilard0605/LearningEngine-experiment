@@ -224,7 +224,7 @@ void EntityListPanel::Render()
 					ImGui::DragFloat3("##rotation", glm::value_ptr(degRot), 0.1f, -1000, 1000, "%.2f");
 					tc.Rotation = glm::radians(degRot);
 					
-					ImGui::DragFloat3("##scale", glm::value_ptr(tc.Size), 0.1f, -1000, 1000, "%.2f");
+					ImGui::DragFloat3("##scale", glm::value_ptr(tc.Scale), 0.1f, -1000, 1000, "%.2f");
 
 					
 
@@ -247,7 +247,6 @@ void EntityListPanel::Render()
 					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.0f);
 					ImGui::Text("Color:");
 					ImGui::NextColumn();
-					ImGui::DragFloat3("##scale", glm::value_ptr(qrc.Scale), 0.1f, -1000, 1000, "%.2f");
 					ImGui::ColorEdit4("##color", glm::value_ptr(qrc.Color));
 					ImGui::EndColumns();
 				}

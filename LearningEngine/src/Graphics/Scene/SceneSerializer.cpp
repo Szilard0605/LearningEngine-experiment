@@ -39,7 +39,7 @@ void SceneSerializer::Serialize(Scene* scene, std::string filepath)
 
             s_JSON[enttID][tc.ID]["Position"] = {tc.Position.x, tc.Position.y, tc.Position.z};
             s_JSON[enttID][tc.ID]["Rotation"] = {tc.Rotation.x, tc.Rotation.y, tc.Rotation.z};
-            s_JSON[enttID][tc.ID]["Size"] = {tc.Size.x,     tc.Size.y,     tc.Size.z};
+            s_JSON[enttID][tc.ID]["Scale"] = {tc.Scale.x,     tc.Scale.y,     tc.Scale.z};
         }
 
         QuadRendererComponent* quadRendererComponent = scene->Registry.try_get<QuadRendererComponent>(entityID);
@@ -47,7 +47,6 @@ void SceneSerializer::Serialize(Scene* scene, std::string filepath)
         {
             QuadRendererComponent& qrc = *quadRendererComponent;
 
-            s_JSON[enttID][qrc.ID]["Scale"] = { qrc.Scale.x, qrc.Scale.y, qrc.Scale.z };
             s_JSON[enttID][qrc.ID]["Color"] = { qrc.Color.r, qrc.Color.g, qrc.Color.b, qrc.Color.a };
         }
 
@@ -104,7 +103,7 @@ Scene* SceneSerializer::Load(const std::filesystem::path path)
             {
 				tc.Position[i] = (float)entry.value()[tc.ID]["Position"][i];
 				tc.Rotation[i] = (float)entry.value()[tc.ID]["Rotation"][i];
-				tc.Size[i]     = (float)entry.value()[tc.ID]["Size"][i];
+				tc.Scale[i]     = (float)entry.value()[tc.ID]["Scale"][i];
 			}
 			
 			entity.AddOrReplaceComponent<TransformComponent>(tc);
@@ -112,10 +111,7 @@ Scene* SceneSerializer::Load(const std::filesystem::path path)
 
         if (entry.value().contains("QuadRendererComponent")) 
         {
-            QuadRendererComponent qrc;
-
-            for (int i = 0; i < 3; i++)
-                qrc.Scale[i] = (float)entry.value()[qrc.ID]["Scale"][i];
+            QuadRendererComponent qrc;           
 
             for (int i = 0; i < 4; i++)
                 qrc.Color[i] = (float)entry.value()[qrc.ID]["Color"][i];

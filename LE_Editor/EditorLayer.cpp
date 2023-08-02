@@ -309,13 +309,6 @@ void EditorLayer::OnImGuiRender()
 		}
 		ImGui::EndMainMenuBar();
 	}
-
-	if (showSavePopup) 
-	{
-		LE_CLIENT_INFO("OPEN POPUP");
-
-		
-	}
 	
 	ImGui::End();
 
@@ -371,7 +364,7 @@ void EditorLayer::UpdateGizmos()
 			glm::vec3 deltaRotation = rotation - tc.Rotation;
 			tc.Position = translation;
 			tc.Rotation += deltaRotation;
-			tc.Size = scale;
+			tc.Scale = scale;
 		}
 	}
 }
