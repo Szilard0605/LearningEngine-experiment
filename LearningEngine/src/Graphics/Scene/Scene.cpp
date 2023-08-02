@@ -3,6 +3,7 @@
 #include "Components.h"
 #include "Graphics/Renderer/Renderer2D.h"
 #include "Log/Log.h"
+#include <string>
 
 Scene::Scene(const std::string name)
 	: m_Name(name)
@@ -21,7 +22,7 @@ Scene::~Scene()
 
 Entity Scene::NewEntity(const std::string name)
 {
-	entt::entity entity = Registry.create();
+	auto entity = Registry.create();
 
 	HierarchyComponent hc;
 	Registry.emplace<HierarchyComponent>(entity, hc);
@@ -31,6 +32,8 @@ Entity Scene::NewEntity(const std::string name)
 
 	TagComponent tagComponent;
 	tagComponent.Tag = name;
+	tagComponent.ID = (int)entity;
+
 	Registry.emplace<TagComponent>(entity, tagComponent);
 
 	return Entity(name, entity, this);

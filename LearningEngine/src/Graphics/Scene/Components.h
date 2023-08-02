@@ -20,7 +20,7 @@ struct BaseComponent
 
 struct TagComponent : public BaseComponent
 {
-	const char* ID = "TagComponent";
+	int ID = 0;
 
 	std::string Tag;
 };
