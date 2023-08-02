@@ -16,7 +16,7 @@
 using json = nlohmann::json;
 static json s_JSON;
 
-void SceneSerializer::Serialize(Scene* scene)
+void SceneSerializer::Serialize(Scene* scene, std::string filepath)
 {
 
     s_JSON = nullptr;
@@ -72,8 +72,7 @@ void SceneSerializer::Serialize(Scene* scene)
         }
     });
 
-    std::string path = "res/scenes/" + scene->GetName() + ".lescene";
-    std::ofstream SceneFile(path.c_str());
+    std::ofstream SceneFile(filepath.c_str());
     SceneFile << std::setw(4) << s_JSON << '\n';
     SceneFile.close();
 }
@@ -138,9 +137,10 @@ Scene* SceneSerializer::Load(const std::filesystem::path path)
             pcc.Yaw = entry.value()[pcc.ID]["Yaw"];
             pcc.FOV = entry.value()[pcc.ID]["FOV"];
             pcc.AspectRatio = entry.value()[pcc.ID]["AspectRatio"];
-            pcc.FixedAspectRatio = entry.value()[pcc.ID]["FixedAspectRatio"];
+            pcc.FixedAspectRatio = (float)entry.value()[pcc.ID]["FixedAspectRatio"];
             pcc.NearClip = entry.value()[pcc.ID]["NearClip"];
             pcc.FarClip = entry.value()[pcc.ID]["FarClip"];
+            pcc.MainCamera = entry.value()[pcc.ID]["MainCamera"];
 
             pcc.Camera = new PerspectiveCamera(pcc.FOV, pcc.AspectRatio, pcc.NearClip, pcc.FarClip);
 

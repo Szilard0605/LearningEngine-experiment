@@ -82,6 +82,8 @@ void EditorLayer::OnImGuiRender()
 	bool opt_fullscreen = opt_fullscreen_persistant;
 	static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
+	bool showSavePopup = false;
+
 	ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
 	if (opt_fullscreen)
 	{
@@ -256,23 +258,27 @@ void EditorLayer::OnImGuiRender()
 		ImGui::PopStyleVar(2);
 		ImGui::End();
 
+	}	
+
+	if (ImGui::IsKeyPressed(ImGuiKey_C)) {
+		ImGui::OpenPopup("Save");
 	}
 
 	if (ImGui::BeginMainMenuBar())
 	{
 		if (ImGui::BeginMenu("File"))
 		{
-			if (ImGui::MenuItem("Save scene"))
+			if (ImGui::MenuItem("New", "Ctrl+N"))
 			{
-				SceneSerializer::Serialize(m_Scene);
-			}
 
-			if (ImGui::MenuItem("Load scene"))
+			}
+			
+			if (ImGui::MenuItem("Open Scene...", "Ctrl+O"))
 			{
 				LE_CLIENT_INFO("Loading a Scene");
 
 				std::string ScenePath;
-				if (Utils::FileDialog::OpenFile("LearingEngine Scene (*.lescene)\0*.lescene*\0", ScenePath))
+				if (Utils::FileDialog::OpenFile("LearningEngine Scene (*.lescene)\0*.lescene*\0", ScenePath))
 				{
 					m_Scene = SceneSerializer::Load(ScenePath);
 					m_EntitiesPanel = EntityListPanel(m_Scene);
@@ -284,9 +290,31 @@ void EditorLayer::OnImGuiRender()
 					}
 				}
 			}
+
+			if (ImGui::MenuItem("Save As...", "Ctrl+S"))
+			{
+				LE_CLIENT_INFO("Saving a Scene");
+
+				std::string scenePath = Utils::FileDialog::SaveFile("LearningEngine Scene (*.lescene)\0*.lescene*\0");
+
+				if (!scenePath.empty())
+				{
+					SceneSerializer::Serialize(m_Scene, scenePath);
+				}
+			}			
+
+			ImGui::MenuItem("Exit", "Alt+F4");
+			
 			ImGui::EndMenu();
 		}
 		ImGui::EndMainMenuBar();
+	}
+
+	if (showSavePopup) 
+	{
+		LE_CLIENT_INFO("OPEN POPUP");
+
+		
 	}
 	
 	ImGui::End();

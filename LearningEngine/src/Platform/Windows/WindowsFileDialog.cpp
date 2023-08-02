@@ -41,3 +41,30 @@ bool WindowsFileDialog::OpenFile(const char* filters, std::string& outPath)
 	outPath = std::string("None");
 	return false;
 }
+
+std::string WindowsFileDialog::SaveFile(const char* filters)
+{
+	OPENFILENAMEA ofn;
+	CHAR szFile[260] = { 0 };
+	CHAR currentDir[256] = { 0 };
+
+	ZeroMemory(&ofn, sizeof(OPENFILENAME));
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hwndOwner = glfwGetWin32Window(Application::GetInstance()->GetWindow()->GetNativeWindow());
+	ofn.lpstrFile = szFile;
+	if (GetCurrentDirectoryA(256, currentDir))
+		ofn.lpstrInitialDir = currentDir;
+	ofn.nMaxFile = sizeof(szFile);
+	ofn.lpstrFilter = (LPCSTR)filters;
+
+	ofn.nFilterIndex = 1;
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;;
+
+	ofn.lpstrDefExt = strchr(filters, '\0') + 1;
+
+	if (GetSaveFileNameA(&ofn))
+	{
+		return ofn.lpstrFile;
+	}
+	return std::string();
+}
