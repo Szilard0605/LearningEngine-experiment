@@ -60,7 +60,7 @@ std::string WindowsFileDialog::SaveFile(const char* filters)
 	ofn.nFilterIndex = 1;
 	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;;
 
-	ofn.lpstrDefExt = "lescene";
+	ofn.lpstrDefExt = strchr(filters, '\0') + 1;
 
 	if (GetSaveFileNameA(&ofn))
 	{

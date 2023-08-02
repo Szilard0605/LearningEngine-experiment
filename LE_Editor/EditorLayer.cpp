@@ -295,7 +295,7 @@ void EditorLayer::OnImGuiRender()
 			{
 				LE_CLIENT_INFO("Saving a Scene");
 
-				std::string scenePath = Utils::FileDialog::SaveFile("LearningEngine Scene (*.lescene)\0*.lescene*\0");
+				std::string scenePath = Utils::FileDialog::SaveFile("LearningEngine Scene (*.lescene)\0.lescene\0");
 
 				if (!scenePath.empty())
 				{
