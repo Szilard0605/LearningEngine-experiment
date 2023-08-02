@@ -16,32 +16,33 @@ EntityListPanel::EntityListPanel(Scene *scene)
 {
 }
 
-void EntityListPanel::DisplayHierarchy(entt::entity entity)
+void EntityListPanel::DisplayHierarchy(Entity& entity)
 {
-	ImGui::PushID(reinterpret_cast<const void*>(static_cast<intptr_t>(entity)));
+	ImGui::PushID(reinterpret_cast<const void*>(static_cast<intptr_t>(entity.GetHandle())));
 
-	HierarchyComponent& hc = m_Scene->Registry.get<HierarchyComponent>(entity);
+	HierarchyComponent& hc = entity.GetComponent<HierarchyComponent>();
+
 	bool hasChild = hc.Children.size() > 0;
-	bool hasParent = hc.Parent != -1;
+	bool hasParent = hc.Parent != entt::null;
 
-	TagComponent& tc = m_Scene->Registry.get<TagComponent>(entity);
+	TagComponent& tc = entity.GetComponent<TagComponent>();
 	auto entityStr = tc.Tag.c_str();
 
-	ImGuiTreeNodeFlags flags = ((m_SelectedEntity == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
+	ImGuiTreeNodeFlags flags = ((m_SelectedEntity == entity.GetHandle()) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
 	flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
 
 	if (!hasChild)
 		flags |= ImGuiTreeNodeFlags_Leaf;
 
 
-	bool nodeOpen = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, entityStr);
+	bool nodeOpen = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity.GetHandle(), flags, entityStr);
 
 	if (ImGui::IsItemClicked())
-		m_SelectedEntity = entity;
+		m_SelectedEntity = entity.GetHandle();
 
 	if (ImGui::BeginDragDropSource())
 	{
-		ImGui::SetDragDropPayload("Entity", &entity, sizeof(int));
+		ImGui::SetDragDropPayload("Entity", &entity, sizeof(Entity));
 		ImGui::Text(entityStr);
 		ImGui::EndDragDropSource();
 	}
@@ -51,19 +52,13 @@ void EntityListPanel::DisplayHierarchy(entt::entity entity)
 
 		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Entity"))
 		{ 
-			entt::entity payload_n = *(const entt::entity*)payload->Data;
+			Entity payload_n = *(const Entity*)payload->Data;
 
-			HierarchyComponent& payloadHC = m_Scene->Registry.get<HierarchyComponent>(payload_n);
+			HierarchyComponent& payloadHC = payload_n.GetComponent<HierarchyComponent>();
 
-			if ((entt::entity)payloadHC.Parent != entity)
+			if (payloadHC.Parent != entity)
 			{
-				TagComponent& childTC = m_Scene->Registry.get<TagComponent>(payload_n);
-				Entity payload_e = Entity(childTC.Tag, payload_n, m_Scene);
-
-				TagComponent& parentTC = m_Scene->Registry.get<TagComponent>(entity);
-				Entity parent_e = Entity(parentTC.Tag, entity, m_Scene);
-
-				payload_e.SetParent(entity);
+				payload_n.SetParent(entity);
 			}
 		}
 		ImGui::EndDragDropTarget();
@@ -73,8 +68,9 @@ void EntityListPanel::DisplayHierarchy(entt::entity entity)
 	{
 		for (int i = 0; i < hc.Children.size(); i++)
 		{
-			if((entt::entity)i != entt::null)
-				DisplayHierarchy((entt::entity)hc.Children[i]);
+			Entity child(hc.Children[i], m_Scene);
+			if(child.IsValid())
+				DisplayHierarchy(child);
 		}
 	}
 
@@ -120,9 +116,11 @@ void EntityListPanel::Render()
 
 			for (auto it = view.begin(); it < view.end(); it++)
 			{
-				HierarchyComponent& hc = m_Scene->Registry.get<HierarchyComponent>(view[it.index()]);
-				if (hc.Parent == -1)
-					DisplayHierarchy(view[it.index()]);
+				Entity h_entity = Entity(view[it.index()], m_Scene);
+				HierarchyComponent& hc = h_entity.GetComponent<HierarchyComponent>();
+
+				if (hc.Parent == entt::null)
+					DisplayHierarchy(h_entity);
 			}
 			ImGui::TreePop();
 		}
@@ -151,7 +149,7 @@ void EntityListPanel::Render()
 			{
 				if (m_SelectedEntity != entt::null)
 				{
-					m_Scene->DestroyEntity(m_SelectedEntity);
+					m_Scene->DestroyEntity(Entity(m_SelectedEntity, m_Scene));
 					m_SelectedEntity = entt::null;
 					ImGui::CloseCurrentPopup();
 				}
@@ -218,16 +216,37 @@ void EntityListPanel::Render()
 					ImGui::Text("Scale:");
 
 					ImGui::NextColumn();
+
+					glm::vec3 deltaPosition = tc.Position;
 					ImGui::DragFloat3("##position", glm::value_ptr(tc.Position), 0.1f, -1000, 1000, "%.2f");
+					deltaPosition -= tc.Position;
+					
 
 					glm::vec3& degRot = glm::degrees(tc.Rotation);
+					glm::vec3 deltaRotation = tc.Rotation;
 					ImGui::DragFloat3("##rotation", glm::value_ptr(degRot), 0.1f, -1000, 1000, "%.2f");
 					tc.Rotation = glm::radians(degRot);
-					
+					deltaRotation -= tc.Rotation;
+
+
+					glm::vec3 deltaScale = tc.Size;
 					ImGui::DragFloat3("##scale", glm::value_ptr(tc.Size), 0.1f, -1000, 1000, "%.2f");
-
+					deltaScale -= tc.Size;
 					
+					Entity s_entity = Entity(m_SelectedEntity, m_Scene);
+					if (s_entity.GetChildren().size())
+					{
+						for (int i = 0; i < s_entity.GetChildren().size(); i++)
+						{
+							TransformComponent& s_tc = s_entity.GetChildren()[i].GetComponent<TransformComponent>();
 
+
+
+							s_tc.Position -= deltaPosition;
+							s_tc.Rotation -= deltaRotation;
+							s_tc.Size -= deltaScale;
+						}
+					}
 					ImGui::EndColumns();
 				}
 			}

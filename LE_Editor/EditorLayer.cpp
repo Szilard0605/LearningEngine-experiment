@@ -1,5 +1,10 @@
 #include "EditorLayer.h"
 
+
+#include "ImGuizmo.cpp"
+#include "ImGuizmo.h"
+
+
 #include "imgui.h"
 #include "Log/Log.h"
 
@@ -8,10 +13,6 @@
 #include <imgui_internal.h>
 
 #include "gtx/matrix_decompose.hpp"
-
-#include "ImGuizmo.h"
-
-#include "ImGuizmo.h"
 
 glm::vec2 EditorLayer::s_MainViewportSize;
 
@@ -340,9 +341,28 @@ void EditorLayer::UpdateGizmos()
 			//printf("eulerAngle: {%f, %f, %f}\n", eulerRotation.x, eulerRotation.y, eulerRotation.z);
 
 			glm::vec3 deltaRotation = rotation - tc.Rotation;
+			glm::vec3 deltaPosition = tc.Position - translation;
+			glm::vec3 deltaScale = tc.Size - scale;
+
 			tc.Position = translation;
 			tc.Rotation += deltaRotation;
 			tc.Size = scale;
+
+			Entity s_entity = Entity(selectedEntity, m_Scene);
+
+			if (s_entity.GetChildren().size())
+			{
+				for (int i = 0; i < s_entity.GetChildren().size(); i++)
+				{
+					TransformComponent& s_tc = s_entity.GetChildren()[i].GetComponent<TransformComponent>();
+
+				
+
+					s_tc.Position -= deltaPosition;
+					s_tc.Rotation -= deltaRotation;
+					s_tc.Size -= deltaScale;
+				}
+			}
 		}
 	}
 }

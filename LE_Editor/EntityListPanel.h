@@ -1,6 +1,7 @@
 #pragma once
 
 #include "entt.hpp"
+#include "Graphics/Scene/Entity.h"
 
 class Scene;
 
@@ -17,7 +18,7 @@ public:
 	void SetSelectedEntity(entt::entity entity) { m_SelectedEntity = entity; }
 private:
 
-	void DisplayHierarchy(entt::entity entity);
+	void DisplayHierarchy(Entity& entity);
 
 	Scene* m_Scene = nullptr;
 

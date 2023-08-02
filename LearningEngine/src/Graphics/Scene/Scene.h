@@ -19,7 +19,7 @@ class Scene
 		~Scene();
 
 		Entity NewEntity(const std::string name);
-		void DestroyEntity(entt::entity entity);
+		void DestroyEntity(Entity& entity);
 		Entity& GetEntityByTag(std::string name);
 		void Render(PerspectiveCamera* camera = nullptr);
 
