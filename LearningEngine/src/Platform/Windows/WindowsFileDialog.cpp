@@ -58,9 +58,9 @@ std::string WindowsFileDialog::SaveFile(const char* filters)
 	ofn.lpstrFilter = (LPCSTR)filters;
 
 	ofn.nFilterIndex = 1;
-	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;;
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT;
 
-	ofn.lpstrDefExt = strchr(filters, '\0') + 1;
+	ofn.lpstrDefExt = strchr(filters, '\0');
 
 	if (GetSaveFileNameA(&ofn))
 	{
