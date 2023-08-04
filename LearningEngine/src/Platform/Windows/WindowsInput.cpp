@@ -3,6 +3,9 @@
 //#include <glew.h>
 #include <glfw3.h>
 
+#include "Core/Application.h"
+#include "Platform/Windows/WindowsWindow.h"
+
 
 static int m_buttons[MAX_BUTTONS];
 static bool m_KeyState[MAX_KEYS];
@@ -43,6 +46,12 @@ void Input::OnMouseScrolled(const double xoffset, const double yoffset)
 	scroll_xOffset = xoffset;
 	scroll_yOffset = yoffset;
 
+}
+
+void Input::ShowCursor(bool show)
+{
+	WindowsWindow* wnd = Application::GetInstance()->GetWindow();
+	wnd->ShowCursor(show);
 }
 
 glm::vec2 Input::GetScrollOffset()

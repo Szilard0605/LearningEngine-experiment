@@ -329,6 +329,7 @@ void EditorLayer::UpdateGizmos()
 
 		if (ImGuizmo::IsUsing())
 		{
+
 			glm::vec3 translation, scale;
 			glm::quat orientation;
 			glm::vec3 skew;
@@ -355,9 +356,6 @@ void EditorLayer::UpdateGizmos()
 				for (int i = 0; i < s_entity.GetChildren().size(); i++)
 				{
 					TransformComponent& s_tc = s_entity.GetChildren()[i].GetComponent<TransformComponent>();
-
-				
-
 					s_tc.Position -= deltaPosition;
 					s_tc.Rotation -= deltaRotation;
 					s_tc.Size -= deltaScale;
@@ -400,14 +398,17 @@ bool EditorLayer::OnMouseMove(MouseMoveEvent& event)
 {
 	if (Input::IsMouseButtonPressed(MouseButton::RIGHT_CLICK) && m_ViewportActive && m_ViewportHovered)
 	{
+		Input::ShowCursor(false);
+
 		if (LastMousePos == glm::vec2(-1, -1))
 			LastMousePos = event.GetPosition();
 
 		m_EditorCamera->SetYaw(m_EditorCamera->GetYaw() + (event.GetPosition().x - LastMousePos.x) * 0.01f);
-		m_EditorCamera->SetPitch(m_EditorCamera->GetPitch() - (event.GetPosition().y - LastMousePos.y) * 0.01f);
+		m_EditorCamera->SetPitch(m_EditorCamera->GetPitch() + (event.GetPosition().y - LastMousePos.y) * 0.01f);
 
 		LastMousePos = event.GetPosition();
 	}
+	else Input::ShowCursor();
 	return true;
 }
 

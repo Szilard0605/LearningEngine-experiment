@@ -144,3 +144,9 @@ void WindowsWindow::Resize(uint32_t width, uint32_t height)
 	Application::GetInstance()->GetRenderer()->SetViewportPosition(vpX, vpY);
 	Application::GetInstance()->GetRenderer()->SetViewportSize(aspect_width, aspect_height);
 }
+
+void WindowsWindow::ShowCursor(bool show)
+{
+	uint32_t mode = show ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED;
+	glfwSetInputMode(m_window, GLFW_CURSOR, mode);
+}

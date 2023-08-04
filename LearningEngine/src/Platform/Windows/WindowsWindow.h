@@ -26,6 +26,7 @@ public:
 
 	inline GLFWwindow* GetNativeWindow() { return m_window; }
 
+	void ShowCursor(bool show = true);
 
 	inline void SetEventCallback(const std::function<void(Event&)>& callback) { m_WindowData.EventCallback = callback; }
 

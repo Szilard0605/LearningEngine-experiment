@@ -48,6 +48,7 @@ public:
 	static bool IsMouseButtonReleased(const unsigned int button);
 	static bool IsMouseButtonHold(const unsigned int button);
 
+	static void ShowCursor(bool show = true);
 	
 };
 
