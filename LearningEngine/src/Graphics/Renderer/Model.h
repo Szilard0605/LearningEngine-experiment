@@ -19,7 +19,7 @@ public:
 
 	std::vector<Mesh*>& GetMeshes() { return m_Meshes; }
 
-	void Render(PerspectiveCamera& camera, glm::vec3 position, glm::vec3 scale, glm::vec3 rotation);
+	void Render(PerspectiveCamera& camera, glm::mat4 transform);
 
 	void AddMesh(Mesh* mesh);
 private:

@@ -170,7 +170,7 @@ void Scene::Render(PerspectiveCamera* camera)
 		for (auto entity : view)
 		{
 			auto [tc, smc] = view.get<TransformComponent, StaticModelComponent>(entity);
-			smc.StaticModel->Render(*mainCamera, tc.Position, tc.Size, tc.Rotation);
+			smc.StaticModel->Render(*mainCamera, tc.GetTransform());
 		}
 	}
 }

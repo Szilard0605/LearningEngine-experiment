@@ -272,7 +272,7 @@ void EditorLayer::OnImGuiRender()
 				LE_CLIENT_INFO("Loading a Scene");
 
 				std::string ScenePath;
-				if (Utils::FileDialog::OpenFile("LearingEngine Scene (*.lescene)\0*.lescene*\0", ScenePath))
+				if (Utils::FileDialog::OpenFile("LearningEngine Scene (*.lescene)\0*.lescene*\0", ScenePath))
 				{
 					m_Scene = SceneSerializer::Load(ScenePath);
 					m_EntitiesPanel = EntityListPanel(m_Scene);
@@ -396,19 +396,73 @@ bool EditorLayer::OnMouseButtonChange(MouseButtonEvent& event)
 
 bool EditorLayer::OnMouseMove(MouseMoveEvent& event)
 {
+	printf("{%f, %f}\n", Input::GetMousePosition().x, Input::GetMousePosition().y);
 	if (Input::IsMouseButtonPressed(MouseButton::RIGHT_CLICK) && m_ViewportActive && m_ViewportHovered)
 	{
-		Input::ShowCursor(false);
+
+		// disable mouse for the editor when using the editor camera
+		{
+			Input::ShowCursor(false);
+			ImGuiIO& io = ImGui::GetIO();
+			io.WantCaptureMouse = false;
+
+			glm::vec2 min = m_ViewportBounds[0] + 4.0f;
+			glm::vec2 max = m_ViewportBounds[1] + 4.0f;
+
+			printf("{%f, %f}, {%f, %f}\n", m_ViewportBounds[0].x, m_ViewportBounds[0].y, m_ViewportBounds[1].x - m_ViewportBounds[0].x, m_ViewportBounds[1].y - m_ViewportBounds[0].y);
+
+			glm::vec2 cursorPos = Input::GetMousePosition();
+
+			if(cursorPos.x > max.x)
+			{
+				LastMousePos = { -1, -1 };
+				Input::SetCursorPosition({ min.x, cursorPos.y });
+				
+			}
+
+			if (cursorPos.x < min.x)
+			{
+				LastMousePos = { -1, -1 };
+				Input::SetCursorPosition({ max.x, cursorPos.y });
+
+			}
+
+			if (cursorPos.y > max.y)
+			{
+				LastMousePos = { -1, -1 };
+				Input::SetCursorPosition({ cursorPos.x, min.y });
+
+			}
+
+			if (cursorPos.y < min.y)
+			{
+				LastMousePos = { -1, -1 };
+				Input::SetCursorPosition({ cursorPos.x, max.y });
+
+			}
+		}
 
 		if (LastMousePos == glm::vec2(-1, -1))
 			LastMousePos = event.GetPosition();
 
-		m_EditorCamera->SetYaw(m_EditorCamera->GetYaw() + (event.GetPosition().x - LastMousePos.x) * 0.01f);
-		m_EditorCamera->SetPitch(m_EditorCamera->GetPitch() + (event.GetPosition().y - LastMousePos.y) * 0.01f);
+		float pitch = m_EditorCamera->GetPitch() + (event.GetPosition().y - LastMousePos.y) * 0.01f;
+		float yaw = m_EditorCamera->GetYaw() + (event.GetPosition().x - LastMousePos.x) * 0.01f;
+
+		pitch = glm::clamp(pitch, -1.7f, 1.7f);
+		//pitch = glm::min(pitch, -0.90f);
+
+		m_EditorCamera->SetYaw(yaw);
+		m_EditorCamera->SetPitch(pitch);
 
 		LastMousePos = event.GetPosition();
 	}
-	else Input::ShowCursor();
+	else
+	{
+		Input::ShowCursor();
+		ImGuiIO& io = ImGui::GetIO();
+		io.WantCaptureMouse = true; 
+
+	}
 	return true;
 }
 

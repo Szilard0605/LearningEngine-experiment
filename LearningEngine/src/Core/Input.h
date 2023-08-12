@@ -49,6 +49,7 @@ public:
 	static bool IsMouseButtonHold(const unsigned int button);
 
 	static void ShowCursor(bool show = true);
-	
+	static void SetCursorPosition(glm::vec2 position);
+
 };
 

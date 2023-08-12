@@ -54,6 +54,12 @@ void Input::ShowCursor(bool show)
 	wnd->ShowCursor(show);
 }
 
+void Input::SetCursorPosition(glm::vec2 position)
+{
+	WindowsWindow* wnd = Application::GetInstance()->GetWindow();
+	wnd->SetCursorPosition(position);
+}
+
 glm::vec2 Input::GetScrollOffset()
 {
 	return glm::vec2(scroll_xOffset, scroll_yOffset);

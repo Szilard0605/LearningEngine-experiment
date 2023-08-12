@@ -100,7 +100,7 @@ class Entity
 			return m_Scene->Registry.get<T>(m_EntityHandle);
 		}
 
-		bool operator ==(entt::entity other)
+		bool operator ==(entt::entity other) const 
 		{
 			return m_EntityHandle == other;
 		}
