@@ -121,11 +121,11 @@ Model::Model(std::filesystem::path path, Material& material)
 
 }
 
-void Model::Render(PerspectiveCamera& camera, glm::vec3 position, glm::vec3 scale, glm::vec3 rotation)
+void Model::Render(PerspectiveCamera& camera, glm::mat4 transform)
 {
 	for(int i = 0; i < m_Meshes.size(); i ++)
 	{
-		m_Meshes[i]->Render(camera, position, scale, rotation);
+		m_Meshes[i]->Render(camera, transform);
 	}
 }
 

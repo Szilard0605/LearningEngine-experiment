@@ -17,6 +17,7 @@ void EditorRuntime::Start(Scene* scene)
 
 void EditorRuntime::Stop()
 {
+	m_Scene = nullptr;
 }
 
 void EditorRuntime::Update(Timestep timeStep)

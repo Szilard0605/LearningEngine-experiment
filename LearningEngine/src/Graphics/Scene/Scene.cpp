@@ -24,9 +24,6 @@ Entity Scene::NewEntity(const std::string name)
 {
 	auto entity = Registry.create();
 
-	HierarchyComponent hc;
-	Registry.emplace<HierarchyComponent>(entity, hc);
-
 	TransformComponent tc;
 	Registry.emplace<TransformComponent>(entity, tc);
 
@@ -36,24 +33,29 @@ Entity Scene::NewEntity(const std::string name)
 
 	Registry.emplace<TagComponent>(entity, tagComponent);
 
+	HierarchyComponent hc;
+	Registry.emplace<HierarchyComponent>(entity, hc);
+
 	return Entity(name, entity, this);
 }
 
-void Scene::DestroyEntity(entt::entity entity)
+void Scene::DestroyEntity(Entity& entity)
 {
-	HierarchyComponent& hc = Registry.get<HierarchyComponent>(entity);
-
-	if (hc.Parent != -1)
+	HierarchyComponent& hc = entity.GetComponent<HierarchyComponent>();
+	Entity parent(hc.Parent, this);
+	if (parent.IsValid())
 	{
-		HierarchyComponent& parentHC = Registry.get<HierarchyComponent>((entt::entity)hc.Parent);
+		HierarchyComponent& parentHC = parent.GetComponent<HierarchyComponent>();
 		for (auto it = parentHC.Children.begin(); it < parentHC.Children.end(); it++)
 		{
-			if (*it == (int)entity)
+			if (*it == entity.GetHandle())
 			{
 				parentHC.Children.erase(it);
 			}
 		}
 	}
+
+	hc.Parent = entt::null;
 
 	if (hc.Children.size())
 	{
@@ -63,7 +65,7 @@ void Scene::DestroyEntity(entt::entity entity)
 		}
 	}
 
-	Registry.destroy(entity);
+	Registry.destroy(entity.GetHandle());
 }
 
 Entity& Scene::GetEntityByTag(std::string name)
@@ -73,8 +75,10 @@ Entity& Scene::GetEntityByTag(std::string name)
 	{
 		const TagComponent& tc = view.get<TagComponent>(entity);
 		if (tc.Tag == name)
-			return Entity (name, entity, this);
+			return Entity (entity, this);
 	}
+
+	return Entity();
 }
 
 
@@ -125,20 +129,17 @@ void Scene::Render(PerspectiveCamera* camera)
 
 	if (!mainCamera)
 	{	
-		glm::mat4 cameraTransform;
+		auto view = Registry.view<TransformComponent, PerspectiveCameraComponent>();
+		for (auto entity : view)
 		{
-			auto view = Registry.view<TransformComponent, PerspectiveCameraComponent>();
-			for (auto entity : view)
-			{
-				auto [transform, camera] = view.get<TransformComponent, PerspectiveCameraComponent>(entity);
+			auto [transform, camera] = view.get<TransformComponent, PerspectiveCameraComponent>(entity);
 
-				camera.Camera->Translate(transform.Position);
-				
-				if (camera.MainCamera)
-				{
-					mainCamera = camera.Camera;
-					break;
-				}
+			camera.Camera->Translate(transform.Position);
+			
+			if (camera.MainCamera)
+			{
+				mainCamera = camera.Camera;
+				break;
 			}
 		}
 	}
@@ -172,7 +173,7 @@ void Scene::Render(PerspectiveCamera* camera)
 		for (auto entity : view)
 		{
 			auto [tc, smc] = view.get<TransformComponent, StaticModelComponent>(entity);
-			smc.StaticModel->Render(*mainCamera, tc.Position, tc.Scale, tc.Rotation);
+			smc.StaticModel->Render(*mainCamera, tc.GetTransform());
 		}
 	}
 }

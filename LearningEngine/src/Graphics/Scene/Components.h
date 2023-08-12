@@ -2,15 +2,15 @@
 
 #include "Graphics/Renderer/Model.h"
 
+
 #include "glm.hpp"
 #include <vector>
 
 
-
 struct HierarchyComponent
 {
-	int Parent = -1;
-	std::vector<int> Children;
+	entt::entity Parent = entt::null;
+	std::vector<entt::entity> Children;
 };
 
 struct BaseComponent

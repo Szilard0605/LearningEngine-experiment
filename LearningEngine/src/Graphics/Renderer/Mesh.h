@@ -29,7 +29,7 @@ public:
 
 	~Mesh();
 
-	void Render(PerspectiveCamera& camera, glm::vec3 position, glm::vec3 scale, glm::vec3 rotation);
+	void Render(PerspectiveCamera& camera, glm::mat4 transform);
 
     VertexArray* GetVertexArray() { return m_VertexArray; }
 	Material* GetMaterial() { return m_Material; }

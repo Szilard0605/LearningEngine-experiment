@@ -10,8 +10,11 @@
 class Entity
 {
 	public:
-		Entity() = default;
+		Entity() { }
 		Entity(const std::string& name, entt::entity handle, Scene* scene);
+		Entity(entt::entity handle, Scene* scene) 
+			: m_EntityHandle(handle), m_Scene(scene) { }
+
 		~Entity();
 
 		std::string GetName() 
@@ -20,6 +23,10 @@ class Entity
 			return tag.Tag;
 		}
 		
+		bool IsValid()
+		{
+			return m_EntityHandle != entt::null;
+		}
 
 		void SetHandle(entt::entity handle)
 		{
@@ -36,21 +43,34 @@ class Entity
 			return m_Scene;
 		}
 
-		inline void SetParent(entt::entity parent)
+		inline void SetParent(Entity entity)
 		{
 			// Set the parent
-			HierarchyComponent& childHC = m_Scene->Registry.get<HierarchyComponent>(m_EntityHandle);
-			childHC.Parent = (int)parent;
+			HierarchyComponent& childHC = GetComponent<HierarchyComponent>();
+			childHC.Parent = entity.GetHandle();
 
 			// Add child to parent entity
-			HierarchyComponent& parentHC  = m_Scene->Registry.get<HierarchyComponent>(parent);
-			parentHC.Children.push_back((int)m_EntityHandle);
+			HierarchyComponent& parentHC  = entity.GetComponent<HierarchyComponent>();
+			parentHC.Children.push_back(m_EntityHandle);
 		}
 
-		entt::entity GetParent()
+		Entity GetParent()
 		{
-			HierarchyComponent& hc = m_Scene->Registry.get<HierarchyComponent>(m_EntityHandle);
-			return (entt::entity)hc.Parent;
+			HierarchyComponent& hc = GetComponent<HierarchyComponent>();
+			return Entity(hc.Parent, m_Scene);
+		}
+
+		std::vector<Entity> GetChildren()
+		{
+			HierarchyComponent& hc = GetComponent<HierarchyComponent>();
+
+			std::vector<Entity> children;
+			for (int i = 0; i < hc.Children.size(); i++)
+			{
+				children.push_back(Entity(hc.Children[i], m_Scene));
+			}
+
+			return children;
 		}
 
 		template<typename T, typename... Args>
@@ -80,9 +100,19 @@ class Entity
 			return m_Scene->Registry.get<T>(m_EntityHandle);
 		}
 
+		bool operator ==(entt::entity other) const 
+		{
+			return m_EntityHandle == other;
+		}
+
 		bool operator ==(const Entity& other) const 
 		{
 			return m_EntityHandle == other.m_EntityHandle && m_Scene == other.m_Scene;
+		}
+
+		bool operator !=(const Entity& other) const
+		{
+			return m_EntityHandle != other.m_EntityHandle || m_Scene != other.m_Scene;
 		}
 
 	private:

@@ -39,7 +39,7 @@ Mesh::~Mesh()
 
 }
 
-void Mesh::Render(PerspectiveCamera& camera, glm::vec3 position, glm::vec3 scale, glm::vec3 rotation)
+void Mesh::Render(PerspectiveCamera& camera, glm::mat4 transform)
 {
 	camera.UpdateView();
 
@@ -47,11 +47,11 @@ void Mesh::Render(PerspectiveCamera& camera, glm::vec3 position, glm::vec3 scale
 
 	m_Material->GetShader()->SetMatrix4f("u_ViewProjection", camera.GetViewProjection());
 
-	const glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
+	/*const glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 							  * glm::rotate(glm::mat4(1.0f), glm::radians(rotation.x), { 1.0f, 0.0f, 0.0f })
 							  * glm::rotate(glm::mat4(1.0f), glm::radians(rotation.y), { 0.0f, 1.0f, 0.0f })
 							  * glm::rotate(glm::mat4(1.0f), glm::radians(rotation.z), { 0.0f, 0.0f, 1.0f })
-							  * glm::scale(glm::mat4(1.0f), scale);
+							  * glm::scale(glm::mat4(1.0f), scale);*/
 
 	m_Material->GetShader()->SetMatrix4f("u_Transform", transform);
 
