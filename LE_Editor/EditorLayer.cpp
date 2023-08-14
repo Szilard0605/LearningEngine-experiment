@@ -49,11 +49,11 @@ void EditorLayer::OnAttach()
 
 	m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
 
-	//---------------------------
+	//------------Loading in textures---------------
 	m_TexPlayButton = Texture2D::Create("res/textures/Editor/play_button.png");
 	m_TranslateIcon = Texture2D::Create("res/textures/Editor/icon_translate.png");
-	m_RotateIcon = Texture2D::Create("res/textures/Editor/icon_rotate.png");
-	m_ScaleIcon = Texture2D::Create("res/textures/Editor/icon_scale.png");
+	m_RotateIcon    = Texture2D::Create("res/textures/Editor/icon_rotate.png");
+	m_ScaleIcon     = Texture2D::Create("res/textures/Editor/icon_scale.png");
 
 	// Setting the default shader of the project
 	ShaderLibrary::Add(Shader::Create("res/shaders/default_shader.shader"), "DefaultShader");
@@ -487,23 +487,6 @@ void EditorLayer::OnUpdate(Timestep timestep)
 	else
 	{
 		m_Scene->Render(m_EditorCamera);
-
-		/*PerspectiveCamera* mainCamera = nullptr;
-		glm::mat4 cameraTransform;
-		{
-			auto view = m_Scene->Registry.view<TransformComponent, PerspectiveCameraComponent>();
-			for (auto entity : view)
-			{
-				auto [transform, camera] = view.get<TransformComponent, PerspectiveCameraComponent>(entity);
-
-
-				Renderer2D::Begin(*m_EditorCamera);
-
-				Renderer2D::DrawQuad(transform.Position, { 5, 5, 5}, { 0, 0, 0 }, {0, 0, 1, 1}, entity);
-
-				Renderer2D::End();
-			}
-		}*/
 
 
 		if (m_ViewportActive)
