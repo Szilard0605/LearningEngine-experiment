@@ -154,26 +154,11 @@ namespace ImGuizmo
       m16[15] = 1.0f;
    }
 
-	template <typename T>
-	T Clamp(T x, T y, T z)
-	{
-		return ((x < y) ? y : ((x > z) ? z : x));
-	}
-	template <typename T>
-	T max(T x, T y)
-	{
-		return (x > y) ? x : y;
-	}
-    template <typename T>
-	T min(T x, T y)
-    {
-   		return (x < y) ? x : y;
-    }
-    template <typename T>
-	bool IsWithin(T x, T y, T z)
-    {
-   		return (x >= y) && (x <= z);
-    }
+   template <typename N> N Clamp(N x, N y, N z) { return ((x < y) ? y : ((x > z) ? z : x)); }
+   template <typename N> N max(N x, N y) { return (x > y) ? x : y; }
+   template <typename N> N min(N x, N y) { return (x < y) ? x : y; }
+   template <typename N> bool IsWithin(N x, N y, N z) { return (x >= y) && (x <= z); }
+
 
    struct matrix_t;
    struct vec_t
