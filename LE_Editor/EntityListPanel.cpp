@@ -229,9 +229,9 @@ void EntityListPanel::Render()
 					deltaRotation -= tc.Rotation;
 
 
-					glm::vec3 deltaScale = tc.Size;
-					ImGui::DragFloat3("##scale", glm::value_ptr(tc.Size), 0.1f, -1000, 1000, "%.2f");
-					deltaScale -= tc.Size;
+					glm::vec3 deltaScale = tc.Scale;
+					ImGui::DragFloat3("##scale", glm::value_ptr(tc.Scale), 0.1f, -1000, 1000, "%.2f");
+					deltaScale -= tc.Scale;
 					
 					Entity s_entity = Entity(m_SelectedEntity, m_Scene);
 					if (s_entity.GetChildren().size())
@@ -244,7 +244,7 @@ void EntityListPanel::Render()
 
 							s_tc.Position -= deltaPosition;
 							s_tc.Rotation -= deltaRotation;
-							s_tc.Size -= deltaScale;
+							s_tc.Scale -= deltaScale;
 						}
 					}
 					ImGui::EndColumns();

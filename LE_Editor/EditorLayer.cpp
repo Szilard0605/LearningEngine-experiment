@@ -364,11 +364,11 @@ void EditorLayer::UpdateGizmos()
 
 			glm::vec3 deltaRotation = rotation - tc.Rotation;
 			glm::vec3 deltaPosition = tc.Position - translation;
-			glm::vec3 deltaScale = tc.Size - scale;
+			glm::vec3 deltaScale = tc.Scale - scale;
 
 			tc.Position = translation;
 			tc.Rotation += deltaRotation;
-			tc.Size = scale;
+			tc.Scale = scale;
 
 			Entity s_entity = Entity(selectedEntity, m_Scene);
 
@@ -379,7 +379,7 @@ void EditorLayer::UpdateGizmos()
 					TransformComponent& s_tc = s_entity.GetChildren()[i].GetComponent<TransformComponent>();
 					s_tc.Position -= deltaPosition;
 					s_tc.Rotation -= deltaRotation;
-					s_tc.Size -= deltaScale;
+					s_tc.Scale -= deltaScale;
 				}
 			}
 		}
