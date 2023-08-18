@@ -16,7 +16,7 @@ EntityListPanel::EntityListPanel(Scene *scene)
 {
 }
 
-void EntityListPanel::DisplayHierarchy(Entity& entity)
+void EntityListPanel::DisplayHierarchy(Entity entity)
 {
 	ImGui::PushID(reinterpret_cast<const void*>(static_cast<intptr_t>(entity.GetHandle())));
 

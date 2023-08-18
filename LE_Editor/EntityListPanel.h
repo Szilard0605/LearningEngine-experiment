@@ -18,7 +18,7 @@ public:
 	void SetSelectedEntity(entt::entity entity) { m_SelectedEntity = entity; }
 private:
 
-	void DisplayHierarchy(Entity& entity);
+	void DisplayHierarchy(Entity entity);
 
 	Scene* m_Scene = nullptr;
 
