@@ -39,7 +39,7 @@ Entity Scene::NewEntity(const std::string name)
 	return Entity(name, entity, this);
 }
 
-void Scene::DestroyEntity(Entity& entity)
+void Scene::DestroyEntity(Entity entity)
 {
 	HierarchyComponent& hc = entity.GetComponent<HierarchyComponent>();
 	Entity parent(hc.Parent, this);
@@ -68,7 +68,7 @@ void Scene::DestroyEntity(Entity& entity)
 	Registry.destroy(entity.GetHandle());
 }
 
-Entity& Scene::GetEntityByTag(std::string name)
+Entity Scene::GetEntityByTag(std::string name)
 {
 	auto view = Registry.view<TagComponent>();
 	for (auto entity : view)
