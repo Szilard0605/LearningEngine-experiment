@@ -4,7 +4,7 @@
 
 #include "Platform/OpenGL/OGLFramebuffer.h"
 
-Framebuffer* Framebuffer::Create(FramebufferSpecifications& specs)
+Framebuffer* Framebuffer::Create(FramebufferSpecifications specs)
 {
     switch (Renderer::GetAPI())
     {

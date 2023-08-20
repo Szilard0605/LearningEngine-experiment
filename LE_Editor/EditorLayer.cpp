@@ -27,8 +27,8 @@ void EditorLayer::OnAttach()
 
 	m_Scene = new Scene("Scene");
 
-	Framebuffer::FramebufferSpecifications specs;
-	specs.Attachments = { Framebuffer::FramebufferTextureFormat::RGBA8,Framebuffer::FramebufferTextureFormat::RED_INTEGER, Framebuffer::FramebufferTextureFormat::Depth };
+	FramebufferSpecifications specs;
+	specs.Attachments = { FramebufferAttachment::RGBA8, FramebufferAttachment::RED_INTEGER, FramebufferAttachment::Depth };
 	specs.Width = 1280;
 	specs.Height = 720;
 	m_Framebuffer = Framebuffer::Create(specs);
@@ -153,7 +153,7 @@ void EditorLayer::OnImGuiRender()
 
 		uint32_t texid = m_Framebuffer->GetColorAttachmentID(0);
 
-		Framebuffer::FramebufferSpecifications fbSpecs = m_Framebuffer->GetSpecification();
+		FramebufferSpecifications& fbSpecs = m_Framebuffer->GetSpecification();
 		if (fbSpecs.Width != viewportWidth || fbSpecs.Height != viewportHeight)
 		{
 			m_Framebuffer->Resize((uint32_t)viewportWidth, (uint32_t)viewportHeight);
@@ -417,7 +417,7 @@ bool EditorLayer::OnMouseButtonChange(MouseButtonEvent& event)
 
 bool EditorLayer::OnMouseMove(MouseMoveEvent& event)
 {
-	printf("{%f, %f}\n", Input::GetMousePosition().x, Input::GetMousePosition().y);
+	//printf("{%f, %f}\n", Input::GetMousePosition().x, Input::GetMousePosition().y);
 	if (Input::IsMouseButtonPressed(MouseButton::RIGHT_CLICK) && m_ViewportActive && m_ViewportHovered)
 	{
 
@@ -430,7 +430,7 @@ bool EditorLayer::OnMouseMove(MouseMoveEvent& event)
 			glm::vec2 min = m_ViewportBounds[0] + 4.0f;
 			glm::vec2 max = m_ViewportBounds[1] + 4.0f;
 
-			printf("{%f, %f}, {%f, %f}\n", m_ViewportBounds[0].x, m_ViewportBounds[0].y, m_ViewportBounds[1].x - m_ViewportBounds[0].x, m_ViewportBounds[1].y - m_ViewportBounds[0].y);
+			//printf("{%f, %f}, {%f, %f}\n", m_ViewportBounds[0].x, m_ViewportBounds[0].y, m_ViewportBounds[1].x - m_ViewportBounds[0].x, m_ViewportBounds[1].y - m_ViewportBounds[0].y);
 
 			glm::vec2 cursorPos = Input::GetMousePosition();
 

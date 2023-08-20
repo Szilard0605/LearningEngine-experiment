@@ -1,9 +1,8 @@
 
 #include "Renderer.h"
 
-//#include "Renderer/Platform/D3D11/D3D11Renderer.h"
-
 #include "Platform/OpenGL/OGLRenderer.h"
+#include "RenderContext.h"
 
 Renderer::API Renderer::s_API = Renderer::API::OpenGL;
 

@@ -32,7 +32,7 @@ void OGLRenderer::Clear(const glm::vec4& color)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void OGLRenderer::Resize(const float width, const float height)
+void OGLRenderer::Resize(const int width, const int height)
 {
 	m_Viewport = glm::vec4(0, 0, width, height);
 
@@ -55,7 +55,7 @@ void OGLRenderer::BindViewport()
 {
 }
 
-void OGLRenderer::SetViewportSize(float width, float height)
+void OGLRenderer::SetViewportSize(int width, int height)
 {
 	m_Viewport.b = width;
 	m_Viewport.a = height;
@@ -65,10 +65,10 @@ void OGLRenderer::SetViewportSize(float width, float height)
 
 glm::vec2 OGLRenderer::GetViewportSize()
 {
-	return glm::vec2(m_Viewport.b, m_Viewport.a);
+	return glm::ivec2(m_Viewport.b, m_Viewport.a);
 }
 
-void OGLRenderer::SetViewportPosition(float x, float y)
+void OGLRenderer::SetViewportPosition(int x, int y)
 {
 	m_Viewport.r = x;
 	m_Viewport.g = y;
@@ -78,5 +78,5 @@ void OGLRenderer::SetViewportPosition(float x, float y)
 
 glm::vec2 OGLRenderer::GetViewportPosition()
 {
-	return glm::vec2(m_Viewport.r, m_Viewport.g);
+	return glm::ivec2(m_Viewport.r, m_Viewport.g);
 }

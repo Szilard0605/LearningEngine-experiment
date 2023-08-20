@@ -5,7 +5,7 @@ class Editor : public Application
 {
 public:
 	Editor()
-		: Application("LearningEngine Editor", 1920, 1080)
+		: Application("LearningEngine Editor", 1280, 720)
 	{
 		Application::Init();
 
