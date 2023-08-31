@@ -122,8 +122,10 @@ void ContentBrowser::Render()
 	ImGui::End();
 }
 
-void ContentBrowser::DisplayDirectoryTree(std::filesystem::path directory_path) {
-	if (!std::filesystem::is_directory(directory_path)) {
+void ContentBrowser::DisplayDirectoryTree(std::filesystem::path directory_path)
+{
+	if (!std::filesystem::is_directory(directory_path)) 
+	{
 		std::cerr << "Error: " << directory_path << " is not a valid directory" << std::endl;
 		return;
 	}
@@ -132,11 +134,14 @@ void ContentBrowser::DisplayDirectoryTree(std::filesystem::path directory_path) 
 	const char* imgui_folder_icon = ICON_FA_FOLDER_OPEN;
 	bool open = ImGui::TreeNode(directory_name.c_str(), "%s", directory_name.c_str());
 	
-	if (!std::filesystem::equivalent(directory_path, "res")) {
-		if (open) {
+	if (!std::filesystem::equivalent(directory_path, "res")) 
+	{
+		if (open) 
+		{
 			imgui_folder_icon = ICON_FA_FOLDER_OPEN;
 		}
-		else {
+		else 
+		{
 			imgui_folder_icon = ICON_FA_FOLDER;
 		}
 	}
@@ -149,13 +154,17 @@ void ContentBrowser::DisplayDirectoryTree(std::filesystem::path directory_path) 
 	ImGui::SameLine();
 	ImGui::Text(imgui_folder_icon);
 
-	if (open) {
-		for (auto& directory_entry : std::filesystem::directory_iterator(directory_path)) {
+	if (open) 
+	{
+		for (auto& directory_entry : std::filesystem::directory_iterator(directory_path)) 
+		{
 			std::filesystem::path file_path = directory_entry.path();
-			if (directory_entry.is_directory()) {				
+			if (directory_entry.is_directory()) 
+			{				
 				DisplayDirectoryTree(file_path);
 			}
-			else if (directory_entry.is_regular_file()) {
+			else if (directory_entry.is_regular_file()) 
+			{
 				std::string file_name = file_path.filename().generic_string();
 				ImGui::Text("%s %s", ICON_FA_FILE, file_name.c_str());
 				if (ImGui::IsItemActivated() && !ImGui::IsItemHovered())
