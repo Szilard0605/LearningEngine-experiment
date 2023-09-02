@@ -34,7 +34,8 @@ project "LE_Editor"
 	defines
 	{
 		"_CRT_SECURE_NO_WARNINGS",
-		"GLEW_STATIC"
+		"GLEW_STATIC",
+		"NOMINMAX"
 	}
 
 	links
