@@ -47,12 +47,6 @@ void Mesh::Render(PerspectiveCamera& camera, glm::mat4 transform)
 
 	m_Material->GetShader()->SetMatrix4f("u_ViewProjection", camera.GetViewProjection());
 
-	/*const glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
-							  * glm::rotate(glm::mat4(1.0f), glm::radians(rotation.x), { 1.0f, 0.0f, 0.0f })
-							  * glm::rotate(glm::mat4(1.0f), glm::radians(rotation.y), { 0.0f, 1.0f, 0.0f })
-							  * glm::rotate(glm::mat4(1.0f), glm::radians(rotation.z), { 0.0f, 0.0f, 1.0f })
-							  * glm::scale(glm::mat4(1.0f), scale);*/
-
 	m_Material->GetShader()->SetMatrix4f("u_Transform", transform);
 
 	m_VertexBuffer->SetData(m_Vertices.data(), static_cast<uint32_t>(m_Vertices.size() * sizeof(Vertex)));
