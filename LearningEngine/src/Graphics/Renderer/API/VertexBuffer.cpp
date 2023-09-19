@@ -1,13 +1,13 @@
 #include "VertexBuffer.h"
 
-#include "Renderer.h"
+#include "RendererAPI.h"
 #include "Platform/OpenGL/OGLVertexBuffer.h"
 
 VertexBuffer* VertexBuffer::Create(uint32_t size)
 {
-    switch (Renderer::GetAPI())
+    switch (RendererAPI::GetAPI())
     {
-        case Renderer::API::OpenGL:
+        case RendererAPI::API::OpenGL:
             return new OGLVertexBuffer(size);
         default:
             return nullptr;
@@ -19,9 +19,9 @@ VertexBuffer* VertexBuffer::Create(uint32_t size)
 
 VertexBuffer* VertexBuffer::Create(const void* data, uint32_t size)
 {
-    switch (Renderer::GetAPI())
+    switch (RendererAPI::GetAPI())
     {
-    case Renderer::API::OpenGL:
+    case RendererAPI::API::OpenGL:
         return new OGLVertexBuffer(data, size);
     default:
         return nullptr;

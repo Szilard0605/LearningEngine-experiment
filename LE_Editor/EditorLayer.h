@@ -2,8 +2,8 @@
 
 #include "LearningEngine.h"
 
-#include "EntityListPanel.h"
-#include "ContentBrowser.h"
+#include "Panels/EntityListPanel.h"
+#include "Panels/ContentBrowser.h"
 #include "EditorRuntime.h"
 
 class EditorLayer : public Layer

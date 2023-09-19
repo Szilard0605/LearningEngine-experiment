@@ -8,7 +8,7 @@
 
 class RenderContext;
 
-class Renderer
+class RendererAPI
 {
 public:
 	enum class API
@@ -16,7 +16,7 @@ public:
 		None, D3D11, OpenGL
 	};
 
-	static Renderer* Create(WindowsWindow& window);
+	static RendererAPI* Create(WindowsWindow& window);
 
 	virtual RenderContext* GetContext() = 0;
 	virtual std::string GetVersionString() = 0;
