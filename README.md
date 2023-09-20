@@ -8,7 +8,16 @@ In this version i am planning to make it more like a Game Engine, i am going to 
 
 # Development Setup
 
-// TODO
+LearningEngine is currently only set up for development on the *Windows* operating system in Visual Studio.
+
+Clone the LearningEngine repository to your machine and run `scripts/Win-GenProjects.bat`. 
+This will generate solution files that you can open in Visual Studio. You'll then find LearningEngine.sln in the project root.
+
+After opening the solution, Sandbox should be the active project by default, and pressing the play button in Visual Studio should open up a demo scene.
+
+You may find that Sandbox crashes because it cannot find the assets it needs to run. One way to resolve this is to right click on 
+the `Sandbox` project, open `Properties`, go to `Configuration Properties`, `Debugging`, and change `Working Directory` to `$(SolutionDir)/Sandbox`. 
+Do the same thing with `LE_Editor`, except target the `LE_Editor` folder as the `Working Directory`.
 
 # Development Workflow
 
