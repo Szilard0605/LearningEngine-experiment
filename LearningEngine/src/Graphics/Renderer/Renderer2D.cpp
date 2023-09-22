@@ -70,6 +70,10 @@ static RenderStatistics s_RenderStats;
 
 void Renderer2D::Init()
 {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_DEPTH_TEST);
+
 	g_RenderData.WhiteTexture = Texture2D::Create(1, 1);
 	uint32_t whiteTextureData = 0xffffffff;
 	g_RenderData.WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));

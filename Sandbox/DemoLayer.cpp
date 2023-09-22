@@ -3,7 +3,8 @@
 
 #include "imgui.h"
 
-DemoLayer::DemoLayer() : Layer("DemoLayer")
+DemoLayer::DemoLayer() : 
+	Layer("DemoLayer")
 {
 	//GLRenderer::EnableBlend(true); 
 	//GLRenderer::EnableDepthBuffer(true);
@@ -15,19 +16,8 @@ void DemoLayer::OnAttach()
 
 	Camera = PerspectiveCamera(60.0f, 1.7777f, 0.1f, 10000.0f);
 
-	cubeTransform = glm::translate(glm::mat4(1.0f), {0.0f, 0.0f, -2.0f});
-
-	Shader* demoShader = Shader::Create("res/shaders/texture_shader.shader");
-	
-	demoTexture = Texture2D::Create(1, 1);
-	uint32_t tdata = 0xffffffff;
-	demoTexture->SetData(&tdata, sizeof(uint32_t));
-
-	demoMaterial = new Material(demoShader);
-	demoMaterial->SetTexture(demoTexture);
-	
-	demoMesh = MeshFactory::CreateCube(1, *demoMaterial);
-	demoMesh->SetMaterial(demoMaterial);
+	demoMaterial = Material(Shader::Create("res/shaders/default_shader.shader"));
+	demoModel = Model("res/models/Sponza/sponza.obj", demoMaterial);
 }
 
 void DemoLayer::OnDetach()
@@ -40,9 +30,18 @@ void DemoLayer::OnUpdate(Timestep timestep)
 	Renderer2D::ClearColor(clearColor);
 	Renderer2D::Clear();
 
-	demoMesh->Render(Camera, cubeTransform);
+	demoMaterial.GetShader()->SetFloat("u_AmbientStrength", 0.03f);
+	demoMaterial.GetShader()->SetFloat("u_DiffuseStrength", 1.0f);
+	demoMaterial.GetShader()->SetFloat("u_SpecularStrength", 0.5f);
+	demoMaterial.GetShader()->SetVec4f("u_AmbientColor", {1, 1, 1, 1});
+	demoMaterial.GetShader()->SetVec4f("u_DiffuseColor", { 1, 1, 1, 1 });
+	demoMaterial.GetShader()->SetVec3f("u_ViewPos", Camera.GetPosition());
+	demoMaterial.GetShader()->SetVec3f("u_DiffusePosition", {0, 50, 0});
+	demoMaterial.GetShader()->SetBool("u_UseNormalMap", true);
 
-	float speed = 0.001f;
+	demoModel.Render(Camera, glm::mat4(1.0f));
+
+	float speed = 3.0f;
 
 	if (Input::IsKeyPressed(Key::LeftShift))
 		speed *= 2;

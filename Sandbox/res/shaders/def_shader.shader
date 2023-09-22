@@ -14,7 +14,7 @@ layout(location = 0) out VertexOutput Output;
 
 void main()
 {
-	Output.Color = a_color;
+	Output.Color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	gl_Position = u_ViewProjection * vec4(a_position, 1.0);
 };

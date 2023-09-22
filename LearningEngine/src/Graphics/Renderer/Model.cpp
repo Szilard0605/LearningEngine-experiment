@@ -101,7 +101,7 @@ Model::Model(std::filesystem::path path, Material& material)
 		material.SetTexture(baseColorTexture);
 
 		Texture2D* normalMapTexture = nullptr;
-		// Base Color textures
+		// Normal Map textures
 		{
 			aiString texpath;	// filename
 			aiReturn texFound = mtl->GetTexture(aiTextureType_NORMALS, 0, &texpath);

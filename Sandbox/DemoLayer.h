@@ -25,17 +25,17 @@ private:
 
 	PerspectiveCamera Camera;
 
-	Texture2D* demoTexture;
-	Material* demoMaterial;
-	Mesh* demoMesh;
-	static constexpr glm::vec4 meshColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 	static constexpr glm::vec4 clearColor = { 0.1f, 0.1f, 0.1f, 1.0f };
+
+	Material demoMaterial;
+	Model demoModel;
 
 	glm::vec2 LastMousePos = { -1, -1 };
 	glm::mat4 cubeTransform;
 
 	glm::vec4 u_Color;
-	glm::vec3 u_LightPosition;
+	glm::vec3 u_LightPosition = { 1, 3000, 1 };
+	float u_LightAttenuation = 0.0f;
 	glm::vec4 u_LightColor = { 1, 1, 1, 1 };;
 	glm::vec3 u_LightDir = { 1, 1, 1 };
 };
