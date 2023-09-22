@@ -51,7 +51,10 @@ void Mesh::Render(PerspectiveCamera& camera, glm::mat4 transform)
 
 	m_VertexBuffer->SetData(m_Vertices.data(), static_cast<uint32_t>(m_Vertices.size() * sizeof(Vertex)));
 
-	m_Material->GetTexture()->Bind(0);
+	if (m_Material->GetTexture())
+	{
+		m_Material->GetTexture()->Bind(0);
+	}
 
 	m_Material->GetShader()->SetBool("u_UseNormalMap", false);
 	if (m_Material->GetNormalmap())
