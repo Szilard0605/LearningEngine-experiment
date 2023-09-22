@@ -9,7 +9,7 @@
 class Renderer2D
 {
 public:
-	static void Init();
+	static void Init(RendererAPI* rendererapi);
 	static void Begin(OrthographicCamera& Camera);
 	static void Begin(PerspectiveCamera& Camera);
 	static void End();

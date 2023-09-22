@@ -29,8 +29,6 @@ void main()
 	fragmentdata.Position = vec3(u_Transform * vec4(a_position, 1.0));
 	fragmentdata.Normal =  mat3(transpose(inverse(u_Transform))) * a_normal;
 	fragmentdata.TexCoords = a_texcoords;
-	fragmentdata.Tangent = mat3(u_Transform) * a_tangent;
-	fragmentdata.Bitangent = mat3(u_Transform) * a_bitangent;
 	
     fragmentdata.Tangent =   normalize(vec3(u_Transform * vec4(a_tangent,   0.0)));
     fragmentdata.Bitangent = normalize(vec3(u_Transform * vec4(a_bitangent, 0.0)));
@@ -78,6 +76,7 @@ void main()
 {	
 
 	vec4 tex = texture(u_Texture, fragmentdata.TexCoords);
+	
 	if (tex.a < 0.1f) {
 		discard;
 	}

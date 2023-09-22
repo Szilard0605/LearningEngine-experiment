@@ -41,7 +41,7 @@ void Application::Init()
 	
 	m_RendererAPI = RendererAPI::Create(*m_window);
 
-	Renderer2D::Init();
+	Renderer2D::Init(m_RendererAPI);
 	ImGuiCore::Init(*m_window);
 
 	m_window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));

@@ -2,7 +2,7 @@
 #include "WindowsWindow.h"
 #include "Log/Log.h"
 #include "Core/Input.h"
-#include "Platform/OpenGL/OGLRenderer.h"
+#include "Platform/OpenGL/OGLRendererAPI.h"
 
 #include <glew.h>
 #include <glfw3.h>

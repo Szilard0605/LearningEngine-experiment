@@ -68,11 +68,10 @@ struct RenderStatistics
 
 static RenderStatistics s_RenderStats;
 
-void Renderer2D::Init()
+void Renderer2D::Init(RendererAPI* rendererapi)
 {
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_DEPTH_TEST);
+	rendererapi->UseDepthTesting(true);
+	rendererapi->EnableBlending(true);
 
 	g_RenderData.WhiteTexture = Texture2D::Create(1, 1);
 	uint32_t whiteTextureData = 0xffffffff;
