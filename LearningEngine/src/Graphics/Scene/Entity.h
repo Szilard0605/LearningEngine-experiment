@@ -90,7 +90,7 @@ class Entity
 		template<typename T>
 		bool HasComponent()
 		{
-			return m_Scene->m_Registry.has<T>(m_EntityHandle);
+			return m_Scene->Registry.try_get<T>(m_EntityHandle) != nullptr;
 		}
 
 		template<typename T>

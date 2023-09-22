@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <windows.h>
 
-#include "PhysicsTest.h"
+#include "DemoLayer.h"
 
 class Sandbox : public Application
 {
@@ -15,7 +15,7 @@ public:
 		Application::Init();
 
 		//PushLayer(new Sandbox2D());
-		PushLayer(new PhysicsTest());
+		PushLayer(new DemoLayer());
 	}
 
 	~Sandbox() 

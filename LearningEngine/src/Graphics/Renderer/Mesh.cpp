@@ -16,7 +16,7 @@
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices, Material material)
 	: m_Vertices(vertices), m_Indices(indices)
 {
-	m_VertexBuffer = VertexBuffer::Create(vertices.size() * sizeof(Vertex));
+	m_VertexBuffer = VertexBuffer::Create(static_cast<uint32_t>(vertices.size() * sizeof(Vertex)));
 	
 	m_VertexBuffer->SetLayout({
 		{ ShaderDataType::Float3, "a_position" }, 
@@ -29,7 +29,7 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices, Material
 	m_VertexArray = VertexArray::Create();
 	m_VertexArray->AddVertexBuffer(m_VertexBuffer);
 
-	m_IndexBuffer = IndexBuffer::Create(indices.data(), indices.size());
+	m_IndexBuffer = IndexBuffer::Create(indices.data(), static_cast<uint32_t>(indices.size()));
 
 	m_Material = new Material(material);
 }
@@ -47,17 +47,14 @@ void Mesh::Render(PerspectiveCamera& camera, glm::mat4 transform)
 
 	m_Material->GetShader()->SetMatrix4f("u_ViewProjection", camera.GetViewProjection());
 
-	/*const glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
-							  * glm::rotate(glm::mat4(1.0f), glm::radians(rotation.x), { 1.0f, 0.0f, 0.0f })
-							  * glm::rotate(glm::mat4(1.0f), glm::radians(rotation.y), { 0.0f, 1.0f, 0.0f })
-							  * glm::rotate(glm::mat4(1.0f), glm::radians(rotation.z), { 0.0f, 0.0f, 1.0f })
-							  * glm::scale(glm::mat4(1.0f), scale);*/
-
 	m_Material->GetShader()->SetMatrix4f("u_Transform", transform);
 
-	m_VertexBuffer->SetData(m_Vertices.data(), m_Vertices.size() * sizeof(Vertex));
+	m_VertexBuffer->SetData(m_Vertices.data(), static_cast<uint32_t>(m_Vertices.size() * sizeof(Vertex)));
 
-	m_Material->GetTexture()->Bind(0);
+	if (m_Material->GetTexture())
+	{
+		m_Material->GetTexture()->Bind(0);
+	}
 
 	m_Material->GetShader()->SetBool("u_UseNormalMap", false);
 	if (m_Material->GetNormalmap())

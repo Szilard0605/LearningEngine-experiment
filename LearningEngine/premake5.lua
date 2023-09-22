@@ -25,14 +25,15 @@ project "LearningEngine"
 		"./Dependencies/glm/include/**.hpp",
 		"./Dependencies/glm/include/**.inl",
 
-		"../Dependencies/ImGuizmo/ImGuizmo.h",
-		"../Dependencies/ImGuizmo/ImGuizmo.cpp"
+		"./Dependencies/tinyxml2/**.h",
+		"./Dependencies/tinyxml2/**.cpp"
 	}
 
 	defines
 	{
 		"_CRT_SECURE_NO_WARNINGS",
-		"GLEW_STATIC"
+		"GLEW_STATIC",
+		"NOMINMAX"
 	}
 
 	includedirs
@@ -48,7 +49,8 @@ project "LearningEngine"
 		"%{IncludeDir.ASSIMP}",
 		"%{IncludeDir.ENTT}",
 		"%{IncludeDir.JSON}",
-		"%{IncludeDir.ImGuizmo}"
+		"%{IncludeDir.ImGuizmo}",
+		"%{IncludeDir.TinyXML}"
 	}
 	
 	libdirs

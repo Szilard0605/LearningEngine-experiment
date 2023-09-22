@@ -14,12 +14,20 @@ workspace "LearningEngine"
 
     	outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+group "Applications"
+include "Sandbox"
+include "LE_Editor"
+include "LE_Launcher"
+group ""
+
+group "Core"
+include "LearningEngine"
+group ""
+
 group "Dependencies" 
 	include "Dependencies/imgui"
 	include "Dependencies/box2d"
 	include "Dependencies/assimp"
 group ""
 
-include "LearningEngine"
-include "Sandbox"
-include "LE_Editor"
+

@@ -2,8 +2,6 @@
 #version 450 core
 
 layout(location = 0) in vec3 a_position;
-layout(location = 1) in vec4 a_color;
-//layout(location = 2) in mat4 a_transform;
 
 uniform mat4 u_ViewProjection;
 
@@ -16,7 +14,7 @@ layout(location = 0) out VertexOutput Output;
 
 void main()
 {
-	Output.Color = a_color;
+	Output.Color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	gl_Position = u_ViewProjection * vec4(a_position, 1.0);
 };

@@ -6,7 +6,7 @@ project "LE_Editor"
 
 	targetdir ("%{wks.location}/bin/" .. outputdir)
 	objdir ("%{wks.location}/bin-int/" .. outputdir)
-	debugdir ("%{wks.location}/bin/" .. outputdir)
+	debugdir ("%{prj.location}/")
 
 	dependson
 	{
@@ -17,6 +17,7 @@ project "LE_Editor"
 	{
 		"**.h",
 		"**.cpp"
+		
 	}
 
 	includedirs
@@ -33,7 +34,8 @@ project "LE_Editor"
 	defines
 	{
 		"_CRT_SECURE_NO_WARNINGS",
-		"GLEW_STATIC"
+		"GLEW_STATIC",
+		"NOMINMAX"
 	}
 
 	links

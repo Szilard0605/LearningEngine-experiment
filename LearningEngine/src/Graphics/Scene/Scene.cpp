@@ -3,6 +3,7 @@
 #include "Components.h"
 #include "Graphics/Renderer/Renderer2D.h"
 #include "Log/Log.h"
+#include <string>
 
 Scene::Scene(const std::string name)
 	: m_Name(name)
@@ -21,13 +22,15 @@ Scene::~Scene()
 
 Entity Scene::NewEntity(const std::string name)
 {
-	entt::entity entity = Registry.create();
+	auto entity = Registry.create();
 
 	TransformComponent tc;
 	Registry.emplace<TransformComponent>(entity, tc);
 
 	TagComponent tagComponent;
 	tagComponent.Tag = name;
+	tagComponent.ID = (int)entity;
+
 	Registry.emplace<TagComponent>(entity, tagComponent);
 
 	HierarchyComponent hc;
@@ -36,7 +39,7 @@ Entity Scene::NewEntity(const std::string name)
 	return Entity(name, entity, this);
 }
 
-void Scene::DestroyEntity(Entity& entity)
+void Scene::DestroyEntity(Entity entity)
 {
 	HierarchyComponent& hc = entity.GetComponent<HierarchyComponent>();
 	Entity parent(hc.Parent, this);
@@ -65,7 +68,7 @@ void Scene::DestroyEntity(Entity& entity)
 	Registry.destroy(entity.GetHandle());
 }
 
-Entity& Scene::GetEntityByTag(std::string name)
+Entity Scene::GetEntityByTag(std::string name)
 {
 	auto view = Registry.view<TagComponent>();
 	for (auto entity : view)
@@ -157,7 +160,7 @@ void Scene::Render(PerspectiveCamera* camera)
 		{
 			auto [tc, qrc] = view.get<TransformComponent, QuadRendererComponent>(entity);
 			if (qrc.enabled)
-				Renderer2D::DrawQuad(tc.Position, tc.Size + qrc.Scale, glm::degrees(tc.Rotation), qrc.Color, (int)entity);
+				Renderer2D::DrawQuad(tc.Position, tc.Scale, glm::degrees(tc.Rotation), qrc.Color, (int)entity);
 		}
 
 		Renderer2D::End();

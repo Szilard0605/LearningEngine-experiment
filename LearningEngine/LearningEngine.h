@@ -37,9 +37,6 @@
 #include "Assets/AssetRegistry.h"
 #include "Assets/AssetLoader.h"
 
-#include "Physics/Physics2DBody.h"
-#include "Physics/Physics2DWorld.h"
-
 #include "Events/Events.h"
 
 #include "Utils/FileDialog.h"

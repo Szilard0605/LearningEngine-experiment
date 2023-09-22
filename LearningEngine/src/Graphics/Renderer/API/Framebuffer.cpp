@@ -1,14 +1,14 @@
 #include "Framebuffer.h"
 
-#include "Renderer.h"
+#include "RendererAPI.h"
 
 #include "Platform/OpenGL/OGLFramebuffer.h"
 
-Framebuffer* Framebuffer::Create(FramebufferSpecifications& specs)
+Framebuffer* Framebuffer::Create(FramebufferSpecifications specs)
 {
-    switch (Renderer::GetAPI())
+    switch (RendererAPI::GetAPI())
     {
-        case Renderer::API::OpenGL:   
+        case RendererAPI::API::OpenGL:
             return new OGLFramebuffer(specs);
         default:
             return nullptr;

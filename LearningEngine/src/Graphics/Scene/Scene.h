@@ -19,8 +19,8 @@ class Scene
 		~Scene();
 
 		Entity NewEntity(const std::string name);
-		void DestroyEntity(Entity& entity);
-		Entity& GetEntityByTag(std::string name);
+		void DestroyEntity(Entity entity);
+		Entity GetEntityByTag(std::string name);
 		void Render(PerspectiveCamera* camera = nullptr);
 
 		void SetName(const std::string name) { m_Name = name; }

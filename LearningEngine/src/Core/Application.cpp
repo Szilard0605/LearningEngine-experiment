@@ -39,7 +39,7 @@ void Application::Init()
 
 	m_window = new WindowsWindow(m_name, m_width, m_height);
 	
-	m_Renderer = Renderer::Create(*m_window);
+	m_RendererAPI = RendererAPI::Create(*m_window);
 
 	Renderer2D::Init();
 	ImGuiCore::Init(*m_window);
@@ -47,13 +47,13 @@ void Application::Init()
 	m_window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
 
 	// Note (Szilard): Might need to remove this from here
-	m_Renderer->UseDepthTesting(true);
+	m_RendererAPI->UseDepthTesting(true);
 	// ---------------------------------------------------
 
 	Utils::Random::InitSeed();
 
 	LE_CORE_INFO("Application initialized!");
-	LE_CORE_INFO("OpenGL version: " + m_Renderer->GetVersionString());
+	LE_CORE_INFO("OpenGL version: " + m_RendererAPI->GetVersionString());
 }
 
 

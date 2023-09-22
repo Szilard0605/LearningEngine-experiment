@@ -21,4 +21,18 @@ namespace Utils
 		}
 		return false;
 	}
+	std::string FileDialog::SaveFile(const char* filters)
+	{
+		switch (Platform::GetOperatingSystem())
+		{
+		case::Platform::OperatingSystem::Windows:
+		{
+			return WindowsFileDialog::SaveFile(filters);
+		}
+
+		default:
+			return std::string();
+		}
+		return std::string();
+	}
 }

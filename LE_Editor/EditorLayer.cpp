@@ -1,6 +1,6 @@
 #include "EditorLayer.h"
 
-
+// might need to change this
 #include "ImGuizmo.cpp"
 #include "ImGuizmo.h"
 
@@ -27,8 +27,8 @@ void EditorLayer::OnAttach()
 
 	m_Scene = new Scene("Scene");
 
-	Framebuffer::FramebufferSpecifications specs;
-	specs.Attachments = { Framebuffer::FramebufferTextureFormat::RGBA8,Framebuffer::FramebufferTextureFormat::RED_INTEGER, Framebuffer::FramebufferTextureFormat::Depth };
+	FramebufferSpecifications specs;
+	specs.Attachments = { FramebufferAttachment::RGBA8, FramebufferAttachment::RED_INTEGER, FramebufferAttachment::Depth };
 	specs.Width = 1280;
 	specs.Height = 720;
 	m_Framebuffer = Framebuffer::Create(specs);
@@ -81,6 +81,8 @@ void EditorLayer::OnImGuiRender()
 	static bool opt_fullscreen_persistant = true;
 	bool opt_fullscreen = opt_fullscreen_persistant;
 	static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+
+	bool showSavePopup = false;
 
 	ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
 	if (opt_fullscreen)
@@ -151,7 +153,7 @@ void EditorLayer::OnImGuiRender()
 
 		uint32_t texid = m_Framebuffer->GetColorAttachmentID(0);
 
-		Framebuffer::FramebufferSpecifications fbSpecs = m_Framebuffer->GetSpecification();
+		FramebufferSpecifications& fbSpecs = m_Framebuffer->GetSpecification();
 		if (fbSpecs.Width != viewportWidth || fbSpecs.Height != viewportHeight)
 		{
 			m_Framebuffer->Resize((uint32_t)viewportWidth, (uint32_t)viewportHeight);
@@ -256,18 +258,22 @@ void EditorLayer::OnImGuiRender()
 		ImGui::PopStyleVar(2);
 		ImGui::End();
 
+	}	
+
+	if (ImGui::IsKeyPressed(ImGuiKey_C)) {
+		ImGui::OpenPopup("Save");
 	}
 
 	if (ImGui::BeginMainMenuBar())
 	{
 		if (ImGui::BeginMenu("File"))
 		{
-			if (ImGui::MenuItem("Save scene"))
+			if (ImGui::MenuItem("New", "Ctrl+N"))
 			{
-				SceneSerializer::Serialize(m_Scene);
-			}
 
-			if (ImGui::MenuItem("Load scene"))
+			}
+			
+			if (ImGui::MenuItem("Open Scene...", "Ctrl+O"))
 			{
 				LE_CLIENT_INFO("Loading a Scene");
 
@@ -284,6 +290,21 @@ void EditorLayer::OnImGuiRender()
 					}
 				}
 			}
+
+			if (ImGui::MenuItem("Save As...", "Ctrl+S"))
+			{
+				LE_CLIENT_INFO("Saving a Scene");
+
+				std::string scenePath = Utils::FileDialog::SaveFile("LearningEngine Scene (*.lescene)\0*.lescene\0");
+
+				if (!scenePath.empty())
+				{
+					SceneSerializer::Serialize(m_Scene, scenePath);
+				}
+			}			
+
+			ImGui::MenuItem("Exit", "Alt+F4");
+			
 			ImGui::EndMenu();
 		}
 		ImGui::EndMainMenuBar();
@@ -343,11 +364,11 @@ void EditorLayer::UpdateGizmos()
 
 			glm::vec3 deltaRotation = rotation - tc.Rotation;
 			glm::vec3 deltaPosition = tc.Position - translation;
-			glm::vec3 deltaScale = tc.Size - scale;
+			glm::vec3 deltaScale = tc.Scale - scale;
 
 			tc.Position = translation;
 			tc.Rotation += deltaRotation;
-			tc.Size = scale;
+			tc.Scale = scale;
 
 			Entity s_entity = Entity(selectedEntity, m_Scene);
 
@@ -358,7 +379,7 @@ void EditorLayer::UpdateGizmos()
 					TransformComponent& s_tc = s_entity.GetChildren()[i].GetComponent<TransformComponent>();
 					s_tc.Position -= deltaPosition;
 					s_tc.Rotation -= deltaRotation;
-					s_tc.Size -= deltaScale;
+					s_tc.Scale -= deltaScale;
 				}
 			}
 		}
@@ -396,7 +417,7 @@ bool EditorLayer::OnMouseButtonChange(MouseButtonEvent& event)
 
 bool EditorLayer::OnMouseMove(MouseMoveEvent& event)
 {
-	printf("{%f, %f}\n", Input::GetMousePosition().x, Input::GetMousePosition().y);
+	//printf("{%f, %f}\n", Input::GetMousePosition().x, Input::GetMousePosition().y);
 	if (Input::IsMouseButtonPressed(MouseButton::RIGHT_CLICK) && m_ViewportActive && m_ViewportHovered)
 	{
 
@@ -409,7 +430,7 @@ bool EditorLayer::OnMouseMove(MouseMoveEvent& event)
 			glm::vec2 min = m_ViewportBounds[0] + 4.0f;
 			glm::vec2 max = m_ViewportBounds[1] + 4.0f;
 
-			printf("{%f, %f}, {%f, %f}\n", m_ViewportBounds[0].x, m_ViewportBounds[0].y, m_ViewportBounds[1].x - m_ViewportBounds[0].x, m_ViewportBounds[1].y - m_ViewportBounds[0].y);
+			//printf("{%f, %f}, {%f, %f}\n", m_ViewportBounds[0].x, m_ViewportBounds[0].y, m_ViewportBounds[1].x - m_ViewportBounds[0].x, m_ViewportBounds[1].y - m_ViewportBounds[0].y);
 
 			glm::vec2 cursorPos = Input::GetMousePosition();
 

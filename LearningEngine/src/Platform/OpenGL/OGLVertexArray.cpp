@@ -4,7 +4,6 @@
 OGLVertexArray::OGLVertexArray()
 {
 	glCreateVertexArrays(1, &m_vertexarray);
-
 }
 
 OGLVertexArray::~OGLVertexArray()

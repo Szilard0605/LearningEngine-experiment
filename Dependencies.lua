@@ -10,6 +10,7 @@ IncludeDir["ASSIMP"] = "%{wks.location}/Dependencies/assimp/include"
 IncludeDir["ENTT"] = "%{wks.location}/Dependencies/entt/include"
 IncludeDir["JSON"] = "%{wks.location}/Dependencies/json"
 IncludeDir["ImGuizmo"] = "%{wks.location}/Dependencies/ImGuizmo"
+IncludeDir["TinyXML"] = "%{wks.location}/Dependencies/tinyxml2"
 
 LibraryDir = {}
 

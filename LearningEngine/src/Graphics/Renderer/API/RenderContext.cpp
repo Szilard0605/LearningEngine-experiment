@@ -8,9 +8,9 @@
 
 RenderContext* RenderContext::Create(WindowsWindow& window)
 {
-	switch (Renderer::GetAPI())
+	switch (RendererAPI::GetAPI())
 	{
-		case Renderer::API::OpenGL:
+		case RendererAPI::API::OpenGL:
 			return new OGLContext(window);
 		default:
 			return nullptr;

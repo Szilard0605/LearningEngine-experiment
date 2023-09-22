@@ -6,7 +6,7 @@ project "Sandbox"
 
 	targetdir ("%{wks.location}/bin/" .. outputdir)
 	objdir ("%{wks.location}/bin-int/" .. outputdir)
-	debugdir ("%{wks.location}/bin/" .. outputdir)
+	debugdir ("%{prj.location}/")
 
 	dependson
 	{
