@@ -1,6 +1,6 @@
 #include "IndexBuffer.h"
 
-#include "Renderer.h"
+#include "RendererAPI.h"
 
 //#include "Renderer/Platform/D3D11/D3D11IndexBuffer.h"
 
@@ -8,9 +8,9 @@
 
 IndexBuffer* IndexBuffer::Create(uint32_t* data, uint32_t count)
 {
-	switch (Renderer::GetAPI())
+	switch (RendererAPI::GetAPI())
 	{
-		case Renderer::API::OpenGL:
+		case RendererAPI::API::OpenGL:
 			return new OGLIndexBuffer(data, count);
 		default:
 			return nullptr;

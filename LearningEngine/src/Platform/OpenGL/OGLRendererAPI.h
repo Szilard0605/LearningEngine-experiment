@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Graphics/Renderer/API/Renderer.h"
+#include "Graphics/Renderer/API/RendererAPI.h"
 #include "Graphics/Renderer/API/RenderContext.h"
 
 #include "OGLVertexArray.h"
@@ -9,11 +9,11 @@
 #include <cstdint>
 #include "glm.hpp"
 
-class OGLRenderer : public Renderer
+class OGLRendererAPI : public RendererAPI
 {
 public:
-	OGLRenderer(WindowsWindow& window);
-	~OGLRenderer();
+	OGLRendererAPI(WindowsWindow& window);
+	~OGLRendererAPI();
 
 	virtual RenderContext* GetContext() override;
 	virtual std::string GetVersionString() override;

@@ -1,15 +1,15 @@
 #include "EntityListPanel.h"
 
-#include "imgui.h"
 #include "LearningEngine.h"
 
-#include "EditorLayer.h"
+#include "imgui.h"
+#include <imgui_internal.h>
 
+#include "../EditorLayer.h"
 // GLM
 #include "gtc/type_ptr.hpp"
-#include <imgui_internal.h>
+
 #include <IconsFontAwesome5.h>
-#include <Log/Log.h>
 
 EntityListPanel::EntityListPanel(Scene *scene)
 	: m_Scene(scene)

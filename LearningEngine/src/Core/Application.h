@@ -5,7 +5,7 @@
 #include "PLatform/Windows/WindowsWindow.h"
 #include <functional>
 #include <Events/Event.h>
-#include "Graphics/Renderer/API/Renderer.h"
+#include "Graphics/Renderer/API/RendererAPI.h"
 
 class Application
 {
@@ -20,12 +20,12 @@ class Application
 		inline WindowsWindow* GetWindow() { return m_window; }
 		inline static Application* GetInstance() { return s_Instance; }
 
-		inline Renderer* GetRenderer() { return m_Renderer; }
+		inline RendererAPI* GetRenderer() { return m_RendererAPI; }
 
 	private:
 		static Application* s_Instance;
 
-		Renderer* m_Renderer;
+		RendererAPI* m_RendererAPI;
 
 		float m_LastTime = 0.0f;
 		std::string m_name;
