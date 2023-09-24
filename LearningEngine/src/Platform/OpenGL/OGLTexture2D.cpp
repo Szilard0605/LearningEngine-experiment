@@ -3,7 +3,7 @@
 #include "glew.h"
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "Utils/stb_image.h"
+#include "stb_image.h"
 #include "Log/Log.h"
 
 OGLTexture2D::OGLTexture2D(const std::string image_path)

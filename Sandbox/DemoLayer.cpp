@@ -39,7 +39,12 @@ void DemoLayer::OnUpdate(Timestep timestep)
 	demoMaterial.GetShader()->SetVec3f("u_DiffusePosition", {0, 50, 0});
 	demoMaterial.GetShader()->SetBool("u_UseNormalMap", true);
 
-	demoModel.Render(Camera, glm::mat4(1.0f));
+	//demoModel.Render(Camera, glm::mat4(1.0f));
+	ForwardRenderer::BeginScene(Camera);
+	ForwardRenderer::SubmitModel(&demoModel, glm::mat4(1.0f));
+	ForwardRenderer::EndScene();
+
+	ForwardRenderer::Present();
 
 	float speed = 3.0f;
 

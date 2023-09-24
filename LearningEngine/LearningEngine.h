@@ -23,6 +23,7 @@
 #include "Graphics/Renderer/Mesh.h"
 #include "Graphics/Renderer/MeshFactory.h"
 #include "Graphics/Renderer/Material.h"
+#include "Graphics/Renderer/ForwardRenderer.h"
 
 #include "Graphics/Scene/Scene.h"
 #include "Graphics/Scene/Entity.h"

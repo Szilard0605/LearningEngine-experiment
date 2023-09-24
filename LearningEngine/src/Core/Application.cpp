@@ -5,6 +5,7 @@
 
 #include "Timestep.h"
 
+#include "Graphics/Renderer/ForwardRenderer.h"
 #include "Graphics/ImGui/ImGuiCore.h"
 #include "Log/Log.h"
 #include "Utils/Random.h"
@@ -42,6 +43,7 @@ void Application::Init()
 	m_RendererAPI = RendererAPI::Create(*m_window);
 
 	Renderer2D::Init(m_RendererAPI);
+	ForwardRenderer::Init(m_RendererAPI);
 	ImGuiCore::Init(*m_window);
 
 	m_window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));

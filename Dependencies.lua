@@ -1,5 +1,6 @@
 IncludeDir = {}
 
+IncludeDir["stb_image"] = "%{wks.location}/Dependencies/stb_image/include"
 IncludeDir["GLFW"] = "%{wks.location}/Dependencies/glfw/include"
 IncludeDir["ImGui"] = "%{wks.location}/Dependencies/imgui"
 IncludeDir["glm"] = "%{wks.location}/Dependencies/glm/include"

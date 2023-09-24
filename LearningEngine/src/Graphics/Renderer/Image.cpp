@@ -1,6 +1,6 @@
 #include "Image.h"
 
-#include "Utils/stb_image.h"
+#include "stb_image.h"
 
 Image::Image(ImageProperties properties)
 	: m_Properties(properties)
