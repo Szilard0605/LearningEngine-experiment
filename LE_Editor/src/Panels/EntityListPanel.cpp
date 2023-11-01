@@ -49,16 +49,29 @@ void EntityListPanel::DisplayHierarchy(Entity entity)
 
 	if (ImGui::BeginDragDropTarget())
 	{
-
 		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Entity"))
 		{ 
-			Entity payload_n = *(const Entity*)payload->Data;
-
+			Entity payload_n = *static_cast<const Entity*>(payload->Data);
 			HierarchyComponent& payloadHC = payload_n.GetComponent<HierarchyComponent>();
-
-			if (payloadHC.Parent != entity)
+			
+			if (payload_n.GetParent() != entity)
 			{
-				payload_n.SetParent(entity);
+				Entity& oldParent = payload_n.GetParent();
+				if (oldParent.IsValid())
+				{
+					HierarchyComponent& oldParentHC = oldParent.GetComponent<HierarchyComponent>();
+					oldParentHC.Children.erase(std::remove(oldParentHC.Children.begin(), oldParentHC.Children.end(), payload_n.GetHandle()), oldParentHC.Children.end());
+				}
+				
+				if (!payload_n.GetParent().IsValid())
+				{
+					payload_n.SetParent(entity);
+				}
+				else
+				{
+					payloadHC.Parent = entt::null;
+					payload_n.SetParent(entity);
+				}
 			}
 		}
 		ImGui::EndDragDropTarget();
@@ -111,6 +124,22 @@ void EntityListPanel::Render()
 
 		if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanAvailWidth))
 		{
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Entity"))
+				{
+					Entity payload_n = *static_cast<const Entity*>(payload->Data);
+					HierarchyComponent& payloadHC = payload_n.GetComponent<HierarchyComponent>();
+					Entity& oldParent = payload_n.GetParent();
+					if (oldParent.IsValid())
+					{
+						HierarchyComponent& oldParentHC = oldParent.GetComponent<HierarchyComponent>();
+						oldParentHC.Children.erase(std::remove(oldParentHC.Children.begin(), oldParentHC.Children.end(), payload_n.GetHandle()), oldParentHC.Children.end());
+						payloadHC.Parent = entt::null;
+					}
+				}
+			}
+			
 			// Render Entity hierarchy
 			auto view = m_Scene->Registry.view<TransformComponent>();
 
