@@ -10,12 +10,11 @@
 #include "API/API.h"
 
 Model::Model(std::filesystem::path path)
+	: Model(path, Material(ShaderLibrary::GetShader("DefaultShader")))
 {
-	Material defMaterial = ShaderLibrary::GetShader("DefaultShader");
-	Model(path, defMaterial);
 }
 
-Model::Model(std::filesystem::path path, Material& material)
+Model::Model(std::filesystem::path path, Material material)
 	: m_Path(path)
 {
 	LE_CORE_INFO(std::string("Loading model ") + path.string());
@@ -98,8 +97,11 @@ Model::Model(std::filesystem::path path, Material& material)
 			if (texFound == AI_SUCCESS)
 			{
 				baseColorTexture = Texture2D::Create(path.remove_filename().string() + texpath.C_Str());
+			
+				printf("%d mesh got base color\n", i);
 			}
 		}
+
 		material.SetTexture(baseColorTexture);
 
 		Texture2D* normalMapTexture = nullptr;

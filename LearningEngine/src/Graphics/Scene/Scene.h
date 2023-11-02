@@ -6,6 +6,9 @@
 
 #include "Graphics/Camera/PerspectiveCamera.h"
 
+#include "Graphics/Renderer/API/Shader.h"
+#include "Graphics/Renderer/API/CubeMap.h"
+
 class Entity;
 
 //TODO: COPY SCENE FUNCTION
@@ -14,7 +17,6 @@ class Scene
 {
 	public:
 		Scene() = default;
-		Scene(Scene& other);
 		Scene(const std::string name);
 		~Scene();
 

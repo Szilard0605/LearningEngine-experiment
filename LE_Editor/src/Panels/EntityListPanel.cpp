@@ -188,7 +188,6 @@ void EntityListPanel::Render()
 			// Rename entity
 			char* input = (char*)tc.Tag.c_str();
 
-
 			ImGui::SameLine();
 			ImGui::PushItemWidth(ImGui::GetWindowWidth());
 
@@ -203,7 +202,7 @@ void EntityListPanel::Render()
 			{
 				TransformComponent& tc = m_Scene->Registry.get<TransformComponent>(m_SelectedEntity);
 				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-				if (ImGui::CollapsingHeader("Transform Component"))
+				if (ImGui::CollapsingHeader("Transform"))
 				{
 					ImGui::BeginColumns("##transform", 2, ImGuiColumnsFlags_NoResize || ImGuiColumnsFlags_NoBorder);
 					ImGui::SetColumnWidth(0, 70);
@@ -240,8 +239,6 @@ void EntityListPanel::Render()
 						{
 							TransformComponent& s_tc = s_entity.GetChildren()[i].GetComponent<TransformComponent>();
 
-
-
 							s_tc.Position -= deltaPosition;
 							s_tc.Rotation -= deltaRotation;
 							s_tc.Scale -= deltaScale;
@@ -257,7 +254,7 @@ void EntityListPanel::Render()
 				ImGui::Checkbox("##visible", &qrc.enabled);
 				ImGui::SameLine();
 				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-				if (ImGui::CollapsingHeader("Quad Renderer Component"))
+				if (ImGui::CollapsingHeader("Quad Renderer"))
 				{
 					ImGui::BeginColumns("##quadrenderer", 2, ImGuiColumnsFlags_NoResize || ImGuiColumnsFlags_NoBorder);
 					ImGui::SetColumnWidth(0, 70);
@@ -269,18 +266,13 @@ void EntityListPanel::Render()
 					ImGui::ColorEdit4("##color", glm::value_ptr(qrc.Color));
 					ImGui::EndColumns();
 				}
-
-				if (ImGui::Button("Remove Component", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
-				{
-					m_Scene->Registry.remove<QuadRendererComponent>(m_SelectedEntity);
-				}
 			}
 
 			if (m_Scene->Registry.try_get<PerspectiveCameraComponent>(m_SelectedEntity))
 			{
 				PerspectiveCameraComponent& pcc = m_Scene->Registry.get<PerspectiveCameraComponent>(m_SelectedEntity);
 				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-				if (ImGui::CollapsingHeader("Perspective Camera Component"))
+				if (ImGui::CollapsingHeader("Perspective Camera"))
 				{
 					ImGui::Checkbox("Main camera", &pcc.MainCamera);
 
@@ -329,10 +321,32 @@ void EntityListPanel::Render()
 					if (ImGui::DragFloat("Far clip", &pcc.FarClip))
 						pcc.Camera->SetFarClip(pcc.FarClip);
 				}
+			}
 
-				if (ImGui::Button("Remove Component", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
+
+			if (m_Scene->Registry.try_get<StaticModelComponent>(m_SelectedEntity))
+			{
+				StaticModelComponent& smc = m_Scene->Registry.get<StaticModelComponent>(m_SelectedEntity);
+				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+				if (ImGui::CollapsingHeader("Static Mesh Component"))
 				{
-					m_Scene->Registry.remove<PerspectiveCameraComponent>(m_SelectedEntity);
+					std::string ModelPath = "-";
+
+					if (smc.StaticModel)
+						ModelPath = smc.StaticModel->GetSourceFilePath().string();
+					
+
+					ImGui::InputText("Source Path", (char*)ModelPath.c_str(), sizeof(ModelPath.c_str()));
+				
+					ImGui::SameLine();
+
+					if (ImGui::Button("Load", { ImGui::CalcTextSize("Load").x + 10.0f, 20.0f }))
+					{
+						if (Utils::FileDialog::OpenFile("3D Model (*.*)\0*.**\0", ModelPath))
+						{
+							smc.StaticModel = new Model(ModelPath);
+						}
+					}
 				}
 			}
 
@@ -345,29 +359,29 @@ void EntityListPanel::Render()
 
 			if (ImGui::BeginPopup("ContextMenu"))
 			{
-				if (ImGui::MenuItem("Quad Renderer Component"))
+				if (ImGui::MenuItem("Quad Renderer"))
 				{
 					QuadRendererComponent qrc;
 					m_Scene->Registry.emplace<QuadRendererComponent>(m_SelectedEntity, qrc);
 				}
-				if (ImGui::MenuItem("Perspective Camera Component"))
+
+				if (ImGui::MenuItem("Perspective Camera"))
 				{
 					PerspectiveCameraComponent pcc;
 					pcc.Camera = new PerspectiveCamera(pcc.FOV, pcc.AspectRatio, pcc.NearClip, pcc.FarClip);
 					m_Scene->Registry.emplace<PerspectiveCameraComponent>(m_SelectedEntity, pcc);
 				}
+
+				if (ImGui::MenuItem("Static Model"))
+				{
+					StaticModelComponent smc;
+					m_Scene->Registry.emplace<StaticModelComponent>(m_SelectedEntity, smc);
+				}
+
 				ImGui::EndPopup();
 			}
 
-			if (m_Scene->Registry.try_get<StaticModelComponent>(m_SelectedEntity))
-			{
-				StaticModelComponent& smc = m_Scene->Registry.get<StaticModelComponent>(m_SelectedEntity);
-				if (ImGui::CollapsingHeader("Static Mesh Component"))
-				{
-					/* Note (Szilard):
-					   TODO: Needs to list the meshes of the models with the correspoing material */
-				}
-			}
+
 		}
 		ImGui::End();
 		ImGui::PopStyleVar(2);
