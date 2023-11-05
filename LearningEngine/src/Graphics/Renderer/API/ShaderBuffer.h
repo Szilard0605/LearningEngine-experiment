@@ -6,14 +6,14 @@ class ShaderBuffer
 {
 public:
 
-	enum Type
+	enum ShaderType
 	{
-		Vertex, Pixel
+		Vertex, Fragment
 	};
 
-	static ShaderBuffer* Create(const void* data, uint32_t size, uint32_t slot, Type type = Type::Vertex);
+	static ShaderBuffer* Create(uint32_t size, ShaderType type = ShaderType::Vertex);
 
-	virtual void SetData(const void* data, uint32_t size) = 0;
-	virtual void Bind() = 0;
+	virtual void SetData(const void* data, uint32_t size, uint32_t offset) = 0;
+	virtual void Bind(uint32_t binding) = 0;
 };
 

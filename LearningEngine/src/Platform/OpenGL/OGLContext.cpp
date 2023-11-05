@@ -13,7 +13,6 @@ OGLContext::OGLContext(WindowsWindow& Window)
 {
 	if (glewInit() != GLEW_OK)
 	{
-		// Error message here
 		LE_CORE_ERROR("Cannot initialize GLEW");
 		return;
 	}

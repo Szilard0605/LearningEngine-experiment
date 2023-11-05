@@ -2,6 +2,17 @@
 #include "glm.hpp"
 
 #include "imgui.h"
+#include <gtc/type_ptr.hpp>
+
+static glm::vec3 sp_pos = {0, 0, 0};
+
+
+static glm::vec3 ambdir = { -0.2f, -1.0f, -0.3f };
+static glm::vec3 ambient = { 1.0f, 0.0f, 0.0f };
+static glm::vec3 ambdiffuse = { 0.4f, 0.4f, 0.4f };
+static glm::vec3 ambspecular = { 0.5f, 0.5f, 0.5f };
+
+static float s_Timestep = 0.0f;
 
 DemoLayer::DemoLayer() : 
 	Layer("DemoLayer")
@@ -16,7 +27,7 @@ void DemoLayer::OnAttach()
 
 	Camera = PerspectiveCamera(60.0f, 1.7777f, 0.1f, 10000.0f);
 
-	demoMaterial = Material(Shader::Create("res/shaders/default_shader.shader"));
+	demoMaterial = Material(ShaderLibrary::GetShader("ForwardRenderer"));
 	demoModel = Model("res/models/Sponza/sponza.obj", demoMaterial);
 }
 
@@ -27,20 +38,15 @@ void DemoLayer::OnDetach()
 
 void DemoLayer::OnUpdate(Timestep timestep)
 {
+	s_Timestep = timestep.Milliseconds();
+
 	Renderer2D::ClearColor(clearColor);
 	Renderer2D::Clear();
 
-	demoMaterial.GetShader()->SetFloat("u_AmbientStrength", 0.03f);
-	demoMaterial.GetShader()->SetFloat("u_DiffuseStrength", 1.0f);
-	demoMaterial.GetShader()->SetFloat("u_SpecularStrength", 0.5f);
-	demoMaterial.GetShader()->SetVec4f("u_AmbientColor", {1, 1, 1, 1});
-	demoMaterial.GetShader()->SetVec4f("u_DiffuseColor", { 1, 1, 1, 1 });
-	demoMaterial.GetShader()->SetVec3f("u_ViewPos", Camera.GetPosition());
-	demoMaterial.GetShader()->SetVec3f("u_DiffusePosition", {0, 50, 0});
-	demoMaterial.GetShader()->SetBool("u_UseNormalMap", true);
 
 	//demoModel.Render(Camera, glm::mat4(1.0f));
 	ForwardRenderer::BeginScene(Camera);
+
 	ForwardRenderer::SubmitModel(&demoModel, glm::mat4(1.0f));
 	ForwardRenderer::EndScene();
 
@@ -73,6 +79,14 @@ void DemoLayer::OnUpdate(Timestep timestep)
 
 void DemoLayer::OnImGuiRender()
 {
+	ImGui::Begin("Render Statistics");
+
+	ImGui::Text("Draw calls: %d", ForwardRenderer::GetRenderStatistics().DrawCalls);
+	ImGui::Text("Frametime: %f (%d FPS)", s_Timestep, (int)glm::floor((1.0f / s_Timestep) * 1000.0f));
+	ImGui::Text("Mesh count: %d (%d vertices)", ForwardRenderer::GetRenderStatistics().MeshCount,
+												ForwardRenderer::GetRenderStatistics().Vertices);
+
+	ImGui::End();
 }
 
 bool DemoLayer::OnKeyChange(KeyEvent& keyEvent)

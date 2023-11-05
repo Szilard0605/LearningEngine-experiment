@@ -4,11 +4,11 @@
 
 Mesh* MeshFactory::CreateCube(float size, Material& material)
 {
-	Vertex data[8];
+	Mesh::Vertex data[8];
 
-	std::vector<Vertex> vertices;
+	std::vector<Mesh::Vertex> vertices;
 
-	vertices.reserve(8 * sizeof(Vertex));
+	vertices.reserve(8 * sizeof(Mesh::Vertex));
 
 	data[0].Position = glm::vec3(0.5f, 0.5f, 0.5f);
 	data[1].Position = glm::vec3(-0.5f, 0.5f, -0.5f);

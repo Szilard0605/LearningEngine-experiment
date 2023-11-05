@@ -30,13 +30,13 @@ Model::Model(std::filesystem::path path, Material& material)
 
 	for (uint32_t i = 0; i < scene->mNumMeshes; i++)
 	{
-		std::vector<Vertex> Vertices;
+		std::vector<Mesh::Vertex> Vertices;
 		std::vector<uint32_t> Indices;
 
 		for (uint32_t j = 0; j < scene->mMeshes[i]->mNumVertices; j++)
 		{
 
-			Vertex vertex;
+			Mesh::Vertex vertex;
 
 
 			vertex.Position =  { scene->mMeshes[i]->mVertices[j].x,

@@ -2,6 +2,8 @@
 #include "ForwardRenderer.h"
 #include "ShaderLibrary.h"
 
+#include "API/ShaderBuffer.h"
+
 #include <vector>
 
 struct MeshRenderData
@@ -18,6 +20,7 @@ struct RenderData
 };
 
 static RenderData s_RenderData;
+static ForwardRenderer::RenderStatistics s_RenderStats;
 
 void ForwardRenderer::Init(RendererAPI* rendererapi)
 {
@@ -28,22 +31,31 @@ void ForwardRenderer::BeginScene(PerspectiveCamera& camera)
 {
 	s_RenderData.camera = camera;
 	s_RenderData.meshes.clear();
+
+	s_RenderStats.DrawCalls = 0;
+	s_RenderStats.MeshCount = 0;
+	s_RenderStats.Vertices = 0;
 }
 
 void ForwardRenderer::EndScene()
 {
+
 }
 
 void ForwardRenderer::Present()
 {
 	for (int i = 0; i < s_RenderData.meshes.size(); i++)
 	{
+		s_RenderStats.DrawCalls++;
 		s_RenderData.meshes[i].mesh->Render(s_RenderData.camera, s_RenderData.meshes[i].transform);
 	}
 }
 
 void ForwardRenderer::SubmitMesh(Mesh* mesh, glm::mat4 transform)
 {
+	s_RenderStats.MeshCount++;
+	s_RenderStats.Vertices += mesh->GetVertices().size();
+
 	s_RenderData.meshes.emplace_back(MeshRenderData{ mesh,  transform });
 }
 
@@ -53,4 +65,8 @@ void ForwardRenderer::SubmitModel(Model* model, glm::mat4 transform)
 	{
 		SubmitMesh(model->GetMeshes()[i], transform);
 	}
+}
+ForwardRenderer::RenderStatistics& ForwardRenderer::GetRenderStatistics()
+{
+	return s_RenderStats;
 }

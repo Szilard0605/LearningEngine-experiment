@@ -6,20 +6,19 @@
 #include "Material.h"
 #include "Core/Base.h"
 
-struct Vertex
-{
-	glm::vec3 Position;
-	glm::vec3 Normal;
-	glm::vec3 Tangent;
-	glm::vec3 Bitangent;
-	glm::vec2 TexCoords;
-};
 
 class Mesh
 {
 public:
 	
-
+	struct Vertex
+	{
+		glm::vec3 Position;
+		glm::vec3 Normal;
+		glm::vec3 Tangent;
+		glm::vec3 Bitangent;
+		glm::vec2 TexCoords;
+	};
 	
 	Mesh() = default;
 	//Mesh(GLVertexArray& vertexarray, GLIndexBuffer& indexbuffer, Material& material);
@@ -34,6 +33,9 @@ public:
     VertexArray* GetVertexArray() { return m_VertexArray; }
 	Material* GetMaterial() { return m_Material; }
 	void SetMaterial(Material* material) { m_Material = material; }
+
+	std::vector<Vertex>& GetVertices()  { return m_Vertices; }
+	std::vector<uint32_t>& GetIndices() { return m_Indices;  }
 
 private:
 	VertexArray* m_VertexArray;
