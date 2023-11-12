@@ -379,6 +379,29 @@ void EntityListPanel::Render()
 				}
 			}
 
+			if (m_Scene->Registry.try_get<PointLightComponent>(m_SelectedEntity))
+			{
+				PointLightComponent& plc = m_Scene->Registry.get<PointLightComponent>(m_SelectedEntity);
+				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+				if (ImGui::CollapsingHeader("Point Light Component"))
+				{
+					ImGui::DragFloat("Intensity", &plc.Intensity);
+					ImGui::ColorEdit3("Color", glm::value_ptr(plc.Color));
+				}
+			}
+
+			if (m_Scene->Registry.try_get<DirectionalLightComponent>(m_SelectedEntity))
+			{
+				DirectionalLightComponent& dlc = m_Scene->Registry.get<DirectionalLightComponent>(m_SelectedEntity);
+				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+				if (ImGui::CollapsingHeader("Directional Light Component"))
+				{
+					ImGui::DragFloat3("Direction", glm::value_ptr(dlc.Direction));
+					ImGui::DragFloat("Intensity", &dlc.Intensity);
+					ImGui::ColorEdit3("Color", glm::value_ptr(dlc.Color));
+				}
+			}
+
 			ImGui::Separator();
 
 			if (ImGui::Button("Add Component", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
@@ -405,6 +428,18 @@ void EntityListPanel::Render()
 				{
 					StaticModelComponent smc;
 					m_Scene->Registry.emplace<StaticModelComponent>(m_SelectedEntity, smc);
+				}
+
+				if (ImGui::MenuItem("Point Light"))
+				{
+					PointLightComponent plc;
+					m_Scene->Registry.emplace<PointLightComponent>(m_SelectedEntity, plc);
+				}
+
+				if (ImGui::MenuItem("Directional Light"))
+				{
+					DirectionalLightComponent dlc;
+					m_Scene->Registry.emplace<DirectionalLightComponent>(m_SelectedEntity, dlc);
 				}
 
 				ImGui::EndPopup();

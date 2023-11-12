@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Graphics/Renderer/Model.h"
-
+#include "Graphics/Renderer/Light.h"
 
 #include "glm.hpp"
 #include <vector>
@@ -81,16 +81,18 @@ struct PointLightComponent : public BaseComponent
 {
 	const char* ID = "PointLightComponent";
 
+
 	float Intensity = 1.0f;
-	glm::vec4 Color;
+	glm::vec3 Color = {1, 1, 1};
 };
 
 struct DirectionalLightComponent : public BaseComponent
 {
 	const char* ID = "DirectionalLightComponent";
 
-	float Intensity;
-	glm::vec3 Direction;
+	float Intensity = 0.1f;
+	glm::vec3 Color = { 1, 1, 1 };;
+	glm::vec3 Direction = { 0, 0, 0 };;
 };
 
 template <typename... Component>
@@ -99,4 +101,4 @@ struct Components
 
 };
 
-using EveryComponent = Components<TransformComponent, TagComponent, HierarchyComponent, QuadRendererComponent, PerspectiveCameraComponent, StaticModelComponent>;
+using EveryComponent = Components<TransformComponent, TagComponent, HierarchyComponent, QuadRendererComponent, PerspectiveCameraComponent, StaticModelComponent, PointLightComponent, DirectionalLightComponent>;

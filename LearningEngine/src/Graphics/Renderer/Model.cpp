@@ -13,7 +13,7 @@ Model::Model(std::filesystem::path path) : Model(path, Material(ShaderLibrary::G
 {
 }
 
-Model::Model(std::filesystem::path path, Material& material)
+Model::Model(std::filesystem::path path, Material material)
 	: m_Path(path)
 {
 	LE_CORE_INFO(std::string("Loading model ") + path.string());

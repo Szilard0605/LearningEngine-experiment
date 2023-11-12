@@ -100,22 +100,6 @@ void ForwardRenderer::Present()
 
 		// Light setup
 		{
-			/*std::vector<LightData> CombinedLights;
-
-			for (int i = 0; i < MAX_LIGHTS; i++)
-			{
-				CombinedLights.push_back(s_RenderData.LightData.PointLights[i]);
-			}
-
-			for (int i = 0; i < MAX_LIGHTS; i++)
-			{
-				CombinedLights.push_back(s_RenderData.LightData.DirLights[i]);
-			}
-
-			size_t pointLightsSize = sizeof(PointLightData) * MAX_LIGHTS;
-			size_t dirLightsSize = sizeof(DirLightData) * MAX_LIGHTS;
-			size_t bufferSize = pointLightsSize + dirLightsSize;*/
-
 			s_RenderData.LightBuffer->Bind(1);
 			s_RenderData.LightBuffer->SetData(s_RenderData.LightData.Lights.data(), sizeof(LightData) * MAX_LIGHTS, 0);
 

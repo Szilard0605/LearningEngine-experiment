@@ -8,6 +8,9 @@
 #include "Log/Log.h"
 #include <string>
 
+
+#include "Graphics/Renderer/ForwardRenderer.h"
+
 Scene::Scene(const std::string name)
 	: m_Name(name)
 {
@@ -164,6 +167,35 @@ void Scene::Render(PerspectiveCamera* camera)
 		Renderer2D::End();
 	}
 
+	ForwardRenderer::BeginScene(*mainCamera);
+
+
+	// Rendering Point Lights
+	{
+		auto view = Registry.view<TransformComponent, PointLightComponent>();
+
+		for (auto entity : view)
+		{
+			auto [tc, plc] = view.get<TransformComponent, PointLightComponent>(entity);
+
+			ForwardRenderer::SubmitLight(PointLight{plc.Color, plc.Intensity, tc.Position});
+		}
+
+
+	}
+
+	// Rendering Directional Lights
+	{
+		auto view = Registry.view<TransformComponent, DirectionalLightComponent>();
+
+		for (auto entity : view)
+		{
+			auto [tc, dlc] = view.get<TransformComponent, DirectionalLightComponent>(entity);
+
+			ForwardRenderer::SubmitLight(DirectionalLight{dlc.Color, dlc.Intensity, dlc.Direction});
+		
+		}
+	}
 
 	// Rendering 3D Meshes
 	{
@@ -172,11 +204,16 @@ void Scene::Render(PerspectiveCamera* camera)
 		for (auto entity : view)
 		{
 			auto [tc, smc] = view.get<TransformComponent, StaticModelComponent>(entity);
-			
-			if(smc.StaticModel)
-				smc.StaticModel->Render(*mainCamera, tc.GetTransform());
+
+			if (smc.StaticModel)
+				ForwardRenderer::SubmitModel(smc.StaticModel, tc.GetTransform());
+			//smc.StaticModel->Render(*mainCamera, tc.GetTransform());
+
 		}
 	}
+
+	ForwardRenderer::EndScene();
+	ForwardRenderer::Present();
 }
 
 void Scene::OnViewportResize(float width, float height)
