@@ -11,9 +11,9 @@ public:
 		Vertex, Fragment
 	};
 
-	static ShaderBuffer* Create(uint32_t size, ShaderType type = ShaderType::Vertex);
+	static ShaderBuffer* Create(__int64 size, ShaderType type = ShaderType::Vertex);
 
-	virtual void SetData(const void* data, uint32_t size, uint32_t offset) = 0;
+	virtual void SetData(const void* data, __int64 size, uint32_t offset) = 0;
 	virtual void Bind(uint32_t binding) = 0;
 };
 

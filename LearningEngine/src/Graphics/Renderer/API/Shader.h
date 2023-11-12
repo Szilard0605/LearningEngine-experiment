@@ -27,4 +27,6 @@ public:
 	virtual void SetVec3f(const std::string& name, const glm::vec3& value)= 0;
 	virtual void SetVec4f(const std::string& name, const glm::vec4& value)= 0;
 
+	// temp
+	virtual void SetFloatArray(const std::string& name, int count, const float* arr) = 0;
 };

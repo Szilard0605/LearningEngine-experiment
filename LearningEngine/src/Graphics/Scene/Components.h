@@ -76,6 +76,22 @@ struct StaticModelComponent : public BaseComponent
 	Model* StaticModel = nullptr;
 };
 
+struct PointLightComponent : public BaseComponent
+{
+	const char* ID = "PointLightComponent";
+
+	float Intensity = 1.0f;
+	glm::vec4 Color;
+};
+
+struct DirectionalLightComponent : public BaseComponent
+{
+	const char* ID = "DirectionalLightComponent";
+
+	float Intensity;
+	glm::vec3 Direction;
+};
+
 template <typename... Component>
 struct Components
 {

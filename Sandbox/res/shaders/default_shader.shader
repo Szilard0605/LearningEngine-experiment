@@ -10,6 +10,9 @@ layout(location = 4) in vec2 a_texcoords;
 uniform mat4 u_ViewProjection;
 uniform mat4 u_Transform;
 
+
+uniform float u_Test;
+
 struct FragmentData
 {
 	vec3 Position;
@@ -20,6 +23,7 @@ struct FragmentData
 };
 
 layout(location = 0) out FragmentData fragmentdata;
+
 
 void main()
 {
@@ -32,6 +36,7 @@ void main()
     fragmentdata.Tangent = normalize(vec3(u_Transform * vec4(a_tangent, 0.0)));
     fragmentdata.Bitangent = normalize(vec3(u_Transform * vec4(a_bitangent, 0.0)));
     fragmentdata.Normal = normalize(vec3(u_Transform * vec4(a_normal, 0.0)));
+    
 	
 };
 
@@ -57,6 +62,30 @@ layout(binding = 1) uniform sampler2D u_NormalMap;
 
 #define GAMMA 2.2
 
+#define MAX_LIGHTS 100
+
+struct Light
+{
+    vec4 Color;
+    vec4 Position;
+    vec4 Direction;
+};
+
+
+//uniform PointLight u_PointLights[MAX_POINT_LIGHTS];
+
+layout(std140, binding = 0) uniform RenderData
+{
+    int u_NumLights;
+};
+
+layout(std140, binding = 1) uniform LightBuffer
+{
+    Light u_Lights[MAX_LIGHTS];
+};
+
+
+
 vec3 FinalGamma(vec3 color)
 {
 	return pow(color, vec3(1.0 / GAMMA));
@@ -71,5 +100,48 @@ void main()
 	}
 
 	
-    outColor = vec4(FinalGamma(tex.xyz), tex.a);
+    //outColor = vec4(FinalGamma(tex.xyz), tex.a);
+	
+    vec3 ambientLight = vec3(0.2, 0.2, 0.2);
+    vec3 totalDiffuse = vec3(0.0);
+    
+    // Calculate point light contributions
+    /*for (int i = 0; i < u_NumPointLights; i++)
+    {
+        vec3 lightDir = normalize(u_PointLights[i].Position.xyz - fragmentdata.Position.xyz);
+        float distance = length(u_PointLights[i].Position.xyz - fragmentdata.Position.xyz);
+        float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * distance * distance);
+        vec3 diffuse = u_PointLights[i].Color.xyz * max(dot(fragmentdata.Normal, lightDir), 0.0);
+        totalDiffuse += diffuse * attenuation * u_PointLights[i].Color.a;
+    }*/
+    
+    // Calculate directional light contributions
+    /*for (int i = 0; i < MAX_DIR_LIGHTS; i++)
+    {
+        vec3 lightDir = normalize(-u_DirLights[i].Direction);
+        vec3 diffuse = u_DirLights[i].Color * max(dot(fragmentdata.Normal, lightDir), 0.0);
+        totalDiffuse += diffuse * u_DirLights[i].Intensity;
+    }*/
+    
+    for (int i = 0; i < u_NumLights; i ++)
+    {
+        if (u_Lights[i].Position.a < 1.0)
+        {
+            vec3 lightDir = normalize(u_Lights[i].Position.xyz - fragmentdata.Position.xyz);
+            float distance = length(u_Lights[i].Position.xyz - fragmentdata.Position.xyz);
+            float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * distance * distance);
+            vec3 diffuse = u_Lights[i].Color.xyz * max(dot(fragmentdata.Normal, lightDir), 0.0);
+            totalDiffuse += diffuse * attenuation * u_Lights[i].Color.a;
+        }
+        else
+        {
+            vec3 lightDir = normalize(-u_Lights[i].Direction.xyz);
+            vec3 diffuse = u_Lights[i].Color.xyz * max(dot(fragmentdata.Normal, lightDir), 0.0);
+            totalDiffuse += diffuse * u_Lights[i].Color.a;
+        }
+    }
+    
+    outColor = glm::vec4(FinalGamma(tex.xyz * ambientLight + totalDiffuse), 1.0);
+    //outColor = tex * vec4(u_PointLights[0].Color, 1.0);
+
 }

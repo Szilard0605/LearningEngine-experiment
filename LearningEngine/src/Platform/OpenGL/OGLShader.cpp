@@ -7,6 +7,7 @@
 #include <string>
 
 #include "Log/Log.h"
+#include <gtc/type_ptr.hpp>
 
 OGLShader::OGLShader(const std::string& vertex, const std::string& fragment)
 {
@@ -157,10 +158,15 @@ void OGLShader::SetVec2f(const std::string& name, const glm::vec2& value)
 
 void OGLShader::SetVec3f(const std::string& name, const glm::vec3& value)
 {
-	glUniform3fv(glGetUniformLocation(m_program, name.c_str()), 1, &value[0]);
+	glUniform3fv(glGetUniformLocation(m_program, name.c_str()), 1, glm::value_ptr(value));
 }
 
 void OGLShader::SetVec4f(const std::string& name, const glm::vec4& value)
 {
 	glUniform4fv(glGetUniformLocation(m_program, name.c_str()), 1, &value[0]);
+}
+
+void OGLShader::SetFloatArray(const std::string& name, int count, const float* arr)
+{
+	glUniform1fv(glGetUniformLocation(m_program, name.c_str()), count, arr);
 }

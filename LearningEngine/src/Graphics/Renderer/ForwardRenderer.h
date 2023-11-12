@@ -4,6 +4,10 @@
 #include "Mesh.h"
 #include "Model.h"
 
+#include "Light.h"
+
+#define MAX_LIGHTS 100
+
 class ForwardRenderer
 {
 public:
@@ -12,6 +16,8 @@ public:
 		uint32_t DrawCalls;
 		uint32_t MeshCount;
 		uint32_t Vertices;
+		uint32_t PointLightCount;
+		uint32_t DirectionalLightCount;
 	};
 
 	static void Init(RendererAPI* rendererapi);
@@ -22,6 +28,9 @@ public:
 
 	static void SubmitMesh(Mesh* mesh, glm::mat4 transform);
 	static void SubmitModel(Model* model, glm::mat4 transform);
+
+	static void SubmitLight(PointLight& light);
+	static void SubmitLight(DirectionalLight& light);
 
 	static RenderStatistics& GetRenderStatistics();
 

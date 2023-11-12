@@ -7,10 +7,23 @@
 static glm::vec3 sp_pos = {0, 0, 0};
 
 
-static glm::vec3 ambdir = { -0.2f, -1.0f, -0.3f };
-static glm::vec3 ambient = { 1.0f, 0.0f, 0.0f };
-static glm::vec3 ambdiffuse = { 0.4f, 0.4f, 0.4f };
-static glm::vec3 ambspecular = { 0.5f, 0.5f, 0.5f };
+static glm::vec3 lightdir = { -0.2f, -1.0f, -0.3f };
+static glm::vec3 lightPosition = { 1.0f, 0.0f, 0.0f };
+static glm::vec3 lightColor = { 1.0f, 1.0f, 1.0f };
+float lightIntensity = 1.0f;
+
+
+static glm::vec3 lightdir2 = { -0.2f, -1.0f, -0.3f };
+static glm::vec3 lightPosition2 = { 1.0f, 0.0f, 0.0f };
+static glm::vec3 lightColor2 = { 1.0f, 1.0f, 1.0f };
+float lightIntensity2 = 1.0f;
+
+
+static glm::vec3 lightdir3 = { -0.2f, -1.0f, -0.3f };
+static glm::vec3 lightColor3 = { 1.0f, 1.0f, 1.0f };
+float lightIntensity3 = 1.0f;
+
+
 
 static float s_Timestep = 0.0f;
 
@@ -45,8 +58,28 @@ void DemoLayer::OnUpdate(Timestep timestep)
 
 
 	//demoModel.Render(Camera, glm::mat4(1.0f));
-	ForwardRenderer::BeginScene(Camera);
 
+	DirectionalLight dirLight;
+	dirLight.Direction = lightdir3;
+	dirLight.Color = lightColor3;
+	dirLight.Intensity = lightIntensity3;
+
+	PointLight pointLight;
+	pointLight.Color = lightColor;
+	pointLight.Position = lightPosition;
+	pointLight.Intensity = lightIntensity;//lightIntensity;
+
+
+	PointLight pointLight2;
+	pointLight2.Color = lightColor2;
+	pointLight2.Position = lightPosition2;
+	pointLight2.Intensity = lightIntensity2; //lightIntensity;
+
+	ForwardRenderer::BeginScene(Camera);
+	//ForwardRenderer::SubmitLight(dirLight);
+	ForwardRenderer::SubmitLight(pointLight);
+	ForwardRenderer::SubmitLight(pointLight2);
+	ForwardRenderer::SubmitLight(dirLight);
 	ForwardRenderer::SubmitModel(&demoModel, glm::mat4(1.0f));
 	ForwardRenderer::EndScene();
 
@@ -87,6 +120,31 @@ void DemoLayer::OnImGuiRender()
 												ForwardRenderer::GetRenderStatistics().Vertices);
 
 	ImGui::End();
+
+	ImGui::Begin("Lights");
+
+	ImGui::DragFloat3("PLPos", glm::value_ptr(lightPosition));
+	ImGui::ColorPicker3("PLColor", glm::value_ptr(lightColor));
+	ImGui::DragFloat("PLIntensity", &lightIntensity);
+	
+	ImGui::Separator();
+
+
+	ImGui::DragFloat3("PLPos2", glm::value_ptr(lightPosition2));
+	ImGui::ColorPicker3("PLColor2", glm::value_ptr(lightColor2));
+	ImGui::DragFloat("PLIntensity2", &lightIntensity2);
+
+	ImGui::End();
+
+	ImGui::Begin("DirectionalLights");
+
+	ImGui::DragFloat3("DLPos", glm::value_ptr(lightdir3));
+	ImGui::ColorPicker3("DLColor", glm::value_ptr(lightColor3));
+	ImGui::DragFloat("DLIntensity", &lightIntensity3);
+
+	ImGui::End();
+
+
 }
 
 bool DemoLayer::OnKeyChange(KeyEvent& keyEvent)

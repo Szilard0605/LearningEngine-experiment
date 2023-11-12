@@ -5,10 +5,10 @@
 class OGLShaderBuffer : public ShaderBuffer
 {
 public:
-	OGLShaderBuffer(uint32_t size, ShaderType type = ShaderType::Vertex);
+	OGLShaderBuffer(__int64 size, ShaderType type = ShaderType::Vertex);
 	~OGLShaderBuffer();
 
-	virtual void SetData(const void* data, uint32_t size, uint32_t offset) override;
+	virtual void SetData(const void* data, __int64 size, uint32_t offset) override;
 	virtual void Bind(uint32_t binding) override;
 
 private:

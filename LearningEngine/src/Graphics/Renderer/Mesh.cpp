@@ -7,6 +7,8 @@
 
 #include "Log/Log.h"
 
+#include "ForwardRenderer.h"
+
 /*Mesh::Mesh(GLVertexArray& vertexarray, GLIndexBuffer& indexbuffer, Material& material)
 	: m_VertexArray(&vertexarray), m_IndexBuffer(&indexbuffer), m_Material(material)
 {
@@ -56,13 +58,6 @@ void Mesh::Render(PerspectiveCamera& camera, glm::mat4 transform)
 		m_Material->GetTexture()->Bind(0);
 	}
 
-	m_Material->GetShader()->SetBool("u_UseNormalMap", false);
-	if (m_Material->GetNormalmap())
-	{
-		m_Material->GetShader()->SetBool("u_UseNormalMap", true);
-		m_Material->GetNormalmap()->Bind(1);
-
-	}
 
 	m_VertexArray->Bind();
 	m_IndexBuffer->Bind();

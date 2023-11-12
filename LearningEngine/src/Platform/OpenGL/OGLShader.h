@@ -32,6 +32,9 @@ class OGLShader : public Shader
 
 		virtual std::string GetFilePath() override { return m_filepath; }
 
+		//
+		virtual void SetFloatArray(const std::string& name, int count, const float* arr) override;
+
 	private:
 		int m_program = 0;
 		std::string m_filepath;
