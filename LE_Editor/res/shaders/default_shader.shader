@@ -8,6 +8,7 @@ layout(location = 3) in vec3 a_bitangent;
 layout(location = 4) in vec2 a_texcoords;
 
 uniform mat4 u_ViewProjection;
+
 uniform mat4 u_Transform;
 
 
@@ -56,19 +57,9 @@ struct FragmentData
 
 layout(location = 0) in FragmentData fragmentdata;
 
-uniform float u_AmbientStrength;
-uniform vec4 u_AmbientColor;
-
-uniform float u_DiffuseStrength;
-uniform vec4 u_DiffuseColor;
-uniform vec3 u_DiffusePosition;
-
-uniform float u_SpecularStrength;
-uniform vec3 u_ViewPos;
-
 
 uniform bool u_UseNormalMap;
-layout(binding = 0) uniform sampler2D u_Texture;
+layout(binding = 0) uniform sampler2D u_Texture;  // only 1 texture sopport for now
 layout(binding = 1) uniform sampler2D u_NormalMap;
 
 #define GAMMA 2.2
@@ -82,7 +73,7 @@ vec3 FinalGamma(vec3 color)
 void main()
 {
 
-	vec3 norm = normalize(fragmentdata.Normal);
+	/*vec3 norm = normalize(fragmentdata.Normal);
 	mat3 TBN = mat3(fragmentdata.Tangent, fragmentdata.Bitangent, fragmentdata.Normal);
 	if(u_UseNormalMap)
 	{	
@@ -100,7 +91,8 @@ void main()
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
 	vec3 specular = u_SpecularStrength * spec * u_AmbientColor.xyz;  
 	
-    vec4 result = (ambient + diffuse + vec4(specular, 0.0));
-	vec4 tex = texture(u_Texture, fragmentdata.TexCoords);
-    outColor = vec4(FinalGamma(result.xyz), 0.0f) * tex;
+    vec4 result = (ambient + diffuse + vec4(specular, 0.0));*/
+	//vec4 tex = texture(u_Texture, fragmentdata.TexCoords);
+	
+    outColor = texture(u_Texture, fragmentdata.TexCoords);
 }

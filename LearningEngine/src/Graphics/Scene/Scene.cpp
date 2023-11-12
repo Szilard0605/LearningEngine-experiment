@@ -1,7 +1,10 @@
 #include "Scene.h"
 #include "Entity.h"
 #include "Components.h"
+
 #include "Graphics/Renderer/Renderer2D.h"
+#include "Graphics/Renderer/ShaderLibrary.h"
+
 #include "Log/Log.h"
 #include <string>
 
@@ -9,11 +12,6 @@ Scene::Scene(const std::string name)
 	: m_Name(name)
 {
 	
-}
-
-Scene::Scene(Scene& other)
-{
-
 }
 
 Scene::~Scene()
@@ -166,6 +164,7 @@ void Scene::Render(PerspectiveCamera* camera)
 		Renderer2D::End();
 	}
 
+
 	// Rendering 3D Meshes
 	{
 		auto view = Registry.view<TransformComponent, StaticModelComponent>();
@@ -173,7 +172,9 @@ void Scene::Render(PerspectiveCamera* camera)
 		for (auto entity : view)
 		{
 			auto [tc, smc] = view.get<TransformComponent, StaticModelComponent>(entity);
-			smc.StaticModel->Render(*mainCamera, tc.GetTransform());
+			
+			if(smc.StaticModel)
+				smc.StaticModel->Render(*mainCamera, tc.GetTransform());
 		}
 	}
 }
