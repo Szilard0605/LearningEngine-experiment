@@ -41,6 +41,7 @@ void EditorLayer::OnAttach()
 
 	m_EntitiesPanel = EntityListPanel(m_Scene);
 	m_ContentBrowser = ContentBrowser(m_Scene);
+	m_SceneRendererPanel = SceneRendererPanel(m_Scene);
 
 	/* ---- Loading Assets ------
 	 Note (Szilard): We should load registry from the project 
@@ -126,7 +127,7 @@ void EditorLayer::OnImGuiRender()
 
 	m_EntitiesPanel.Render();
 	m_ContentBrowser.Render();
-
+	m_SceneRendererPanel.Render();
 
 	//Viewport window
 	{

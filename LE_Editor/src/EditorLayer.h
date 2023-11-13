@@ -4,6 +4,8 @@
 
 #include "Panels/EntityListPanel.h"
 #include "Panels/ContentBrowser.h"
+#include "Panels/SceneRendererPanel.h"
+
 #include "EditorRuntime.h"
 
 class EditorLayer : public Layer
@@ -49,6 +51,7 @@ private:
 	// Panels
 	EntityListPanel m_EntitiesPanel;
 	ContentBrowser m_ContentBrowser;
+	SceneRendererPanel m_SceneRendererPanel;
 
 	Texture2D* m_TexPlayButton;
 	bool m_PressedPlay = false;

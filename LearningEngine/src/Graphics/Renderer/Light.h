@@ -2,6 +2,12 @@
 
 #include "glm.hpp"
 
+struct AmbientLight
+{
+	glm::vec3 Color;
+	float Intensity;
+};
+
 struct Light
 {
 	glm::vec3 Color;

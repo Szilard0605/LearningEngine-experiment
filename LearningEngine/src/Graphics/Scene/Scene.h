@@ -9,6 +9,8 @@
 #include "Graphics/Renderer/API/Shader.h"
 #include "Graphics/Renderer/API/CubeMap.h"
 
+#include "Graphics/Renderer/Light.h"
+
 class Entity;
 
 //TODO: COPY SCENE FUNCTION
@@ -35,11 +37,16 @@ class Scene
 
 		static Scene* Copy(Scene* scene);
 
+		inline void SetAmbientLight(AmbientLight light) { m_AmbientLight = light; }
+		inline AmbientLight& GetAmbientLight() { return m_AmbientLight; }
+
 		entt::registry Registry;
 
 	private:
 		std::string m_Name;
 		friend class Entity;
+
+		AmbientLight m_AmbientLight;
 
 		PerspectiveCamera* m_MainCamera = nullptr;
 };

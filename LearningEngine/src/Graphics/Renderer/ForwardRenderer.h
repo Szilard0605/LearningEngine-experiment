@@ -25,9 +25,11 @@ public:
 	static void EndScene();
 	static void Present();
 
-
 	static void SubmitMesh(Mesh* mesh, glm::mat4 transform);
 	static void SubmitModel(Model* model, glm::mat4 transform);
+
+
+	static void SubmitLight(AmbientLight& light);
 
 	static void SubmitLight(PointLight& light);
 	static void SubmitLight(DirectionalLight& light);

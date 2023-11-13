@@ -76,6 +76,7 @@ struct Light
 
 layout(std140, binding = 0) uniform RenderData
 {
+    vec4 u_AmbientLight;
     int u_NumLights;
 };
 
@@ -99,12 +100,7 @@ void main()
 		discard;
 	}
 
-	
-    //outColor = vec4(FinalGamma(tex.xyz), tex.a);
-	
-    vec3 ambientLight = vec3(0.2, 0.2, 0.2);
-    vec3 totalDiffuse = vec3(0.0);
-    
+
     for (int i = 0; i < u_NumLights; i ++)
     {
         if (u_Lights[i].Position.a < 1.0)
@@ -122,6 +118,9 @@ void main()
             totalDiffuse += diffuse * u_Lights[i].Color.a;
         }
     }
+    
+    float ambientIntensity = u_AmbientLight.a;
+    vec4 ambientLight = vec4(u_AmbientLight.xyz, 1.0f) * ambientIntensity;
     
     outColor = glm::vec4(FinalGamma(tex.xyz * ambientLight + totalDiffuse), 1.0);
 
