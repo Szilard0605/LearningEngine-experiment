@@ -32,10 +32,9 @@ broken or in-progress changes for unrelated tasks on our own development branche
 
 ## Images of the development
 #### Images of the Editors early version with a 3D render made with it:
-<img align="left" src="Content/Showcasing/editor_sr.JPG"/> 
-<p align="center">2023.05.25</p>
-
-<img align="left" src="Content/Showcasing/2023.05.25.JPG"/>  
-<p align="center">2023.05.25</p>
+<img align="left" src="Content/Showcasing/2023.11.15.JPG"/> 
+<p align="center">2023.11.15</p>
+<img align="left" src="Content/Showcasing/2023.11.15_(2).JPG"/>  
+<p align="center">2023.11.15</p>
 
 
