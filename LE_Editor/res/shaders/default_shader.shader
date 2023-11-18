@@ -10,9 +10,6 @@ layout(location = 4) in vec2 a_texcoords;
 uniform mat4 u_ViewProjection;
 uniform mat4 u_Transform;
 
-
-uniform float u_Test;
-
 struct FragmentData
 {
 	vec3 Position;
@@ -58,7 +55,6 @@ layout(location = 0) in FragmentData fragmentdata;
 
 
 layout(binding = 0) uniform sampler2D u_Texture;
-layout(binding = 1) uniform sampler2D u_NormalMap;
 
 #define GAMMA 2.2
 
@@ -93,6 +89,25 @@ vec3 FinalGamma(vec3 color)
 	return pow(color, vec3(1.0 / GAMMA));
 }
 
+vec3 CalculatePointLight(Light light, vec3 Position, vec3 Normal)
+{
+    vec3 lightDir = normalize(light.Position.xyz - Position);
+    float distance = length(light.Position.xyz - Position);
+    float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * distance * distance);
+    vec3 diffuse = light.Color.rgb * max(dot(Normal, lightDir), 0.0);
+    
+    return diffuse * attenuation * light.Color.a;
+}
+
+
+vec3 CalculateDirectionalLight(Light light, vec3 Normal)
+{
+    vec3 lightDir = normalize(-light.Direction.xyz);
+    vec3 diffuse = light.Color.rgb * max(dot(Normal, lightDir), 0.0);
+    
+    return diffuse * light.Color.a;
+}
+
 void main()
 {	
 	vec4 tex = texture(u_Texture, fragmentdata.TexCoords);
@@ -103,30 +118,21 @@ void main()
 
     vec3 totalDiffuse = vec3(0.0);
     
- 
-
     for (int i = 0; i < u_NumLights; i++)
     {
         if (u_Lights[i].Position.a < 1.0)
         {
-            vec3 lightDir = normalize(u_Lights[i].Position.xyz - fragmentdata.Position.xyz);
-            float distance = length(u_Lights[i].Position.xyz - fragmentdata.Position.xyz);
-            float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * distance * distance);
-            vec3 diffuse = u_Lights[i].Color.xyz * max(dot(fragmentdata.Normal, lightDir), 0.0);
-            totalDiffuse += diffuse * attenuation * u_Lights[i].Color.a;
+            totalDiffuse += CalculatePointLight(u_Lights[i], fragmentdata.Position, fragmentdata.Normal);
         }
         else
         {
-            vec3 lightDir = normalize(-u_Lights[i].Direction.xyz);
-            vec3 diffuse = u_Lights[i].Color.xyz * max(dot(fragmentdata.Normal, lightDir), 0.0);
-            totalDiffuse += diffuse * u_Lights[i].Color.a;
+            totalDiffuse += CalculateDirectionalLight(u_Lights[i], fragmentdata.Normal);
         }
     }
     
     float ambientIntensity = u_AmbientLight.a;
-    vec3 ambientLight = u_AmbientLight.xyz * ambientIntensity;
+    vec3 ambientLight = u_AmbientLight.rgb * ambientIntensity;
     
     outColor = vec4(FinalGamma(tex.xyz * ambientLight + totalDiffuse), 1.0);
-
 
 }
