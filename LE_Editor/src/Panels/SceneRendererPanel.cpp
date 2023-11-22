@@ -30,13 +30,12 @@ void SceneRendererPanel::Render()
 
 	if (ImGui::CollapsingHeader("Ambient Light"))
 	{
-		AmbientLight& ambient = m_Scene->GetAmbientLight();
+		AmbientLight ambient = m_Scene->GetAmbientLight();
 
-		if(ImGui::DragFloat("Intensity", &ambient.Intensity) ||
-		   ImGui::ColorEdit3("Color", glm::value_ptr(ambient.Color)))
-		{
-			m_Scene->SetAmbientLight(ambient);
-		}
+		ImGui::DragFloat("Intensity", &ambient.Intensity);
+		ImGui::ColorEdit3("Color", glm::value_ptr(ambient.Color));
+
+		m_Scene->SetAmbientLight(ambient);
 	}
 
 	ImGui::End();

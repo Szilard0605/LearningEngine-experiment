@@ -13,8 +13,6 @@
 
 class Entity;
 
-//TODO: COPY SCENE FUNCTION
-
 class Scene
 {
 	public:
@@ -38,7 +36,7 @@ class Scene
 		static Scene* Copy(Scene* scene);
 
 		inline void SetAmbientLight(AmbientLight light) { m_AmbientLight = light; }
-		inline AmbientLight& GetAmbientLight() { return m_AmbientLight; }
+		inline AmbientLight GetAmbientLight() { return m_AmbientLight; }
 
 		entt::registry Registry;
 
@@ -46,7 +44,7 @@ class Scene
 		std::string m_Name;
 		friend class Entity;
 
-		AmbientLight m_AmbientLight;
+		AmbientLight m_AmbientLight = { glm::vec3(1.0f),  1};
 
 		PerspectiveCamera* m_MainCamera = nullptr;
 };

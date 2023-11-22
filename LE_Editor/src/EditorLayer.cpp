@@ -284,6 +284,8 @@ void EditorLayer::OnImGuiRender()
 					m_Scene = SceneSerializer::Load(ScenePath);
 					m_EntitiesPanel = EntityListPanel(m_Scene);
 					m_ContentBrowser = ContentBrowser(m_Scene);
+					m_SceneRendererPanel = SceneRendererPanel(m_Scene);
+
 					if (m_PressedPlay)
 					{
 						m_Runtime.Stop();

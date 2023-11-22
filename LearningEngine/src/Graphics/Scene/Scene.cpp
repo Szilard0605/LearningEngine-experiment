@@ -14,8 +14,8 @@
 Scene::Scene(const std::string name)
 	: m_Name(name)
 {
-	m_AmbientLight.Color = { 1.0f, 1.0f, 1.0f };
-	m_AmbientLight.Intensity = 1.0f;
+	/*m_AmbientLight.Color = {1.0f, 1.0f, 1.0f};
+	m_AmbientLight.Intensity = 1.0f;*/
 }
 
 Scene::~Scene()
@@ -124,7 +124,6 @@ Scene* Scene::Copy(Scene* scene)
 	return retScene;
 }
 
-
 void Scene::Render(PerspectiveCamera* camera)
 {
 	PerspectiveCamera* mainCamera = camera;
@@ -170,7 +169,8 @@ void Scene::Render(PerspectiveCamera* camera)
 
 	ForwardRenderer::BeginScene(*mainCamera);
 
-	// Submit Ambient Light
+	// Rendering 3D meshes
+
 	ForwardRenderer::SubmitLight(m_AmbientLight);
 
 	// Rendering Point Lights
