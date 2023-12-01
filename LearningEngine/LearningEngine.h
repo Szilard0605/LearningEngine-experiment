@@ -40,4 +40,6 @@
 
 #include "Events/Events.h"
 
+#include "Physics/PhysicsCore.h"
+
 #include "Utils/FileDialog.h"

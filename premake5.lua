@@ -26,8 +26,8 @@ group ""
 
 group "Dependencies" 
 	include "Dependencies/imgui"
-	include "Dependencies/box2d"
 	include "Dependencies/assimp"
+	include "Dependencies/bullet3"
 group ""
 
 

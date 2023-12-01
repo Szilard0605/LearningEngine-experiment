@@ -7,20 +7,24 @@
 #include <Events/Event.h>
 #include "Graphics/Renderer/API/RendererAPI.h"
 
+#include "Physics/PhysicsCore.h"
+
 class Application
 {
-	public:
-		Application(const std::string name, const uint32_t width, const uint32_t height);
+public:
+	Application(const std::string name, const uint32_t width, const uint32_t height);
 
-		virtual ~Application();
-		virtual void Init();
-		void Start();
-		void PushLayer(Layer* layer);
-		void OnEvent(Event& e);
-		inline WindowsWindow* GetWindow() { return m_window; }
-		inline static Application* GetInstance() { return s_Instance; }
+	virtual ~Application();
+	virtual void Init();
+	void Start();
+	void PushLayer(Layer* layer);
+	void OnEvent(Event& e);
+	inline WindowsWindow* GetWindow() { return m_window; }
+	inline static Application* GetInstance() { return s_Instance; }
 
-		inline RendererAPI* GetRenderer() { return m_RendererAPI; }
+	inline RendererAPI* GetRenderer() { return m_RendererAPI; }
+
+	PhysicsCore* GetPhysicsCore() { return m_PhysicsCore; }
 
 	private:
 		static Application* s_Instance;
@@ -35,6 +39,8 @@ class Application
 
 		WindowsWindow* m_window;
 		LayerStack m_layerstack;
+
+		PhysicsCore* m_PhysicsCore;
 
 };
 

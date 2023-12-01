@@ -10,8 +10,8 @@ project "LearningEngine"
 	dependson 
 	{
 		"Assimp",
-		"Box2D",
-		"ImGui"
+		"ImGui",
+		"Bullet"
 	}
 
 	files
@@ -45,12 +45,11 @@ project "LearningEngine"
 		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.GLEW}",
 		"%{IncludeDir.spdlog}",
-		"%{IncludeDir.Box2D}",
 		"%{IncludeDir.ASSIMP}",
 		"%{IncludeDir.ENTT}",
 		"%{IncludeDir.JSON}",
 		"%{IncludeDir.ImGuizmo}",
-		"%{IncludeDir.TinyXML}"
+		"%{IncludeDir.Bullet}"
 	}
 	
 	libdirs
@@ -58,13 +57,12 @@ project "LearningEngine"
 		"%{LibraryDir.GLEW}",
 		"%{LibraryDir.GLFW}",
 		"%{LibraryDir.ImGui}",
-		"%{LibraryDir.Box2D}",
 		"%{LibraryDir.ASSIMP64}"
 	}
 
 	links
 	{
-		"Box2D",
+		"Bullet",
 		"ImGui",
 		"glew64s.lib",
 		"glfw3_64.lib",
@@ -88,7 +86,6 @@ project "LearningEngine"
 
 		links
 		{
-			"Box2D",
 			"ImGui",
 			"glew64s.lib",
 			"glfw3_64.lib",
@@ -102,7 +99,6 @@ project "LearningEngine"
 
 		links
 		{
-			"Box2D",
 			"ImGui",
 			"glew64s.lib",
 			"glfw3_64.lib",
