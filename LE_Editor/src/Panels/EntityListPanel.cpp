@@ -245,21 +245,21 @@ void EntityListPanel::Render()
 
 					ImGui::NextColumn();
 
-					glm::vec3 deltaPosition = tc.Position;
-					ImGui::DragFloat3("##position", glm::value_ptr(tc.Position), 0.1f, -1000, 1000, "%.2f");
-					deltaPosition -= tc.Position;
+					glm::vec3 deltaPosition = tc.Transform.Position;
+					ImGui::DragFloat3("##position", glm::value_ptr(tc.Transform.Position), 0.1f, -1000, 1000, "%.2f");
+					deltaPosition -= tc.Transform.Position;
 					
 
-					glm::vec3& degRot = glm::degrees(tc.Rotation);
-					glm::vec3 deltaRotation = tc.Rotation;
+					glm::vec3& degRot = glm::degrees(tc.Transform.Rotation);
+					glm::vec3 deltaRotation = tc.Transform.Rotation;
 					ImGui::DragFloat3("##rotation", glm::value_ptr(degRot), 0.1f, -1000, 1000, "%.2f");
-					tc.Rotation = glm::radians(degRot);
-					deltaRotation -= tc.Rotation;
+					tc.Transform.Rotation = glm::radians(degRot);
+					deltaRotation -= tc.Transform.Rotation;
 
 
-					glm::vec3 deltaScale = tc.Scale;
-					ImGui::DragFloat3("##scale", glm::value_ptr(tc.Scale), 0.1f, -1000, 1000, "%.2f");
-					deltaScale -= tc.Scale;
+					glm::vec3 deltaScale = tc.Transform.Scale;
+					ImGui::DragFloat3("##scale", glm::value_ptr(tc.Transform.Scale), 0.1f, -1000, 1000, "%.2f");
+					deltaScale -= tc.Transform.Scale;
 					
 					Entity s_entity = Entity(m_SelectedEntity, m_Scene);
 					if (s_entity.GetChildren().size())
@@ -268,9 +268,9 @@ void EntityListPanel::Render()
 						{
 							TransformComponent& s_tc = s_entity.GetChildren()[i].GetComponent<TransformComponent>();
 
-							s_tc.Position -= deltaPosition;
-							s_tc.Rotation -= deltaRotation;
-							s_tc.Scale -= deltaScale;
+							s_tc.Transform.Position -= deltaPosition;
+							s_tc.Transform.Rotation -= deltaRotation;
+							s_tc.Transform.Scale -= deltaScale;
 						}
 					}
 					ImGui::EndColumns();

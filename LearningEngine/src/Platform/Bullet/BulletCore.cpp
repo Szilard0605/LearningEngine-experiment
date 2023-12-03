@@ -4,11 +4,10 @@
 
 BulletCore::BulletCore()
 {
-	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
-	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
-	btBroadphaseInterface* overlappingPairCache = new btDbvtBroadphase();
-	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
-
+	m_CollisionConfiguration = new btDefaultCollisionConfiguration();
+	m_Dispatcher = new btCollisionDispatcher(m_CollisionConfiguration);
+	m_BroadphaseInterface = new btDbvtBroadphase();
+	m_Solver = new btSequentialImpulseConstraintSolver();
 }
 
 BulletCore::~BulletCore()

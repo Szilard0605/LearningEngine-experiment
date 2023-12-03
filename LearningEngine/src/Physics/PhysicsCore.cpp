@@ -9,7 +9,9 @@ PhysicsCore* PhysicsCore::Create(PhysicsAPI api)
 	{
 		case PhysicsAPI::Bullet:
 		{
-			return new BulletCore();
+			PhysicsCore* core = new BulletCore();
+			core->SetAPI(api);
+			return core;
 		}
 	}
 	return nullptr;

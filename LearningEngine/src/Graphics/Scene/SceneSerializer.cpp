@@ -39,9 +39,9 @@ void SceneSerializer::Serialize(Scene* scene, std::string filepath)
         if (tc)
         {
             //Save transform component
-            s_JSON[enttID][tc->ID]["Position"] = {tc->Position.x, tc->Position.y, tc->Position.z};
-            s_JSON[enttID][tc->ID]["Rotation"] = {tc->Rotation.x, tc->Rotation.y, tc->Rotation.z};
-            s_JSON[enttID][tc->ID]["Scale"] =    {tc->Scale.x,    tc->Scale.y,    tc->Scale.z   };
+            s_JSON[enttID][tc->ID]["Position"] = {tc->Transform.Position.x, tc->Transform.Position.y, tc->Transform.Position.z};
+            s_JSON[enttID][tc->ID]["Rotation"] = {tc->Transform.Rotation.x, tc->Transform.Rotation.y, tc->Transform.Rotation.z};
+            s_JSON[enttID][tc->ID]["Scale"] =    {tc->Transform.Scale.x,    tc->Transform.Scale.y,    tc->Transform.Scale.z   };
         }
 
         QuadRendererComponent* qrc = scene->Registry.try_get<QuadRendererComponent>(entityID);
@@ -141,9 +141,9 @@ Scene* SceneSerializer::Load(const std::filesystem::path path)
 
             for (int i = 0; i < 3; i++)
             {
-				tc.Position[i] = (float)entry.value()[tc.ID]["Position"][i];
-				tc.Rotation[i] = (float)entry.value()[tc.ID]["Rotation"][i];
-				tc.Scale[i]     = (float)entry.value()[tc.ID]["Scale"][i];
+				tc.Transform.Position[i] = (float)entry.value()[tc.ID]["Position"][i];
+				tc.Transform.Rotation[i] = (float)entry.value()[tc.ID]["Rotation"][i];
+				tc.Transform.Scale[i]     = (float)entry.value()[tc.ID]["Scale"][i];
 			}
 			
 			entity.AddOrReplaceComponent<TransformComponent>(tc);

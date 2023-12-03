@@ -6,6 +6,8 @@
 #include "glm.hpp"
 #include <vector>
 
+#include "Math/Transform.h"
+
 
 struct HierarchyComponent
 {
@@ -29,18 +31,7 @@ struct TransformComponent : public BaseComponent
 {
 	const char* ID = "TransformComponent";
 
-	glm::vec3 Position = {0, 0, 0};
-	glm::vec3 Scale = {1, 1, 1};
-	glm::vec3 Rotation = {0, 0, 0};
-
-	glm::mat4 GetTransform() const
-	{
-		glm::mat4 rotation = glm::toMat4(glm::quat(Rotation));
-
-		return glm::translate(glm::mat4(1.0f), Position)
-			* rotation
-			* glm::scale(glm::mat4(1.0f), Scale);
-	}
+	Math::Transform Transform;
 };
 
 struct QuadRendererComponent : public BaseComponent

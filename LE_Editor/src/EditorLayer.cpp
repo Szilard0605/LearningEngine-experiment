@@ -336,7 +336,7 @@ void EditorLayer::UpdateGizmos()
 		// Entity transform
 		//auto& tc = selectedEntity.GetComponent<TransformComponent>();
 		auto& tc = m_Scene->Registry.get<TransformComponent>(selectedEntity);
-		glm::mat4 transform = tc.GetTransform();
+		glm::mat4 transform = tc.Transform.GetTransformMatrix();
 
 		// Snapping
 		bool snap = Input::IsKeyPressed(Key::LeftControl);
@@ -365,13 +365,13 @@ void EditorLayer::UpdateGizmos()
 
 			//printf("eulerAngle: {%f, %f, %f}\n", eulerRotation.x, eulerRotation.y, eulerRotation.z);
 
-			glm::vec3 deltaRotation = rotation - tc.Rotation;
-			glm::vec3 deltaPosition = tc.Position - translation;
-			glm::vec3 deltaScale = tc.Scale - scale;
+			glm::vec3 deltaRotation = rotation - tc.Transform.Rotation;
+			glm::vec3 deltaPosition = tc.Transform.Position - translation;
+			glm::vec3 deltaScale = tc.Transform.Scale - scale;
 
-			tc.Position = translation;
-			tc.Rotation += deltaRotation;
-			tc.Scale = scale;
+			tc.Transform.Position = translation;
+			tc.Transform.Rotation += deltaRotation;
+			tc.Transform.Scale = scale;
 
 			Entity s_entity = Entity(selectedEntity, m_Scene);
 
@@ -380,9 +380,9 @@ void EditorLayer::UpdateGizmos()
 				for (int i = 0; i < s_entity.GetChildren().size(); i++)
 				{
 					TransformComponent& s_tc = s_entity.GetChildren()[i].GetComponent<TransformComponent>();
-					s_tc.Position -= deltaPosition;
-					s_tc.Rotation -= deltaRotation;
-					s_tc.Scale -= deltaScale;
+					s_tc.Transform.Position -= deltaPosition;
+					s_tc.Transform.Rotation -= deltaRotation;
+					s_tc.Transform.Scale -= deltaScale;
 				}
 			}
 		}

@@ -135,7 +135,7 @@ void Scene::Render(PerspectiveCamera* camera)
 		{
 			auto [transform, camera] = view.get<TransformComponent, PerspectiveCameraComponent>(entity);
 
-			camera.Camera->Translate(transform.Position);
+			camera.Camera->Translate(transform.Transform.Position);
 			
 			if (camera.MainCamera)
 			{
@@ -161,7 +161,7 @@ void Scene::Render(PerspectiveCamera* camera)
 		{
 			auto [tc, qrc] = view.get<TransformComponent, QuadRendererComponent>(entity);
 			if (qrc.enabled)
-				Renderer2D::DrawQuad(tc.Position, tc.Scale, glm::degrees(tc.Rotation), qrc.Color, (int)entity);
+				Renderer2D::DrawQuad(tc.Transform.Position, tc.Transform.Scale, glm::degrees(tc.Transform.Rotation), qrc.Color, (int)entity);
 		}
 
 		Renderer2D::End();
@@ -181,7 +181,7 @@ void Scene::Render(PerspectiveCamera* camera)
 		{
 			auto [tc, plc] = view.get<TransformComponent, PointLightComponent>(entity);
 
-			ForwardRenderer::SubmitLight(PointLight{plc.Color, plc.Intensity, tc.Position});
+			ForwardRenderer::SubmitLight(PointLight{plc.Color, plc.Intensity, tc.Transform.Position});
 		}
 
 
@@ -209,7 +209,7 @@ void Scene::Render(PerspectiveCamera* camera)
 			auto [tc, smc] = view.get<TransformComponent, StaticModelComponent>(entity);
 
 			if (smc.StaticModel)
-				ForwardRenderer::SubmitModel(smc.StaticModel, tc.GetTransform());
+				ForwardRenderer::SubmitModel(smc.StaticModel, tc.Transform.GetTransformMatrix());
 			//smc.StaticModel->Render(*mainCamera, tc.GetTransform());
 
 		}
