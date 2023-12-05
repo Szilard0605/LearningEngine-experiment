@@ -14,9 +14,11 @@ BulletWorld::BulletWorld(glm::vec3 gravity)
 
 BulletWorld::~BulletWorld()
 {
+	
+	delete m_World;
 }
 
-void BulletWorld::AddRigidBody(Math::Transform& transform, Rigidbody* body)
+void BulletWorld::AddRigidBody(Rigidbody* body)
 {
 	BulletRigidbody* bulletBody = (BulletRigidbody*)body;
 	m_World->addRigidBody(bulletBody->GetBulletRigidbody());
@@ -25,4 +27,19 @@ void BulletWorld::AddRigidBody(Math::Transform& transform, Rigidbody* body)
 void BulletWorld::Update(float timeStep)
 {
 	m_World->stepSimulation(timeStep, 1);
+
+	int staticRbs = m_World->getNonStaticRigidBodies().size();
+	int colObjs = m_World->getNumCollisionObjects();
+	printf("static rigidbodies: %d\ncollision objects:%d\n", staticRbs, colObjs);
+}
+
+void BulletWorld::DestroyAllRigidbodies()
+{
+	for (int i = m_World->getNumCollisionObjects() - 1; i >= 0; i--)
+	{
+		m_World->removeCollisionObject(m_World->getCollisionObjectArray()[i]);
+	}
+	int staticRbs = m_World->getNonStaticRigidBodies().size();
+	int colObjs = m_World->getNumCollisionObjects();
+	printf("---- DeletedAllBodies ---\nstatic rigidbodies: %d\ncollision objects: %d\n", staticRbs, colObjs);
 }

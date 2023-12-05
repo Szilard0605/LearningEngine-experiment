@@ -16,5 +16,6 @@ public:
 
 private:
 	Scene* m_Scene = nullptr;
+	PhysicsWorld* m_PhysicsWorld = nullptr;
 };
 

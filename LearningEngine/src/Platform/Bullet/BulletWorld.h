@@ -10,8 +10,9 @@ public:
 	BulletWorld(glm::vec3 gravity);
 	~BulletWorld();
 
-	virtual void AddRigidBody(Math::Transform& transform, Rigidbody* body) override;
+	virtual void AddRigidBody(Rigidbody* body) override;
 	virtual void Update(float timeStep) override;
+	virtual void DestroyAllRigidbodies() override;
 
 private:
 	btDiscreteDynamicsWorld* m_World;

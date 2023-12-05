@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "Math/Transform.h"
+#include "Physics/Rigidbody.h"
 
 
 struct HierarchyComponent
@@ -82,8 +83,33 @@ struct DirectionalLightComponent : public BaseComponent
 	const char* ID = "DirectionalLightComponent";
 
 	float Intensity = 0.1f;
-	glm::vec3 Color = { 1, 1, 1 };;
+	glm::vec3 Color = { 1, 1, 1 };
 	glm::vec3 Direction = { 0, 0, 0 };;
+};
+
+// Phyics
+
+struct RigidbodyComponent : public BaseComponent
+{
+	const char* ID = "RigidbodyComponent";
+
+	Rigidbody::Properties Properties;
+	Rigidbody* Rigidbody = nullptr;
+	//Rigidbody::Properties Properties;
+};
+
+struct BoxColliderComponent : public BaseComponent
+{
+	const char* ID = "BoxColliderComponent";
+
+	glm::vec3 Size = { 1, 1, 1 };
+};
+
+struct SphereColliderComponent : public BaseComponent
+{
+	const char* ID = "SphereCollider";
+	
+	float Radius;
 };
 
 template <typename... Component>
@@ -92,4 +118,7 @@ struct Components
 
 };
 
-using EveryComponent = Components<TransformComponent, TagComponent, HierarchyComponent, QuadRendererComponent, PerspectiveCameraComponent, StaticModelComponent, PointLightComponent, DirectionalLightComponent>;
+using EveryComponent = Components<TransformComponent, TagComponent, HierarchyComponent, QuadRendererComponent, 
+								  PerspectiveCameraComponent, StaticModelComponent, 
+								  RigidbodyComponent, BoxColliderComponent, SphereColliderComponent,
+	                              PointLightComponent, DirectionalLightComponent>;

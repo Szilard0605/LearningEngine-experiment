@@ -7,9 +7,10 @@
 class PhysicsWorld 
 {
 public:
-	PhysicsWorld* Create(glm::vec3 gravity);
+	static PhysicsWorld* Create(glm::vec3 gravity);
 
-	virtual void AddRigidBody(Math::Transform& transform, Rigidbody* body) = 0;
+	virtual void AddRigidBody(Rigidbody* body) = 0;
 	virtual void Update(float timeStep) = 0;
+	virtual void DestroyAllRigidbodies() = 0;
 };
 

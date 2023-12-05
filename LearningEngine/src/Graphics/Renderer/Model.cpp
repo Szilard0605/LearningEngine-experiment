@@ -114,7 +114,7 @@ Model::Model(std::filesystem::path path, Material material)
 		material.SetNormalMap(normalMapTexture);
 
 
-		m_Meshes.push_back(new Mesh(Vertices, Indices, material));
+		m_Meshes.push_back(Mesh(Vertices, Indices, material));
 	}
 
 }
@@ -123,11 +123,11 @@ void Model::Render(PerspectiveCamera& camera, glm::mat4 transform)
 {
 	for(int i = 0; i < m_Meshes.size(); i ++)
 	{
-		m_Meshes[i]->Render(camera, transform);
+		m_Meshes[i].Render(camera, transform);
 	}
 }
 
-void Model::AddMesh(Mesh* mesh)
+void Model::AddMesh(Mesh mesh)
 {
 	m_Meshes.push_back(mesh);
 }

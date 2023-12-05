@@ -2,7 +2,7 @@
 
 #include "glew.h"
 
-Mesh* MeshFactory::CreateCube(float size, Material& material)
+Mesh MeshFactory::CreateCube(float size, Material& material)
 {
 	Mesh::Vertex data[8];
 
@@ -67,6 +67,10 @@ Mesh* MeshFactory::CreateCube(float size, Material& material)
 		mesh_indices.push_back(indices[i]);
 	}
 		
+	Texture2D* whiteTexture = Texture2D::Create(1, 1);
+	uint64_t white = 0xffffffff;
+	whiteTexture->SetData(&white, sizeof(white));
+	material.SetTexture(whiteTexture);
 
-	return new Mesh(vertices, mesh_indices, material);
+	return Mesh(vertices, mesh_indices, material);
 }

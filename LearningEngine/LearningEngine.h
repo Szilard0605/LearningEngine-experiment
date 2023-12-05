@@ -41,5 +41,7 @@
 #include "Events/Events.h"
 
 #include "Physics/PhysicsCore.h"
+#include "Physics/PhysicsWorld.h"
+#include "Physics/PhysicsShape.h"
 
 #include "Utils/FileDialog.h"

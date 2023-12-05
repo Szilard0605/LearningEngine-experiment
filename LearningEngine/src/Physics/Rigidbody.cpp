@@ -5,7 +5,21 @@
 
 #include "Platform/Bullet/BulletRigidbody.h"
 
-Rigidbody* Rigidbody::Create(Math::Transform& transform, SphereShape& shape)
+Rigidbody* Rigidbody::Create(Math::Transform& transform, Properties properties)
+{
+    PhysicsCore* core = Application::GetInstance()->GetPhysicsCore();
+
+    switch (core->GetAPI())
+    {
+    case PhysicsAPI::Bullet:
+    {
+        return new BulletRigidbody(transform, properties);
+    }
+    }
+    return nullptr;
+}
+
+Rigidbody* Rigidbody::Create(Math::Transform& transform, SphereShape& shape, Properties properties)
 {
     PhysicsCore* core = Application::GetInstance()->GetPhysicsCore();
 
@@ -13,13 +27,13 @@ Rigidbody* Rigidbody::Create(Math::Transform& transform, SphereShape& shape)
     {
         case PhysicsAPI::Bullet:
         {
-            return new BulletRigidbody(transform, shape);
+            return new BulletRigidbody(transform, shape, properties);
         }
     }
 	return nullptr;
 }
 
-Rigidbody* Rigidbody::Create(Math::Transform& transform, BoxShape& shape)
+Rigidbody* Rigidbody::Create(Math::Transform& transform, BoxShape& shape, Properties properties)
 {
     PhysicsCore* core = Application::GetInstance()->GetPhysicsCore();
 
@@ -27,7 +41,7 @@ Rigidbody* Rigidbody::Create(Math::Transform& transform, BoxShape& shape)
     {
         case PhysicsAPI::Bullet:
         {
-            return new BulletRigidbody(transform, shape);
+            return new BulletRigidbody(transform, shape, properties);
         }
     }
     return nullptr;

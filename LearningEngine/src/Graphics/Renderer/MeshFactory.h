@@ -7,7 +7,7 @@
 class MeshFactory
 {
 public:
-	static Mesh* CreateCube(float size, Material& material);
+	static Mesh CreateCube(float size, Material& material);
 
 private:
 	MeshFactory() {}

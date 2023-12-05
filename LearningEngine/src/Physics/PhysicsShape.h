@@ -19,11 +19,17 @@ struct RigidbodyShape
 
 struct SphereShape : public RigidbodyShape
 {
+	SphereShape(float radius)
+		: Radius(radius) {}
+
 	float Radius;
 };
 
 struct BoxShape : public RigidbodyShape
 {
-	glm::vec3 Extents;
+	BoxShape(glm::vec3 size)
+		: Size(size) { }
+
+	glm::vec3 Size = { 1, 1, 1 };
 };
 

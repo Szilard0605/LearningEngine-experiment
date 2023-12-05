@@ -402,6 +402,49 @@ void EntityListPanel::Render()
 				}
 			}
 
+			if (m_Scene->Registry.try_get<RigidbodyComponent>(m_SelectedEntity))
+			{
+				RigidbodyComponent& rc = m_Scene->Registry.get<RigidbodyComponent>(m_SelectedEntity);
+				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+				if (ImGui::CollapsingHeader("Rigidbody Component"))
+				{
+					if (ImGui::DragFloat("Mass", &rc.Properties.Mass, 0.1f, 0.0f, 1000.0f) && rc.Rigidbody)
+					{
+						rc.Rigidbody->SetMass(rc.Properties.Mass);
+					}
+
+					if (ImGui::DragFloat("Drag", &rc.Properties.Drag, 0.1f, 0.0f, 1000.0f))
+					{
+
+					}
+				}
+			}
+
+			if (m_Scene->Registry.try_get<BoxColliderComponent>(m_SelectedEntity))
+			{
+				BoxColliderComponent& bcc = m_Scene->Registry.get<BoxColliderComponent>(m_SelectedEntity);
+				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+				if(ImGui::CollapsingHeader("Box Collider"))
+				{
+					RigidbodyComponent& rc = m_Scene->Registry.get<RigidbodyComponent>(m_SelectedEntity);
+					if (ImGui::DragFloat3("Size", glm::value_ptr(bcc.Size)) && rc.Rigidbody)
+					{
+						rc.Rigidbody->SetShape(BoxShape(bcc.Size));
+					}
+				}
+			}
+
+			if (m_Scene->Registry.try_get<SphereColliderComponent>(m_SelectedEntity))
+			{
+				SphereColliderComponent& scc = m_Scene->Registry.get<SphereColliderComponent>(m_SelectedEntity);
+				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+
+				if (ImGui::CollapsingHeader("Sphere Collider"))
+				{
+					ImGui::DragFloat("Radius", &scc.Radius);
+				}
+			}
+
 			ImGui::Separator();
 
 			if (ImGui::Button("Add Component", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
@@ -411,37 +454,68 @@ void EntityListPanel::Render()
 
 			if (ImGui::BeginPopup("ContextMenu"))
 			{
-				if (ImGui::MenuItem("Quad Renderer"))
-				{
-					QuadRendererComponent qrc;
-					m_Scene->Registry.emplace<QuadRendererComponent>(m_SelectedEntity, qrc);
-				}
 
-				if (ImGui::MenuItem("Perspective Camera"))
+				if (ImGui::BeginMenu("Rendering"))
 				{
-					PerspectiveCameraComponent pcc;
-					pcc.Camera = new PerspectiveCamera(pcc.FOV, pcc.AspectRatio, pcc.NearClip, pcc.FarClip);
-					m_Scene->Registry.emplace<PerspectiveCameraComponent>(m_SelectedEntity, pcc);
-				}
+					if (ImGui::MenuItem("Quad Renderer"))
+					{
+						QuadRendererComponent qrc;
+						m_Scene->Registry.emplace<QuadRendererComponent>(m_SelectedEntity, qrc);
+					}
 
-				if (ImGui::MenuItem("Static Model"))
+					if (ImGui::MenuItem("Perspective Camera"))
+					{
+						PerspectiveCameraComponent pcc;
+						pcc.Camera = new PerspectiveCamera(pcc.FOV, pcc.AspectRatio, pcc.NearClip, pcc.FarClip);
+						m_Scene->Registry.emplace<PerspectiveCameraComponent>(m_SelectedEntity, pcc);
+					}
+
+					if (ImGui::MenuItem("Static Model"))
+					{
+						StaticModelComponent smc;
+						m_Scene->Registry.emplace<StaticModelComponent>(m_SelectedEntity, smc);
+					}
+
+
+					if (ImGui::MenuItem("Point Light"))
+					{
+						PointLightComponent plc;
+						m_Scene->Registry.emplace<PointLightComponent>(m_SelectedEntity, plc);
+					}
+
+					if (ImGui::MenuItem("Directional Light"))
+					{
+						DirectionalLightComponent dlc;
+						m_Scene->Registry.emplace<DirectionalLightComponent>(m_SelectedEntity, dlc);
+					}
+					ImGui::EndMenu();
+				}
+				if (ImGui::BeginMenu("Physics"))
 				{
-					StaticModelComponent smc;
-					m_Scene->Registry.emplace<StaticModelComponent>(m_SelectedEntity, smc);
-				}
+					if (ImGui::MenuItem("Rigidbody"))
+					{
+						RigidbodyComponent rc;
+						rc.Properties.Mass = 1.0f;
+						m_Scene->Registry.emplace<RigidbodyComponent>(m_SelectedEntity, rc);
+					}
 
-				if (ImGui::MenuItem("Point Light"))
-				{
-					PointLightComponent plc;
-					m_Scene->Registry.emplace<PointLightComponent>(m_SelectedEntity, plc);
-				}
+					if (ImGui::MenuItem("Box Collider"))
+					{
+						BoxColliderComponent bcc;
+						bcc.Size = m_Scene->Registry.get<TransformComponent>(m_SelectedEntity).Transform.Scale;
+						m_Scene->Registry.emplace<BoxColliderComponent>(m_SelectedEntity, bcc);
+					}
 
-				if (ImGui::MenuItem("Directional Light"))
-				{
-					DirectionalLightComponent dlc;
-					m_Scene->Registry.emplace<DirectionalLightComponent>(m_SelectedEntity, dlc);
-				}
+					if (ImGui::MenuItem("Sphere Collider"))
+					{
+						SphereColliderComponent scc;
+						scc.Radius = 1.0f;
+						m_Scene->Registry.emplace<SphereColliderComponent>(m_SelectedEntity, scc);
 
+					}
+
+					ImGui::EndMenu();
+				}
 				ImGui::EndPopup();
 			}
 

@@ -90,6 +90,25 @@ void SceneSerializer::Serialize(Scene* scene, std::string filepath)
             s_JSON[enttID][dlc->ID]["Intensity"] = dlc->Intensity;
             s_JSON[enttID][dlc->ID]["Direction"] = { dlc->Direction.x,  dlc->Direction.y, dlc->Direction.z };
         }
+
+        RigidbodyComponent* rc = scene->Registry.try_get<RigidbodyComponent>(entityID);
+        if (rc)
+        {
+            s_JSON[enttID][rc->ID]["Mass"] = rc->Properties.Mass;
+            s_JSON[enttID][rc->ID]["Drag"] = rc->Properties.Drag;
+        }
+
+        BoxColliderComponent* bcc = scene->Registry.try_get<BoxColliderComponent>(entityID);
+        if (bcc)
+        {
+            s_JSON[enttID][bcc->ID]["Size"] = { bcc->Size.x, bcc->Size.y, bcc->Size.z };
+        }
+
+        SphereColliderComponent* scc = scene->Registry.try_get<SphereColliderComponent>(entityID);
+        if (scc)
+        {
+            s_JSON[enttID][scc->ID]["Radius"] = scc->Radius;
+        }
     });
 
     std::ofstream SceneFile(filepath.c_str());
@@ -220,6 +239,36 @@ Scene* SceneSerializer::Load(const std::filesystem::path path)
             dlc.Intensity = entry.value()[dlc.ID]["Intensity"];
         
             entity.AddOrReplaceComponent<DirectionalLightComponent>(dlc);
+        }
+
+        if (entry.value().contains("RigidbodyComponent"))
+        {
+            RigidbodyComponent rc;
+            rc.Properties.Mass = entry.value()[rc.ID]["Mass"];
+            rc.Properties.Drag = entry.value()[rc.ID]["Drag"];
+            
+            TransformComponent& tc = scene->Registry.get<TransformComponent>(entity.GetHandle());
+            rc.Rigidbody = Rigidbody::Create(tc.Transform, rc.Properties);
+      
+            entity.AddOrReplaceComponent<RigidbodyComponent>(rc);
+        }
+
+        if (entry.value().contains("BoxColliderComponent"))
+        {
+            BoxColliderComponent bcc;
+
+            for (int i = 0; i < 3; i++)
+            {
+                bcc.Size[i] = entry.value()[bcc.ID]["Size"][i];
+            }
+
+            entity.AddOrReplaceComponent<BoxColliderComponent>(bcc);
+        }
+
+        if (entry.value().contains("SphereColliderComponent"))
+        {
+            SphereColliderComponent scc;
+            scc.Radius = entry.value()[scc.ID]["Radius"];
         }
     }
 

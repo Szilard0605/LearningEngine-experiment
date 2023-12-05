@@ -209,7 +209,7 @@ void Scene::Render(PerspectiveCamera* camera)
 			auto [tc, smc] = view.get<TransformComponent, StaticModelComponent>(entity);
 
 			if (smc.StaticModel)
-				ForwardRenderer::SubmitModel(smc.StaticModel, tc.Transform.GetTransformMatrix());
+				ForwardRenderer::SubmitModel(*smc.StaticModel, tc.Transform.GetTransformMatrix());
 			//smc.StaticModel->Render(*mainCamera, tc.GetTransform());
 
 		}

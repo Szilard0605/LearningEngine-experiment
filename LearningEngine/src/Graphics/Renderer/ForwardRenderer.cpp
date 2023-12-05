@@ -10,7 +10,7 @@
 
 struct MeshRenderData
 {
-	Mesh* mesh;
+	Mesh mesh;
 	glm::mat4 transform;
 };
 
@@ -105,7 +105,7 @@ void ForwardRenderer::Present()
 
 		}
 
-		s_RenderData.meshes[i].mesh->Render(s_RenderData.camera, s_RenderData.meshes[i].transform);
+		s_RenderData.meshes[i].mesh.Render(s_RenderData.camera, s_RenderData.meshes[i].transform);
 	}
 }
 
@@ -114,19 +114,19 @@ void ForwardRenderer::SubmitLight(AmbientLight& light)
 	s_RenderData.DataBuffer.AmbientLight = glm::vec4(light.Color, light.Intensity);
 }
 
-void ForwardRenderer::SubmitMesh(Mesh* mesh, glm::mat4 transform)
+void ForwardRenderer::SubmitMesh(Mesh& mesh, glm::mat4 transform)
 {
 	s_RenderStats.MeshCount++;
-	s_RenderStats.Vertices += mesh->GetVertices().size();
+	s_RenderStats.Vertices += mesh.GetVertices().size();
 
 	s_RenderData.meshes.emplace_back(MeshRenderData{ mesh,  transform });
 }
 
-void ForwardRenderer::SubmitModel(Model* model, glm::mat4 transform)
+void ForwardRenderer::SubmitModel(Model& model, glm::mat4 transform)
 {
-	for (int i = 0; i < model->GetMeshes().size(); i++)
+	for (int i = 0; i < model.GetMeshes().size(); i++)
 	{
-		SubmitMesh(model->GetMeshes()[i], transform);
+		SubmitMesh(model.GetMeshes()[i], transform);
 	}
 }
 void ForwardRenderer::SubmitLight(PointLight& light)
