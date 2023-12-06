@@ -6,7 +6,7 @@
 BulletRigidbody::BulletRigidbody(Math::Transform& transform, Rigidbody::Properties properties)
 {
 	btCollisionShape* colShape = new btBoxShape({ transform.Scale.x, transform.Scale.y, transform.Scale.z });
-	btDefaultMotionState* motionState = new btDefaultMotionState(btTransform(btQuaternion(transform.Rotation.x, transform.Rotation.y, transform.Rotation.z), btVector3(transform.Position.x, transform.Position.y, transform.Position.z)));
+	btDefaultMotionState* motionState = new btDefaultMotionState(btTransform(btQuaternion(transform.Rotation.y, transform.Rotation.x, transform.Rotation.z), btVector3(transform.Position.x, transform.Position.y, transform.Position.z)));
 	
 	btVector3 Inertia(0, 0, 0);
 	colShape->calculateLocalInertia(properties.Mass, Inertia);
@@ -20,7 +20,7 @@ BulletRigidbody::BulletRigidbody(Math::Transform& transform, SphereShape& shape,
 	: m_Transform(transform), m_Shape(shape)
 {
 	btCollisionShape* colShape = new btSphereShape(shape.Radius);
-	btDefaultMotionState* motionState = new btDefaultMotionState(btTransform(btQuaternion(transform.Rotation.x, transform.Rotation.y, transform.Rotation.z), btVector3(transform.Position.x, transform.Position.y, transform.Position.z)));
+	btDefaultMotionState* motionState = new btDefaultMotionState(btTransform(btQuaternion(transform.Rotation.y, transform.Rotation.x, transform.Rotation.z), btVector3(transform.Position.x, transform.Position.y, transform.Position.z)));
 
 	btVector3 Inertia(0, 0, 0);
 	colShape->calculateLocalInertia(properties.Mass, Inertia);

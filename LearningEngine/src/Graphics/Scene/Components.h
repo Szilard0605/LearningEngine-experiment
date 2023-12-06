@@ -107,7 +107,7 @@ struct BoxColliderComponent : public BaseComponent
 
 struct SphereColliderComponent : public BaseComponent
 {
-	const char* ID = "SphereCollider";
+	const char* ID = "SphereColliderComponent";
 	
 	float Radius;
 };

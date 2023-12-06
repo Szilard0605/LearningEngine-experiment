@@ -269,6 +269,7 @@ Scene* SceneSerializer::Load(const std::filesystem::path path)
         {
             SphereColliderComponent scc;
             scc.Radius = entry.value()[scc.ID]["Radius"];
+            entity.AddOrReplaceComponent<SphereColliderComponent>(scc);
         }
     }
 
