@@ -6,7 +6,7 @@ This is the more advanced version of my Engine which is being built for the reas
 In this version I am planning to make it more like a Game Engine, I am going to add an Editor, make it perform faster and I am going to focus on 
 3D. My plan is to make a Multiplayer game with this Engine. It will be a _long_, but **fun** journey.
 
-** Join the team: ** https://discord.gg/4B4hCzC4je
+**Join the team:** https://discord.gg/4B4hCzC4je
 
 # Development Setup
 
