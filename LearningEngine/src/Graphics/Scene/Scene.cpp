@@ -121,6 +121,8 @@ Scene* Scene::Copy(Scene* scene)
 		CopyComponent(EveryComponent{}, dstRegistry, srcRegistry, view[it.index()], newEntity.GetHandle());
 	}
 
+	retScene->SetAmbientLight(scene->GetAmbientLight());
+
 	return retScene;
 }
 
@@ -151,6 +153,7 @@ void Scene::Render(PerspectiveCamera* camera)
 		return;
 	}
 
+	
 	// Rendering 2D elements
 	{
 		Renderer2D::Begin(*mainCamera);
@@ -166,6 +169,7 @@ void Scene::Render(PerspectiveCamera* camera)
 
 		Renderer2D::End();
 	}
+	
 
 	ForwardRenderer::BeginScene(*mainCamera);
 
@@ -209,7 +213,7 @@ void Scene::Render(PerspectiveCamera* camera)
 			auto [tc, smc] = view.get<TransformComponent, StaticModelComponent>(entity);
 
 			if (smc.StaticModel)
-				ForwardRenderer::SubmitModel(*smc.StaticModel, tc.Transform.GetTransformMatrix());
+				ForwardRenderer::SubmitModel(*smc.StaticModel, tc.Transform.GetTransformMatrix(), (int)entity);
 			//smc.StaticModel->Render(*mainCamera, tc.GetTransform());
 
 		}

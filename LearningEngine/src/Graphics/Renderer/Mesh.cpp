@@ -21,11 +21,12 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices, Material
 	m_VertexBuffer = VertexBuffer::Create(static_cast<uint32_t>(vertices.size() * sizeof(Vertex)));
 	
 	m_VertexBuffer->SetLayout({
-		{ ShaderDataType::Float3, "a_position" }, 
-		{ ShaderDataType::Float3, "a_normal"   },
-		{ ShaderDataType::Float3, "a_tangent"  },
-		{ ShaderDataType::Float3, "a_bitangent"},
-		{ ShaderDataType::Float2, "a_texcoords"}
+		{ ShaderDataType::Float3, "a_position"  }, 
+		{ ShaderDataType::Float3, "a_normal"    },
+		{ ShaderDataType::Float3, "a_tangent"   },
+		{ ShaderDataType::Float3, "a_bitangent" },
+		{ ShaderDataType::Float2, "a_texcoords" },
+		{ ShaderDataType::Int,    "a_entity    "}
 	});
 
 	m_VertexArray = VertexArray::Create();
@@ -41,8 +42,11 @@ Mesh::~Mesh()
 
 }
 
-void Mesh::Render(PerspectiveCamera& camera, glm::mat4 transform)
+void Mesh::Render(PerspectiveCamera& camera, glm::mat4 transform, int entity)
 {
+	for (int i = 0; i < m_Vertices.size(); i++)
+		m_Vertices[i].EntityID = entity;
+
 	camera.UpdateView();
 
 	m_Material->GetShader()->Bind();

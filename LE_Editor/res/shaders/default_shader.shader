@@ -6,6 +6,7 @@ layout(location = 1) in vec3 a_normal;
 layout(location = 2) in vec3 a_tangent;
 layout(location = 3) in vec3 a_bitangent;
 layout(location = 4) in vec2 a_texcoords;
+layout(location = 5) in int  a_entity;
 
 uniform mat4 u_ViewProjection;
 uniform mat4 u_Transform;
@@ -20,7 +21,7 @@ struct FragmentData
 };
 
 layout(location = 0) out FragmentData fragmentdata;
-
+layout(location = 14) out flat int o_Entity;
 
 void main()
 {
@@ -34,6 +35,7 @@ void main()
     fragmentdata.Bitangent = normalize(vec3(u_Transform * vec4(a_bitangent, 0.0)));
     fragmentdata.Normal = normalize(vec3(u_Transform * vec4(a_normal, 0.0)));
     
+    o_Entity = a_entity;
 	
 };
 
@@ -41,6 +43,7 @@ void main()
 #version 450 core
 
 layout(location = 0) out vec4 outColor;
+layout(location = 1) out int o_entity;
 
 struct FragmentData
 {
@@ -52,6 +55,7 @@ struct FragmentData
 };
 
 layout(location = 0) in FragmentData fragmentdata;
+layout(location = 14) in flat int in_Entity;
 
 
 layout(binding = 0) uniform sampler2D u_Texture;
@@ -109,7 +113,9 @@ vec3 CalculateDirectionalLight(Light light, vec3 Normal)
 }
 
 void main()
-{	
+{
+    o_entity = in_Entity;
+	
 	vec4 tex = texture(u_Texture, fragmentdata.TexCoords);
 	
 	if (tex.a < 0.1f) {

@@ -166,7 +166,7 @@ void EditorLayer::OnImGuiRender()
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 		//vpSize = { viewportPanelSize.x, viewportPanelSize.y };
 
-		ImGui::Image(reinterpret_cast<void*>(texid), viewportPanelSize, { 0, 1 }, {1, 0});
+		ImGui::Image(reinterpret_cast<void*>(texid), viewportPanelSize, { 0, 1 }, { 1, 0 });
 
 		ImGui::SameLine();
 
@@ -323,7 +323,6 @@ void EditorLayer::UpdateGizmos()
 
 	if (m_Scene->Registry.valid(selectedEntity))
 	{
-
 		ImGuizmo::SetOrthographic(false);
 		ImGuizmo::SetDrawlist();
 
@@ -387,6 +386,7 @@ void EditorLayer::UpdateGizmos()
 			}
 		}
 	}
+
 }
 
 bool EditorLayer::OnKeyChange(KeyEvent& keyevent)
@@ -501,34 +501,14 @@ void EditorLayer::OnUpdate(Timestep timestep)
 
 	Renderer2D::ClearColor(glm::vec4(0.5, 0.5, 0.5, 1));
 
-
-
-
 	if (m_PressedPlay)
 	{
 		m_Runtime.Update(timestep);
 	}
 	else
 	{
+		
 		m_Scene->Render(m_EditorCamera);
-
-		/*PerspectiveCamera* mainCamera = nullptr;
-		glm::mat4 cameraTransform;
-		{
-			auto view = m_Scene->Registry.view<TransformComponent, PerspectiveCameraComponent>();
-			for (auto entity : view)
-			{
-				auto [transform, camera] = view.get<TransformComponent, PerspectiveCameraComponent>(entity);
-
-
-				Renderer2D::Begin(*m_EditorCamera);
-
-				Renderer2D::DrawQuad(transform.Position, { 5, 5, 5}, { 0, 0, 0 }, {0, 0, 1, 1}, entity);
-
-				Renderer2D::End();
-			}
-		}*/
-
 
 		if (m_ViewportActive)
 		{
@@ -578,8 +558,6 @@ void EditorLayer::OnUpdate(Timestep timestep)
 		}
 	}
 
-
-	//printf("Hovered entity: %d\n", (int)m_HoveredEntity);
-
 	m_Framebuffer->Unbind();
+	//printf("Hovered entity: %d\n", (int)m_HoveredEntity);
 }

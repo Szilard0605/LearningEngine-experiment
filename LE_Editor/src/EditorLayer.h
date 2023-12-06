@@ -61,7 +61,6 @@ private:
 	Texture2D* m_ScaleIcon;
 	bool m_OperationIconHovered = false;
 
-
 	EditorRuntime m_Runtime;
 };
 

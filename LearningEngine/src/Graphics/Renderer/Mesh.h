@@ -18,6 +18,7 @@ public:
 		glm::vec3 Tangent;
 		glm::vec3 Bitangent;
 		glm::vec2 TexCoords;
+		int EntityID;
 	};
 	
 	Mesh() = default;
@@ -28,7 +29,7 @@ public:
 
 	~Mesh();
 
-	void Render(PerspectiveCamera& camera, glm::mat4 transform);
+	void Render(PerspectiveCamera& camera, glm::mat4 transform, int entity = -1);
 
     VertexArray* GetVertexArray() { return m_VertexArray; }
 	Material* GetMaterial() { return m_Material; }
