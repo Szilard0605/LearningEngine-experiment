@@ -5,41 +5,96 @@
 #include "btBulletDynamicsCommon.h"
 #include "BulletRigidbody.h"
 
-BulletWorld::BulletWorld(glm::vec3 gravity)
+#include "Graphics/Scene/Entity.h"
+
+struct RigidbodyData
+{
+	Entity EntityID;
+};
+
+BulletWorld::BulletWorld(Scene* scene, glm::vec3 gravity)
+	: m_Scene(scene)
 {
 	BulletCore* core = (BulletCore*)Application::GetInstance()->GetPhysicsCore();
-	m_World = new btDiscreteDynamicsWorld(core->GetCollisionDispatcher(), core->GetBroadphaseInterface(), core->SequentialImpulseConstraintSolver(), core->GetCollisionConfiguration());
-	m_World->setGravity({ gravity.x, gravity.y, gravity.z });
+	m_btWorld = new btDiscreteDynamicsWorld(core->GetCollisionDispatcher(), core->GetBroadphaseInterface(), core->SequentialImpulseConstraintSolver(), core->GetCollisionConfiguration());
+	m_btWorld->setGravity({ gravity.x, gravity.y, gravity.z });
+
+	// Box colliders
+	{
+		auto view = m_Scene->Registry.view<RigidbodyComponent, BoxColliderComponent>();
+		for (auto entity : view)
+		{
+			auto [rc, bcc] = view.get<RigidbodyComponent, BoxColliderComponent>(entity);
+			TransformComponent& tc = m_Scene->Registry.get<TransformComponent>(entity);
+			BulletRigidbody rb(Entity(entity, m_Scene), BoxShape(bcc.Size));
+			m_Rigidbodies.push_back(rb);
+		}
+	}
+
+	// Sphere colliders
+	{
+		auto view = m_Scene->Registry.view<RigidbodyComponent, SphereColliderComponent>();
+		for (auto entity : view)
+		{
+			auto [rc, scc] = view.get<RigidbodyComponent, SphereColliderComponent>(entity);
+			TransformComponent& tc = m_Scene->Registry.get<TransformComponent>(entity);
+			BulletRigidbody rb(Entity(entity, m_Scene), SphereShape(scc.Radius));
+			m_Rigidbodies.push_back(rb);
+		}
+	}
+
+	for (int i = 0; i < m_Rigidbodies.size(); i++)
+	{
+		m_btWorld->addRigidBody(m_Rigidbodies[i].GetBulletRigidbody());
+	}
 }
 
 BulletWorld::~BulletWorld()
 {
-	
-	delete m_World;
+	m_Rigidbodies.clear();
+	delete m_btWorld;
 }
+
 
 void BulletWorld::AddRigidBody(Rigidbody* body)
 {
-	BulletRigidbody* bulletBody = (BulletRigidbody*)body;
-	m_World->addRigidBody(bulletBody->GetBulletRigidbody());
+	BulletRigidbody* bulletBody = (BulletRigidbody*)&body;
+	m_Rigidbodies.push_back(*bulletBody);
+
+	BulletRigidbody test = m_Rigidbodies[m_Rigidbodies.size()-1];
+	printf("entity: %d\n", test.GetData()->EntityID.GetHandle());
+
+	m_btWorld->addRigidBody(bulletBody->GetBulletRigidbody());
 }
 
-void BulletWorld::Update(float timeStep)
+void BulletWorld::StepSimulation(float timeStep)
 {
-	m_World->stepSimulation(timeStep, 1);
+	m_btWorld->stepSimulation(timeStep, 1);
 
-	int staticRbs = m_World->getNonStaticRigidBodies().size();
-	int colObjs = m_World->getNumCollisionObjects();
-	printf("static rigidbodies: %d\ncollision objects:%d\n", staticRbs, colObjs);
+	for (int i = 0; i < m_Rigidbodies.size(); i++)
+	{
+		BulletRigidbody rigidBody = m_Rigidbodies[i];
+		btRigidBody* btRigidBody = rigidBody.GetBulletRigidbody();
+		Entity entity = rigidBody.GetData()->EntityID;
+
+		btTransform& simTransform = btRigidBody->getWorldTransform();
+		entity.SetPosition({ simTransform.getOrigin().x(), simTransform.getOrigin().y(), simTransform.getOrigin().z() });
+
+		float yaw, pitch, roll;
+		simTransform.getBasis().getEulerZYX(yaw, pitch, roll);
+		entity.SetRotation({ roll, pitch, yaw });
+
+		RigidbodyComponent& rc = entity.GetComponent<RigidbodyComponent>();
+		btRigidBody->setMassProps(rc.Mass, btRigidBody->getLocalInertia());
+		btRigidBody->setDamping(rc.LinearDamping, rc.AngularDamping);
+	}
 }
 
 void BulletWorld::DestroyAllRigidbodies()
 {
-	for (int i = m_World->getNumCollisionObjects() - 1; i >= 0; i--)
+	for (int i = m_btWorld->getNumCollisionObjects() - 1; i >= 0; i--)
 	{
-		m_World->removeCollisionObject(m_World->getCollisionObjectArray()[i]);
+		m_btWorld->removeCollisionObject(m_btWorld->getCollisionObjectArray()[i]);
 	}
-	int staticRbs = m_World->getNonStaticRigidBodies().size();
-	int colObjs = m_World->getNumCollisionObjects();
-	printf("---- DeletedAllBodies ---\nstatic rigidbodies: %d\ncollision objects: %d\n", staticRbs, colObjs);
 }
+

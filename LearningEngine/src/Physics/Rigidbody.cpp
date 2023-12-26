@@ -5,7 +5,9 @@
 
 #include "Platform/Bullet/BulletRigidbody.h"
 
-Rigidbody* Rigidbody::Create(Math::Transform& transform, Properties properties)
+#include "Graphics/Scene/Entity.h"
+
+Rigidbody* Rigidbody::Create(Entity entity, SphereShape& shape)
 {
     PhysicsCore* core = Application::GetInstance()->GetPhysicsCore();
 
@@ -13,13 +15,13 @@ Rigidbody* Rigidbody::Create(Math::Transform& transform, Properties properties)
     {
     case PhysicsAPI::Bullet:
     {
-        return new BulletRigidbody(transform, properties);
+        return new BulletRigidbody(entity, shape);
     }
     }
     return nullptr;
 }
 
-Rigidbody* Rigidbody::Create(Math::Transform& transform, SphereShape& shape, Properties properties)
+Rigidbody* Rigidbody::Create(Entity entity, BoxShape& shape)
 {
     PhysicsCore* core = Application::GetInstance()->GetPhysicsCore();
 
@@ -27,13 +29,13 @@ Rigidbody* Rigidbody::Create(Math::Transform& transform, SphereShape& shape, Pro
     {
         case PhysicsAPI::Bullet:
         {
-            return new BulletRigidbody(transform, shape, properties);
+            return new BulletRigidbody(entity, shape);
         }
     }
 	return nullptr;
 }
 
-Rigidbody* Rigidbody::Create(Math::Transform& transform, BoxShape& shape, Properties properties)
+/*Rigidbody* Rigidbody::Create(Math::Transform& transform, BoxShape& shape)
 {
     PhysicsCore* core = Application::GetInstance()->GetPhysicsCore();
 
@@ -41,8 +43,8 @@ Rigidbody* Rigidbody::Create(Math::Transform& transform, BoxShape& shape, Proper
     {
         case PhysicsAPI::Bullet:
         {
-            return new BulletRigidbody(transform, shape, properties);
+            return new BulletRigidbody(transform, shape);
         }
     }
     return nullptr;
-}
+}*/

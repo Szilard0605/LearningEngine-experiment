@@ -408,15 +408,10 @@ void EntityListPanel::Render()
 				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 				if (ImGui::CollapsingHeader("Rigidbody Component"))
 				{
-					if (ImGui::DragFloat("Mass", &rc.Properties.Mass, 0.1f, 0.0f, 1000.0f) && rc.Rigidbody)
-					{
-						rc.Rigidbody->SetMass(rc.Properties.Mass);
-					}
-
-					if (ImGui::DragFloat("Drag", &rc.Properties.Drag, 0.1f, 0.0f, 1000.0f))
-					{
-
-					}
+					
+					ImGui::DragFloat("Mass", &rc.Mass, 0.1f, 0.0f, 1000.0f);
+					ImGui::DragFloat("Linear damping", &rc.LinearDamping, 0.1f, 0.0f, 1000.0f);
+					ImGui::DragFloat("Angular damping", &rc.AngularDamping, 0.1f, 0.0f, 1000.0f);
 				}
 			}
 
@@ -426,11 +421,7 @@ void EntityListPanel::Render()
 				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 				if(ImGui::CollapsingHeader("Box Collider"))
 				{
-					RigidbodyComponent& rc = m_Scene->Registry.get<RigidbodyComponent>(m_SelectedEntity);
-					if (ImGui::DragFloat3("Size", glm::value_ptr(bcc.Size)) && rc.Rigidbody)
-					{
-						rc.Rigidbody->SetShape(BoxShape(bcc.Size));
-					}
+					ImGui::DragFloat3("Size", glm::value_ptr(bcc.Size));
 				}
 			}
 
@@ -495,7 +486,6 @@ void EntityListPanel::Render()
 					if (ImGui::MenuItem("Rigidbody"))
 					{
 						RigidbodyComponent rc;
-						rc.Properties.Mass = 1.0f;
 						m_Scene->Registry.emplace<RigidbodyComponent>(m_SelectedEntity, rc);
 					}
 

@@ -93,9 +93,9 @@ struct RigidbodyComponent : public BaseComponent
 {
 	const char* ID = "RigidbodyComponent";
 
-	Rigidbody::Properties Properties;
-	Rigidbody* Rigidbody = nullptr;
-	//Rigidbody::Properties Properties;
+	float Mass = 1.0f;
+	float LinearDamping = 0.0f;
+	float AngularDamping = 0.0f;
 };
 
 struct BoxColliderComponent : public BaseComponent

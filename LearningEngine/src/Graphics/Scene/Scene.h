@@ -10,8 +10,10 @@
 #include "Graphics/Renderer/API/CubeMap.h"
 
 #include "Graphics/Renderer/Light.h"
+//#include "Physics/PhysicsWorld.h"
 
 class Entity;
+class PhysicsWorld;
 
 class Scene
 {
@@ -23,7 +25,10 @@ class Scene
 		Entity NewEntity(const std::string name);
 		void DestroyEntity(Entity entity);
 		Entity GetEntityByTag(std::string name);
+		void OnStart();
 		void Render(PerspectiveCamera* camera = nullptr);
+		void StepPhysicsSimulation(float timestep);
+		void OnStop();
 
 		void SetName(const std::string name) { m_Name = name; }
 		const std::string& GetName() { return m_Name; }
@@ -47,5 +52,7 @@ class Scene
 		AmbientLight m_AmbientLight = { glm::vec3(1.0f),  1};
 
 		PerspectiveCamera* m_MainCamera = nullptr;
+
+		PhysicsWorld* m_PhysicsWorld = nullptr;
 };
 

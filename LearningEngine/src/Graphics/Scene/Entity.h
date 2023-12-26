@@ -11,7 +11,9 @@ class Entity
 {
 	public:
 		Entity() { }
-		Entity(const std::string& name, entt::entity handle, Scene* scene);
+
+		//Entity(const std::string& name, entt::entity handle, Scene* scene);
+
 		Entity(entt::entity handle, Scene* scene) 
 			: m_EntityHandle(handle), m_Scene(scene) { }
 
@@ -38,6 +40,11 @@ class Entity
 			return m_EntityHandle;
 		}
 		
+		void SetScene(Scene* scene)
+		{
+			m_Scene = scene;
+		}
+
 		Scene* GetScene()
 		{
 			return m_Scene;
@@ -100,6 +107,29 @@ class Entity
 			return m_Scene->Registry.get<T>(m_EntityHandle);
 		}
 
+		void SetPosition(glm::vec3 position)
+		{
+			TransformComponent& tc = GetComponent<TransformComponent>();
+			tc.Transform.Position = position;
+		}
+
+		void SetRotation(glm::vec3 rotation)
+		{
+			TransformComponent& tc = GetComponent<TransformComponent>();
+			tc.Transform.Rotation = rotation;
+		}
+
+		void SetTransform(Math::Transform transform)
+		{
+			TransformComponent& tc = GetComponent<TransformComponent>();
+			tc.Transform = transform;
+		}
+
+		Math::Transform GetTransform()
+		{
+			return GetComponent<TransformComponent>().Transform;
+		}
+
 		bool operator ==(entt::entity other) const 
 		{
 			return m_EntityHandle == other;
@@ -117,7 +147,5 @@ class Entity
 
 	private:
 		Scene* m_Scene;
-		std::string m_Name;
 		entt::entity m_EntityHandle { entt::null };
-		entt::entity ParentEntity = entt::null;
 };

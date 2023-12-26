@@ -11,6 +11,8 @@
 
 #include "Graphics/Renderer/ForwardRenderer.h"
 
+#include "Physics/PhysicsWorld.h"
+
 Scene::Scene(const std::string name)
 	: m_Name(name)
 {
@@ -38,7 +40,7 @@ Entity Scene::NewEntity(const std::string name)
 	HierarchyComponent hc;
 	Registry.emplace<HierarchyComponent>(entity, hc);
 
-	return Entity(name, entity, this);
+	return Entity(entity, this);
 }
 
 void Scene::DestroyEntity(Entity entity)
@@ -83,6 +85,17 @@ Entity Scene::GetEntityByTag(std::string name)
 	return Entity();
 }
 
+void Scene::OnStart()
+{
+	m_PhysicsWorld = PhysicsWorld::Create(this, { 0, -9.8f, 0 });
+}
+
+
+void Scene::OnStop()
+{
+	m_PhysicsWorld->DestroyAllRigidbodies();
+	delete m_PhysicsWorld;
+}
 
 template<typename... Component>
 static void CopyComponent(entt::registry& dst, entt::registry& src, entt::entity srcEntity, entt::entity dstEntity)
@@ -221,6 +234,14 @@ void Scene::Render(PerspectiveCamera* camera)
 
 	ForwardRenderer::EndScene();
 	ForwardRenderer::Present();
+}
+
+void Scene::StepPhysicsSimulation(float timestep)
+{
+	if (m_PhysicsWorld)
+	{
+		m_PhysicsWorld->StepSimulation(timestep);
+	}
 }
 
 void Scene::OnViewportResize(float width, float height)

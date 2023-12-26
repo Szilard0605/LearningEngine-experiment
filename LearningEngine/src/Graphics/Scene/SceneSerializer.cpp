@@ -94,8 +94,9 @@ void SceneSerializer::Serialize(Scene* scene, std::string filepath)
         RigidbodyComponent* rc = scene->Registry.try_get<RigidbodyComponent>(entityID);
         if (rc)
         {
-            s_JSON[enttID][rc->ID]["Mass"] = rc->Properties.Mass;
-            s_JSON[enttID][rc->ID]["Drag"] = rc->Properties.Drag;
+            s_JSON[enttID][rc->ID]["Mass"] = rc->Mass;
+            s_JSON[enttID][rc->ID]["LinearDamping"] = rc->LinearDamping;
+            s_JSON[enttID][rc->ID]["AngularDamping"] = rc->AngularDamping;
         }
 
         BoxColliderComponent* bcc = scene->Registry.try_get<BoxColliderComponent>(entityID);
@@ -244,12 +245,14 @@ Scene* SceneSerializer::Load(const std::filesystem::path path)
         if (entry.value().contains("RigidbodyComponent"))
         {
             RigidbodyComponent rc;
-            rc.Properties.Mass = entry.value()[rc.ID]["Mass"];
-            rc.Properties.Drag = entry.value()[rc.ID]["Drag"];
-            
+
             TransformComponent& tc = scene->Registry.get<TransformComponent>(entity.GetHandle());
-            rc.Rigidbody = Rigidbody::Create(tc.Transform, rc.Properties);
-      
+            //rc.Rigidbody = Rigidbody::Create(tc.Transform);
+
+            rc.Mass = entry.value()[rc.ID]["Mass"];
+            rc.LinearDamping = entry.value()[rc.ID]["LinearDamping"];
+            rc.AngularDamping = entry.value()[rc.ID]["AngularDamping"];
+
             entity.AddOrReplaceComponent<RigidbodyComponent>(rc);
         }
 

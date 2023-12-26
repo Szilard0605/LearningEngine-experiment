@@ -4,7 +4,9 @@
 
 #include "Core/Application.h"
 
-PhysicsWorld* PhysicsWorld::Create(glm::vec3 gravity)
+#include "Graphics/Scene/Entity.h"
+
+PhysicsWorld* PhysicsWorld::Create(Scene* scene, glm::vec3 gravity)
 {
     PhysicsCore* core = Application::GetInstance()->GetPhysicsCore();
     
@@ -12,7 +14,7 @@ PhysicsWorld* PhysicsWorld::Create(glm::vec3 gravity)
     {
         case PhysicsAPI::Bullet:
         {
-            return new BulletWorld(gravity);
+            return new BulletWorld(scene, gravity);
         }
     }
     

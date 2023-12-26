@@ -29,8 +29,8 @@ void EditorLayer::OnAttach()
 
 	FramebufferSpecifications specs;
 	specs.Attachments = { FramebufferAttachment::RGBA8, FramebufferAttachment::RED_INTEGER, FramebufferAttachment::Depth };
-	specs.Width = 1280;
-	specs.Height = 720;
+	specs.Width = Application::GetInstance()->GetWindow()->GetWidth();
+	specs.Height = Application::GetInstance()->GetWindow()->GetHeight();
 	m_Framebuffer = Framebuffer::Create(specs);
 
 	s_MainViewportSize = { specs.Width, specs.Height };
