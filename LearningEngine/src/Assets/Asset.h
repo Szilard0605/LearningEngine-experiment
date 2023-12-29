@@ -5,7 +5,7 @@
 
 enum class AssetType : uint16_t
 {
-	None, Texture2D, Model
+	None, Texture2D, Model, Scene
 };
 
 typedef uint32_t AssetHandle;

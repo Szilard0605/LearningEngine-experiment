@@ -87,7 +87,7 @@ Entity Scene::GetEntityByTag(std::string name)
 
 void Scene::OnStart()
 {
-	m_PhysicsWorld = PhysicsWorld::Create(this, { 0, -9.8f, 0 });
+	m_PhysicsWorld = PhysicsWorld::Create(this, { 0, -9.81f, 0 });
 }
 
 

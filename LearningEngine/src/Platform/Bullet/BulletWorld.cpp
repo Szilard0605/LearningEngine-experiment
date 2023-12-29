@@ -69,7 +69,7 @@ void BulletWorld::AddRigidBody(Rigidbody* body)
 
 void BulletWorld::StepSimulation(float timeStep)
 {
-	m_btWorld->stepSimulation(timeStep, 1);
+	m_btWorld->stepSimulation(timeStep, 10);
 
 	for (int i = 0; i < m_Rigidbodies.size(); i++)
 	{

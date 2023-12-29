@@ -187,6 +187,20 @@ void ContentBrowser::DisplayDirectoryTree(std::filesystem::path directory_path)
 				{
 
 				}
+
+				if (!directory_entry.is_directory() && ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+				{
+					AssetType type = AssetManager::GetAssetTypeFromFileExtension(file_path);
+
+					if (type == AssetType::Scene)
+					{
+						char* payloadData = static_cast<char*>(malloc(sizeof(char) * (file_path.string().length() + 1)));
+						strcpy(payloadData, file_path.string().c_str());
+						ImGui::SetDragDropPayload("DragDropScene", payloadData, sizeof(char) * (file_path.string().length() + 1));
+						ImGui::Text(file_path.stem().string().c_str());
+					}
+					ImGui::EndDragDropSource();
+				}
 			}
 		}
 
