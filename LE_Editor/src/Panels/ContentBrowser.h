@@ -4,11 +4,12 @@
 
 #include "LearningEngine.h"
 
+
 class ContentBrowser
 {
 public:
-	ContentBrowser() = default;
-	ContentBrowser(Scene* scene);
+
+	ContentBrowser();
 	
 
 	void Render();

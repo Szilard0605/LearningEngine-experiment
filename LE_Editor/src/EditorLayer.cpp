@@ -40,7 +40,7 @@ void EditorLayer::OnAttach()
 	m_Scene->OnViewportResize(s_MainViewportSize.x, s_MainViewportSize.y);
 
 	m_EntitiesPanel = EntityListPanel(m_Scene);
-	m_ContentBrowser = ContentBrowser(m_Scene);
+	m_ContentBrowser = ContentBrowser();
 	m_SceneRendererPanel = SceneRendererPanel(m_Scene);
 
 	/* ---- Loading Assets ------
@@ -139,8 +139,9 @@ void EditorLayer::OnImGuiRender()
 		window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoTabBar;
 		ImGui::SetNextWindowClass(&window_class);
 
-		ImGui::Begin("##Viewport", nullptr, ImGuiWindowFlags_NoTitleBar);
 
+		ImGui::Begin("##Viewport", nullptr, ImGuiWindowFlags_NoTitleBar);
+		
 		float viewportWidth = ImGui::GetContentRegionAvail().x;
 		float viewportHeight = ImGui::GetContentRegionAvail().y;
 
@@ -166,7 +167,22 @@ void EditorLayer::OnImGuiRender()
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 		//vpSize = { viewportPanelSize.x, viewportPanelSize.y };
 
+
 		ImGui::Image(reinterpret_cast<void*>(texid), viewportPanelSize, { 0, 1 }, { 1, 0 });
+	
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DragDropScene");
+			if (payload)
+			{
+				const char* scenePath = static_cast<const char*>(payload->Data);
+
+				if(scenePath)
+					LoadScene(scenePath);
+			}
+			ImGui::EndDragDropTarget();
+		}
 
 		ImGui::SameLine();
 
@@ -278,19 +294,10 @@ void EditorLayer::OnImGuiRender()
 			{
 				LE_CLIENT_INFO("Loading a Scene");
 
-				std::string ScenePath;
-				if (Utils::FileDialog::OpenFile("LearningEngine Scene (*.lescene)\0*.lescene*\0", ScenePath))
+				std::string scenePath;
+				if (Utils::FileDialog::OpenFile("LearningEngine Scene (*.lescene)\0*.lescene*\0", scenePath))
 				{
-					m_Scene = SceneSerializer::Load(ScenePath);
-					m_EntitiesPanel = EntityListPanel(m_Scene);
-					m_ContentBrowser = ContentBrowser(m_Scene);
-					m_SceneRendererPanel = SceneRendererPanel(m_Scene);
-
-					if (m_PressedPlay)
-					{
-						m_Runtime.Stop();
-						m_PressedPlay = false;
-					}
+					LoadScene(scenePath);
 				}
 			}
 
@@ -315,6 +322,21 @@ void EditorLayer::OnImGuiRender()
 	
 	ImGui::End();
 
+}
+
+void EditorLayer::LoadScene(std::filesystem::path scenePath)
+{
+	LE_CLIENT_INFO("Loading a Scene");
+	m_Scene = SceneSerializer::Load(scenePath);
+	m_EntitiesPanel = EntityListPanel(m_Scene);
+	//m_ContentBrowser = ContentBrowser(m_Scene);
+	m_SceneRendererPanel = SceneRendererPanel(m_Scene);
+
+	if (m_PressedPlay)
+	{
+		m_Runtime.Stop();
+		m_PressedPlay = false;
+	}
 }
 
 void EditorLayer::UpdateGizmos()

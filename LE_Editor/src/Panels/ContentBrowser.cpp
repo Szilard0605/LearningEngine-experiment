@@ -5,21 +5,17 @@
 #include "Log/Log.h"
 #include <imgui_internal.h>
 
-ContentBrowser::ContentBrowser(Scene* scene)
-	: m_Scene(scene)
+ContentBrowser::ContentBrowser()
 {
 	m_CurrentDirectory = "res";
 
-	m_FileIcon = Texture2D::Create("res/textures/Editor/FileIcon.jpg");
+	m_FileIcon = Texture2D::Create("res/textures/Editor/FileIcon.png");
 	m_FolderIcon = Texture2D::Create("res/textures/Editor/FolderIcon.png");
 
 }
 
 void ContentBrowser::Render()
 {
-	if (!m_Scene)
-		return;
-
 	ImGui::Begin("Content browser");	
 
 	// Dir Column
@@ -81,23 +77,43 @@ void ContentBrowser::Render()
 
 		Texture2D* iconTexture = directoryEntry.is_directory() ? m_FolderIcon : m_FileIcon;
 
+	
+
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - thumbnailSize
 			- ImGui::GetScrollX() - 2 * ImGui::GetStyle().ItemSpacing.x);
 
+
+		ImGui::PushStyleColor(ImGuiCol_Button, {0, 0, 0, 0});
 		ImGui::PushID(path.filename().string().c_str());
+
+		
+
 		ImVec2 size = ImVec2(thumbnailSize, thumbnailSize);
-		ImVec2 uv0 = ImVec2(0.0f, 0.0f);                       
-		ImVec2 uv1 = ImVec2(1, 1);
-		ImVec4 bg_col = ImVec4(0.0f, 0.0f, 0.0f, 1.0f); 
+		ImVec2 uv0 = ImVec2(1.0f, 1.0f);                       
+		ImVec2 uv1 = ImVec2(0, 0);
+		ImVec4 bg_col = ImVec4(1.0f,1.0f, 1.0f, 0.5f); 
 		ImVec4 tint_col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 		ImGui::ImageButton((ImTextureID)iconTexture->GetTextureID(), size, uv0, uv1, -1, bg_col, tint_col);		
+		ImGui::PopStyleColor();
 
 		if (!directoryEntry.is_directory() && ImGui::BeginDragDropSource())
 		{
+			AssetType type = AssetManager::GetAssetTypeFromFileExtension(path);
+
+			if (type == AssetType::Scene)
+			{
+				char* payloadData = static_cast<char*>(malloc(sizeof(char) * (path.string().length() + 1)));
+				strcpy(payloadData, path.string().c_str());
+				ImGui::SetDragDropPayload("DragDropScene", payloadData, sizeof(char) * (path.string().length() + 1));
+				ImGui::Text(path.stem().string().c_str());
+			}
 			ImGui::EndDragDropSource();
 		}
-		else if (ImGui::IsItemHovered()) {
-			if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+
+		if (ImGui::IsItemHovered() && directoryEntry.is_directory())
+		{
+			if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) 
+			{
 				if (directoryEntry.is_directory())
 				{
 					m_CurrentDirectory /= path.filename();

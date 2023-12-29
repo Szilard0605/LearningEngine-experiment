@@ -8,7 +8,8 @@ static std::map<std::string, AssetType> s_AssetTypeExtensions =
 {
 	{".png", AssetType::Texture2D},
 	{".jpg", AssetType::Texture2D},
-	{".jpeg", AssetType::Texture2D}
+	{".jpeg", AssetType::Texture2D},
+	{".lescene", AssetType::Scene}
 };
 
 AssetHandle AssetManager::CreateAsset(AssetData data)

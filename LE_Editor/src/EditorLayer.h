@@ -27,6 +27,7 @@ public:
 
 	void OnUpdate(Timestep timestep) override;
 
+	void LoadScene(std::filesystem::path scenePath);
 	void UpdateGizmos();
 
 	static glm::vec2 GetMainViewportSize() { return s_MainViewportSize; };

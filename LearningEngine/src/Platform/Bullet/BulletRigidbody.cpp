@@ -66,20 +66,6 @@ BulletRigidbody::BulletRigidbody(Entity entity, SphereShape& shape)
 	m_btRigidbody->setUserPointer(this);
 }
 
-/*BulletRigidbody::BulletRigidbody(Math::Transform& transform, BoxShape& shape)
-	: m_Transform(transform), m_Shape(shape)
-{
-	btCollisionShape* colShape = new btBoxShape({ shape.Size.x, shape.Size.y, shape.Size.z });
-	
-	btTransform defTransform;
-	defTransform.setOrigin({ transform.Position.x, transform.Position.y, transform.Position.z });
-	
-	btDefaultMotionState* motionState = new btDefaultMotionState(defTransform);
-	btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(1.0f, motionState, colShape, btVector3(0, 0, 0));
-	
-	m_btRigidbody = new btRigidBody(groundRigidBodyCI);
-}*/
-
 BulletRigidbody::~BulletRigidbody()
 {
 }
