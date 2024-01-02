@@ -229,11 +229,13 @@ void EditorLayer::OnImGuiRender()
 
 		m_ViewportActive = ImGui::IsWindowFocused();
 		m_ViewportHovered = ImGui::IsWindowHovered();
-
-		
-
 	
 		UpdateGizmos();
+
+		if (!m_PressedPlay || m_ViewportActive && Input::IsKeyPressed(Key::Delete) && m_EntitiesPanel.GetSelectedEntity() != entt::null)
+		{
+			m_EntitiesPanel.ShowDeleteEntityPopup();
+		}
 
 		ImGui::End();
 		ImGui::PopStyleVar();
@@ -393,6 +395,13 @@ void EditorLayer::UpdateGizmos()
 			tc.Transform.Position = translation;
 			tc.Transform.Rotation += deltaRotation;
 			tc.Transform.Scale = scale;
+
+
+			BoxColliderComponent* bcc = m_Scene->Registry.try_get<BoxColliderComponent>(m_EntitiesPanel.GetSelectedEntity());
+			if (bcc)
+			{
+				bcc->Size -= deltaScale;
+			}
 
 			Entity s_entity = Entity(selectedEntity, m_Scene);
 
@@ -573,6 +582,7 @@ void EditorLayer::OnUpdate(Timestep timestep)
 			{
 				m_EditorCamera->Translate(m_EditorCamera->GetPosition() + (speed * m_EditorCamera->GetRightDirection()));
 			}
+
 			if (Input::IsKeyPressed(Key::A))
 			{
 				m_EditorCamera->Translate(m_EditorCamera->GetPosition() - (speed * m_EditorCamera->GetRightDirection()));

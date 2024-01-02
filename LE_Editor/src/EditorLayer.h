@@ -25,6 +25,8 @@ public:
 	bool OnMouseMove(MouseMoveEvent& event);
 	bool OnMouseScrolled(MouseScrolledEvent& event);
 
+	inline bool IsViewportActive() { return m_ViewportActive; }
+
 	void OnUpdate(Timestep timestep) override;
 
 	void LoadScene(std::filesystem::path scenePath);
@@ -33,7 +35,6 @@ public:
 	static glm::vec2 GetMainViewportSize() { return s_MainViewportSize; };
 
 private:
-
 	Scene* m_Scene;
 	Framebuffer* m_Framebuffer;
 	PerspectiveCamera* m_EditorCamera;

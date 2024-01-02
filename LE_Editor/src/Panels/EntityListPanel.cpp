@@ -100,6 +100,13 @@ void EntityListPanel::SetScene(Scene* scene)
 	m_SelectedEntity = entt::null;
 }
 
+void EntityListPanel::DeleteEntity(Entity entity)
+{
+	m_Scene->DestroyEntity(Entity(m_SelectedEntity, m_Scene));
+	SetSelectedEntity(entt::null);
+	ImGui::CloseCurrentPopup();
+}
+
 void EntityListPanel::Render()
 {
 	if (!m_Scene)
@@ -154,10 +161,11 @@ void EntityListPanel::Render()
 			ImGui::TreePop();
 		}
 
-		if (ImGui::IsWindowFocused())
+		if (ImGui::IsWindowFocused() || m_DeleteEntityPopup)
 		{
-			if (m_DeleteEntity || Input::IsKeyPressed(Key::Delete) && m_SelectedEntity != entt::null)
+			if (Input::IsKeyPressed(Key::Delete) && m_SelectedEntity != entt::null)
 			{
+				m_DeleteEntityPopup = false;
 				ImGui::OpenPopup("Delete entity?");
 			}
 		}
@@ -178,9 +186,7 @@ void EntityListPanel::Render()
 			{
 				if (m_SelectedEntity != entt::null)
 				{
-					m_Scene->DestroyEntity(Entity(m_SelectedEntity, m_Scene));
-					m_SelectedEntity = entt::null;
-					ImGui::CloseCurrentPopup();
+					DeleteEntity(Entity(m_SelectedEntity, m_Scene));
 				}
 			}
 
@@ -192,8 +198,6 @@ void EntityListPanel::Render()
 			{
 				ImGui::CloseCurrentPopup();
 			}
-
-			m_DeleteEntity = false;
 
 			ImGui::EndPopup();
 		}
@@ -259,7 +263,14 @@ void EntityListPanel::Render()
 
 					glm::vec3 deltaScale = tc.Transform.Scale;
 					ImGui::DragFloat3("##scale", glm::value_ptr(tc.Transform.Scale), 0.1f, -1000, 1000, "%.2f");
+
 					deltaScale -= tc.Transform.Scale;
+
+					BoxColliderComponent* bcc = m_Scene->Registry.try_get<BoxColliderComponent>(m_SelectedEntity);
+					if (bcc)
+					{
+						bcc->Size += deltaScale;
+					}
 					
 					Entity s_entity = Entity(m_SelectedEntity, m_Scene);
 					if (s_entity.GetChildren().size())
