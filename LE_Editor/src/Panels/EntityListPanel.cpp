@@ -390,6 +390,31 @@ void EntityListPanel::Render()
 				}
 			}
 
+			if (m_Scene->Registry.try_get<LuaScriptComponent>(m_SelectedEntity))
+			{
+				LuaScriptComponent& lsc = m_Scene->Registry.get<LuaScriptComponent>(m_SelectedEntity);
+				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+				if (ImGui::CollapsingHeader("Lua script Component"))
+				{
+			
+					const char* inputText = strlen(lsc.sourcePath) > 0 ? lsc.sourcePath : "-";
+					ImGui::InputText("Source Path", (char*)inputText, sizeof(inputText));
+
+					ImGui::SameLine();
+
+					if (ImGui::Button("Load", { ImGui::CalcTextSize("Load").x + 10.0f, 20.0f }))
+					{
+						std::string sourcePath;
+						if (Utils::FileDialog::OpenFile("3D Model (*.lua)\0*.lua\0", sourcePath))
+						{
+							LE_CORE_INFO("Added script: %s", sourcePath.c_str());
+							lsc.sourcePath = new char[sourcePath.length() + 1];
+							strcpy(lsc.sourcePath, sourcePath.c_str());
+						}
+					}
+				}
+			}
+
 			if (m_Scene->Registry.try_get<PointLightComponent>(m_SelectedEntity))
 			{
 				PointLightComponent& plc = m_Scene->Registry.get<PointLightComponent>(m_SelectedEntity);
@@ -516,6 +541,12 @@ void EntityListPanel::Render()
 					}
 
 					ImGui::EndMenu();
+				}
+
+				if (ImGui::MenuItem("Lua script"))
+				{
+					LuaScriptComponent lsc;
+					m_Scene->Registry.emplace<LuaScriptComponent>(m_SelectedEntity, lsc);
 				}
 				ImGui::EndPopup();
 			}

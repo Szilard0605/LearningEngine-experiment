@@ -127,7 +127,7 @@ Scene* SceneSerializer::Load(const std::filesystem::path path)
 
     Scene* scene = new Scene(path.filename().replace_extension().string());
 
-    LE_CORE_INFO(std::string("Loading scene: ") + path.filename().replace_extension().string());
+    LE_CORE_INFO("Loading scene: %s", path.filename().replace_extension().string().c_str());
 
     // Loading ambient light
     if (s_JSON.contains("AmbientLight"))

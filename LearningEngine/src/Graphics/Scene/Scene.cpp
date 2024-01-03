@@ -13,6 +13,9 @@
 
 #include "Physics/PhysicsWorld.h"
 
+#include "Scripting/Lua/LuaInterface.h"
+#include <Scripting/Lua/LuaScripting.h>
+
 Scene::Scene(const std::string name)
 	: m_Name(name)
 {
@@ -88,6 +91,9 @@ Entity Scene::GetEntityByTag(std::string name)
 void Scene::OnStart()
 {
 	m_PhysicsWorld = PhysicsWorld::Create(this, { 0, -9.81f, 0 });
+
+	LuaScripting::Init();
+	LuaInterface::InitScene(this);
 }
 
 
@@ -95,6 +101,7 @@ void Scene::OnStop()
 {
 	m_PhysicsWorld->DestroyAllRigidbodies();
 	delete m_PhysicsWorld;
+	LuaScripting::Shutdown();
 }
 
 template<typename... Component>

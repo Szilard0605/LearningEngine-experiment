@@ -16,7 +16,7 @@ Model::Model(std::filesystem::path path) : Model(path, Material(ShaderLibrary::G
 Model::Model(std::filesystem::path path, Material material)
 	: m_Path(path)
 {
-	LE_CORE_INFO(std::string("Loading model ") + path.string());
+	LE_CORE_INFO("Loading model %s", path.string().c_str());
 
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path.string().c_str(), aiProcess_Triangulate | aiProcess_GenSmoothNormals |
@@ -24,7 +24,7 @@ Model::Model(std::filesystem::path path, Material material)
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
-		LE_CORE_ERROR("[ASSIMP] " + std::string(importer.GetErrorString()));
+		LE_CORE_ERROR("[ASSIMP] %s", importer.GetErrorString());
 		return;
 	}
 

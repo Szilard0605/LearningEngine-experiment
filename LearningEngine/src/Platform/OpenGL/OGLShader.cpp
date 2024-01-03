@@ -76,7 +76,7 @@ OGLShader::OGLShader(const std::string& path)
 		glDeleteShader(vs);
 		glDeleteShader(fs);
 	}
-	else LE_CORE_ERROR(std::string("Can't open shader file: ") + path);
+	else LE_CORE_ERROR("Can't open shader file: %s", path);
 }
 
 

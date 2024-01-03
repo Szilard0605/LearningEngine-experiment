@@ -10,6 +10,8 @@
 #include "Log/Log.h"
 #include "Utils/Random.h"
 
+#include "Scripting/Lua/LuaScripting.h"
+
 Application* Application::s_Instance = nullptr;
 
 Application::Application(const std::string name, const uint32_t width, const uint32_t height)
@@ -57,7 +59,7 @@ void Application::Init()
 	m_PhysicsCore = PhysicsCore::Create(PhysicsAPI::Bullet);
 
 	LE_CORE_INFO("Application initialized!");
-	LE_CORE_INFO("OpenGL version: " + m_RendererAPI->GetVersionString());
+	LE_CORE_INFO("OpenGL version: %s", m_RendererAPI->GetVersionString().c_str());
 }
 
 

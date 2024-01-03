@@ -44,4 +44,7 @@
 #include "Physics/PhysicsWorld.h"
 #include "Physics/PhysicsShape.h"
 
+#include "Scripting/Lua/LuaScripting.h"
+#include "Scripting/Lua/LuaInterface.h"
+
 #include "Utils/FileDialog.h"

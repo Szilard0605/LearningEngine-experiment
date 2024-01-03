@@ -11,7 +11,8 @@ project "LearningEngine"
 	{
 		"Assimp",
 		"ImGui",
-		"Bullet"
+		"Bullet",
+		"Lua"
 	}
 
 	files
@@ -49,7 +50,9 @@ project "LearningEngine"
 		"%{IncludeDir.ENTT}",
 		"%{IncludeDir.JSON}",
 		"%{IncludeDir.ImGuizmo}",
-		"%{IncludeDir.Bullet}"
+		"%{IncludeDir.Bullet}",
+		"%{IncludeDir.SOL}",
+		"%{IncludeDir.Lua}"
 	}
 	
 	libdirs
@@ -62,6 +65,7 @@ project "LearningEngine"
 
 	links
 	{
+		"Lua",
 		"Bullet",
 		"ImGui",
 		"glew64s.lib",

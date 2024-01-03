@@ -112,6 +112,13 @@ struct SphereColliderComponent : public BaseComponent
 	float Radius;
 };
 
+struct LuaScriptComponent : public BaseComponent
+{
+	const char* ID = "LuaScriptComponent";
+
+	char* sourcePath = "-";
+};
+
 template <typename... Component>
 struct Components
 {
@@ -121,4 +128,5 @@ struct Components
 using EveryComponent = Components<TransformComponent, TagComponent, HierarchyComponent, QuadRendererComponent, 
 								  PerspectiveCameraComponent, StaticModelComponent, 
 								  RigidbodyComponent, BoxColliderComponent, SphereColliderComponent,
-	                              PointLightComponent, DirectionalLightComponent>;
+	                              PointLightComponent, DirectionalLightComponent,
+								  LuaScriptComponent>;
