@@ -49,6 +49,7 @@ private:
 	entt::entity m_HoveredEntity;
 
 	int m_GizmoType = -1;
+	float m_EditorCamSpeed = 0.1f;
 
 	// Panels
 	EntityListPanel m_EntitiesPanel;

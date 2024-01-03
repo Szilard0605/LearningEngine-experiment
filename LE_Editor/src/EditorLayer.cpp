@@ -36,9 +36,12 @@ void EditorLayer::OnAttach()
 	s_MainViewportSize = { specs.Width, specs.Height };
 
 	m_EditorCamera = new PerspectiveCamera(60.0f, specs.Width / specs.Height, 1.0f, 10000.0f);
+	m_EditorCamera->Translate(glm::vec3(-2.0f, 2.0f, 4.0f));
+	m_EditorCamera->SetPitch(.5f);
+	m_EditorCamera->SetYaw(0.5f);
+	
 	m_Scene->SetMainCamera(m_EditorCamera);
 	m_Scene->OnViewportResize(s_MainViewportSize.x, s_MainViewportSize.y);
-
 	m_EntitiesPanel = EntityListPanel(m_Scene);
 	m_ContentBrowser = ContentBrowser();
 	m_SceneRendererPanel = SceneRendererPanel(m_Scene);
@@ -73,6 +76,7 @@ void EditorLayer::OnEvent(Event& event)
 	event.Dispatch<KeyEvent>(BIND_EVENT_FN(EditorLayer::OnKeyChange));
 	event.Dispatch<MouseMoveEvent>(BIND_EVENT_FN(EditorLayer::OnMouseMove));
 	event.Dispatch<MouseButtonEvent>(BIND_EVENT_FN(EditorLayer::OnMouseButtonChange));
+	event.Dispatch<MouseScrolledEvent>(BIND_EVENT_FN(EditorLayer::OnMouseScrolled));
 }
 
 void EditorLayer::OnImGuiRender()
@@ -422,7 +426,7 @@ void EditorLayer::UpdateGizmos()
 
 bool EditorLayer::OnKeyChange(KeyEvent& keyevent)
 { 
-
+	
 	return false;
 }
 
@@ -523,6 +527,21 @@ bool EditorLayer::OnMouseMove(MouseMoveEvent& event)
 
 bool EditorLayer::OnMouseScrolled(MouseScrolledEvent& event)
 {
+	if (event.GetOffset().y > 0 && m_ViewportActive)
+		m_EditorCamera->Translate(m_EditorCamera->GetPosition() + (0.5f * m_EditorCamera->GetForwardDirection()));
+	else if (event.GetOffset().y < 0 && m_ViewportActive)
+		m_EditorCamera->Translate(m_EditorCamera->GetPosition() - (0.5f * m_EditorCamera->GetForwardDirection()));
+
+	if (Input::IsMouseButtonPressed(MouseButton::RIGHT_CLICK) && m_ViewportActive && event.GetOffset().y > 0)
+	{
+		m_EditorCamSpeed += 0.1f;
+		m_EditorCamSpeed = glm::clamp(m_EditorCamSpeed, 0.1f, 3.0f);
+	}
+	else if (Input::IsMouseButtonPressed(MouseButton::RIGHT_CLICK) && m_ViewportActive && event.GetOffset().y < 0)
+	{
+		m_EditorCamSpeed -= 0.1f;
+		m_EditorCamSpeed = glm::clamp(m_EditorCamSpeed, 0.1f, 3.0f);
+	}
 	return false;
 }
 
@@ -563,29 +582,35 @@ void EditorLayer::OnUpdate(Timestep timestep)
 				}
 			}
 
-			float speed = 0.1f;
+			//if (Input::IsKeyPressed(Key::LeftShift))
+			//	speed *= 2;
 
-			if (Input::IsKeyPressed(Key::LeftShift))
-				speed *= 2;
-
-			if (Input::IsKeyPressed(Key::W))
+			if (Input::IsMouseButtonPressed(MouseButton::RIGHT_CLICK))
 			{
-				m_EditorCamera->Translate(m_EditorCamera->GetPosition() + (speed * m_EditorCamera->GetForwardDirection()));
-			}
-
-			if (Input::IsKeyPressed(Key::S))
-			{
-				m_EditorCamera->Translate(m_EditorCamera->GetPosition() - (speed * m_EditorCamera->GetForwardDirection()));
-			}
-
-			if (Input::IsKeyPressed(Key::D))
-			{
-				m_EditorCamera->Translate(m_EditorCamera->GetPosition() + (speed * m_EditorCamera->GetRightDirection()));
-			}
-
-			if (Input::IsKeyPressed(Key::A))
-			{
-				m_EditorCamera->Translate(m_EditorCamera->GetPosition() - (speed * m_EditorCamera->GetRightDirection()));
+				if (Input::IsKeyPressed(Key::W))
+				{
+					m_EditorCamera->Translate(m_EditorCamera->GetPosition() + (m_EditorCamSpeed * m_EditorCamera->GetForwardDirection()));
+				}
+				if (Input::IsKeyPressed(Key::S))
+				{
+					m_EditorCamera->Translate(m_EditorCamera->GetPosition() - (m_EditorCamSpeed * m_EditorCamera->GetForwardDirection()));
+				}
+				if (Input::IsKeyPressed(Key::D))
+				{
+					m_EditorCamera->Translate(m_EditorCamera->GetPosition() + (m_EditorCamSpeed * m_EditorCamera->GetRightDirection()));
+				}
+				if (Input::IsKeyPressed(Key::A))
+				{
+					m_EditorCamera->Translate(m_EditorCamera->GetPosition() - (m_EditorCamSpeed * m_EditorCamera->GetRightDirection()));
+				}
+				if (Input::IsKeyPressed(Key::E))
+				{
+					m_EditorCamera->Translate(m_EditorCamera->GetPosition() + (m_EditorCamSpeed * m_EditorCamera->GetUpDirection()));
+				}
+				if (Input::IsKeyPressed(Key::Q))
+				{
+					m_EditorCamera->Translate(m_EditorCamera->GetPosition() - (m_EditorCamSpeed * m_EditorCamera->GetUpDirection()));
+				}
 			}
 		}
 	}
