@@ -10,7 +10,7 @@
 class Entity
 {
 	public:
-		Entity() { }
+		Entity() = default;
 
 		//Entity(const std::string& name, entt::entity handle, Scene* scene);
 
@@ -111,6 +111,12 @@ class Entity
 		{
 			TransformComponent& tc = GetComponent<TransformComponent>();
 			tc.Transform.Position = position;
+		}
+
+		glm::vec3 GetPosition()
+		{
+			TransformComponent& tc = GetComponent<TransformComponent>();
+			return tc.Transform.Position;
 		}
 
 		void SetRotation(glm::vec3 rotation)

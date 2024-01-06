@@ -9,6 +9,7 @@
 #include "Math/Transform.h"
 #include "Physics/Rigidbody.h"
 
+#include "Graphics/Scene/Entity.h"
 
 struct HierarchyComponent
 {

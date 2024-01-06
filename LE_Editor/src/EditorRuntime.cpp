@@ -30,6 +30,7 @@ void EditorRuntime::Update(Timestep timeStep)
 	if (!m_Scene)
 		return;
 
+	m_Scene->Update(timeStep);
 	m_Scene->Render();
 	m_Scene->StepPhysicsSimulation((1.0f / 30.0f));
 }

@@ -12,6 +12,8 @@
 #include "Graphics/Renderer/Light.h"
 //#include "Physics/PhysicsWorld.h"
 
+#include "Core/Timestep.h"
+
 class Entity;
 class PhysicsWorld;
 
@@ -27,6 +29,7 @@ class Scene
 		Entity GetEntityByTag(std::string name);
 		void OnStart();
 		void Render(PerspectiveCamera* camera = nullptr);
+		void Update(Timestep timeStep);
 		void StepPhysicsSimulation(float timestep);
 		void OnStop();
 

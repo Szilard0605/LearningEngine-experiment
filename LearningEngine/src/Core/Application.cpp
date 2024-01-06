@@ -10,8 +10,6 @@
 #include "Log/Log.h"
 #include "Utils/Random.h"
 
-#include "Scripting/Lua/LuaScripting.h"
-
 Application* Application::s_Instance = nullptr;
 
 Application::Application(const std::string name, const uint32_t width, const uint32_t height)

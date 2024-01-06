@@ -110,6 +110,12 @@ void SceneSerializer::Serialize(Scene* scene, std::string filepath)
         {
             s_JSON[enttID][scc->ID]["Radius"] = scc->Radius;
         }
+
+        LuaScriptComponent* lsc = scene->Registry.try_get<LuaScriptComponent>(entityID);
+        if (lsc)
+        {
+            s_JSON[enttID][lsc->ID]["SourcePath"] = lsc->sourcePath;
+        }
     });
 
     std::ofstream SceneFile(filepath.c_str());
@@ -273,6 +279,15 @@ Scene* SceneSerializer::Load(const std::filesystem::path path)
             SphereColliderComponent scc;
             scc.Radius = entry.value()[scc.ID]["Radius"];
             entity.AddOrReplaceComponent<SphereColliderComponent>(scc);
+        }
+
+        if (entry.value().contains("LuaScriptComponent"))
+        {
+            LuaScriptComponent lsc;
+            std::string Path = entry.value()[lsc.ID]["SourcePath"];
+            lsc.sourcePath = new char[Path.length() + 1];
+            strcpy(lsc.sourcePath, Path.c_str());
+            entity.AddOrReplaceComponent<LuaScriptComponent>(lsc);
         }
     }
 
