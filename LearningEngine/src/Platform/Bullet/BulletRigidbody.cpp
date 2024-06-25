@@ -11,6 +11,8 @@ struct RigidbodyData
 
 BulletRigidbody::BulletRigidbody(Entity entity)
 {
+	m_EntityHandle = entity.GetHandle();
+
 	m_Data = new RigidbodyData();
 	m_Data->EntityID = entity;
 
@@ -30,6 +32,8 @@ BulletRigidbody::BulletRigidbody(Entity entity)
 
 BulletRigidbody::BulletRigidbody(Entity entity, BoxShape& shape)
 {
+	m_EntityHandle = entity.GetHandle();
+
 	m_Data = new RigidbodyData();
 	m_Data->EntityID = entity;
 
@@ -49,6 +53,8 @@ BulletRigidbody::BulletRigidbody(Entity entity, BoxShape& shape)
 
 BulletRigidbody::BulletRigidbody(Entity entity, SphereShape& shape)
 {
+	m_EntityHandle = entity.GetHandle();
+
 	m_Data = new RigidbodyData();
 	m_Data->EntityID = entity;
 
@@ -68,6 +74,16 @@ BulletRigidbody::BulletRigidbody(Entity entity, SphereShape& shape)
 
 BulletRigidbody::~BulletRigidbody()
 {
+}
+
+void BulletRigidbody::WakeUp(bool forceWakeUp)
+{
+	m_btRigidbody->activate(forceWakeUp);
+}
+
+void BulletRigidbody::Sleep()
+{
+	m_btRigidbody->setActivationState(ISLAND_SLEEPING);
 }
 
 float BulletRigidbody::GetMass()
@@ -98,6 +114,16 @@ float BulletRigidbody::GetAngularDamping()
 void BulletRigidbody::SetAngularDamping(float damping)
 {
 	m_btRigidbody->setDamping(m_btRigidbody->getLinearDamping(), damping);
+}
+
+void BulletRigidbody::ApplyForce(glm::vec3 force, glm::vec3 relativePos)
+{
+	m_btRigidbody->applyForce({ force.x, force.y, force.z }, { relativePos.x, relativePos.y, relativePos.z });
+}
+
+void BulletRigidbody::ApplyCentralForce(glm::vec3 force)
+{
+	m_btRigidbody->applyCentralForce({ force.x, force.y, force.z });
 }
 
 void BulletRigidbody::SetShape(BoxShape& shape)

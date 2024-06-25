@@ -15,5 +15,6 @@ public:
 	virtual void AddRigidBody(Rigidbody* body) = 0;
 	virtual void StepSimulation(float timeStep) = 0;
 	virtual void DestroyAllRigidbodies() = 0;
+	virtual Rigidbody* GetEntityRigidbody(entt::entity entityHandle) = 0;
 };
 

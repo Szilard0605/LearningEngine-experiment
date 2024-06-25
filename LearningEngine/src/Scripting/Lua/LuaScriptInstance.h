@@ -20,7 +20,11 @@ public:
 	sol::state* GetState() { return m_State; }
 
 private:
-	
+
+	void Rigidbody_ApplyForce(glm::vec3 force, glm::vec3 origin);
+	void Rigidbody_WakeUp(bool forceWakeUp);
+	void Rigidbody_Sleep();
+
 
 	sol::state* m_State;
 	Scene* m_Scene;

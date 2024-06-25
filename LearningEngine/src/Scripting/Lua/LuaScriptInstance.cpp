@@ -10,6 +10,7 @@
 #include "Log/Log.h"
 
 #include "Graphics/Scene/Entity.h"
+#include "Physics/PhysicsWorld.h"
 
 static jmp_buf s_LuaPanicJump;
 
@@ -73,8 +74,53 @@ void LuaScriptInstance::RegisterEntity()
 {
 	auto& lua = *m_State;
 
-	Entity entity(m_EntityHandle, m_Scene);
 
+	// Input
+	LUA_REGISTER_FUNCTION("isKeyPressed", [this](uint32_t keyCode) -> bool { return Input::IsKeyPressed(keyCode); });
+
+
+	// Entity
 	LUA_REGISTER_FUNCTION("getPosition", [this]() -> glm::vec3 { return Entity(m_EntityHandle, m_Scene).GetPosition(); });
 	LUA_REGISTER_FUNCTION("setPosition", [this](glm::vec3 pos) { Entity(m_EntityHandle, m_Scene).SetPosition(pos); });
+
+	// Phyiscs
+	LUA_REGISTER_FUNCTION("rbApplyForce", [this](glm::vec3 force, glm::vec3 origin) { Rigidbody_ApplyForce(force, origin); });
+	LUA_REGISTER_FUNCTION("rbWakeUp", [this](bool forceWakeUp) { Rigidbody_WakeUp(forceWakeUp); });
+	LUA_REGISTER_FUNCTION("rbSleep", [this]() { Rigidbody_Sleep(); });
+}
+
+
+void LuaScriptInstance::Rigidbody_ApplyForce(glm::vec3 force, glm::vec3 origin)
+{
+	Rigidbody* rb = m_Scene->GetPhyiscsWorld()->GetEntityRigidbody(m_EntityHandle);
+	if (!rb)
+	{
+		LE_CORE_ERROR("[Rigidbody_ApplyForce]: There is no rigidbody");
+		return;
+	}
+
+	rb->ApplyForce(force, origin);
+}
+
+void LuaScriptInstance::Rigidbody_WakeUp(bool forceWakeUp)
+{
+	Rigidbody* rb = m_Scene->GetPhyiscsWorld()->GetEntityRigidbody(m_EntityHandle);
+	if (!rb)
+	{
+		LE_CORE_ERROR("[Rigidbody_WakeUp]: There is no rigidbody");
+		return;
+	}
+
+	rb->WakeUp(forceWakeUp);
+}
+
+void LuaScriptInstance::Rigidbody_Sleep()
+{
+	Rigidbody* rb = m_Scene->GetPhyiscsWorld()->GetEntityRigidbody(m_EntityHandle);
+	if (!rb)
+	{
+		LE_CORE_ERROR("[Rigidbody_Sleep]: There is no rigidbody");
+		return;
+	}
+	rb->Sleep();
 }

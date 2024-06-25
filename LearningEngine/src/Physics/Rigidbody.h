@@ -4,6 +4,8 @@
 
 #include "Math/Transform.h"
 
+#include "entt.hpp"
+
 class Entity;
 
 class Rigidbody
@@ -15,6 +17,11 @@ public:
 	//static Rigidbody* Create(Math::Transform& transform, SphereShape& shape);
 	//static Rigidbody* Create(Math::Transform& transform, BoxShape& shape);
 
+	virtual entt::entity GetEntityHandle() = 0;
+
+	virtual void WakeUp(bool forceWakeUp) = 0;
+	virtual void Sleep() = 0;
+
 	virtual float GetMass() = 0;
 	virtual void SetMass(float mass) = 0;
 
@@ -22,6 +29,8 @@ public:
 	virtual void SetLinearDamping(float damping) = 0;
 	virtual float GetAngularDamping() = 0;
 	virtual void SetAngularDamping(float damping) = 0;
+	virtual void ApplyForce(glm::vec3 force, glm::vec3 relativePos) = 0;
+	virtual void ApplyCentralForce(glm::vec3 force) = 0;
 
 	virtual void SetShape(BoxShape& shape) = 0;
 	virtual void SetShape(SphereShape& shape) = 0;

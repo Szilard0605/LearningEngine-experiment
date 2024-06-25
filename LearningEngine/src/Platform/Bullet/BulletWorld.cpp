@@ -98,3 +98,13 @@ void BulletWorld::DestroyAllRigidbodies()
 	}
 }
 
+Rigidbody* BulletWorld::GetEntityRigidbody(entt::entity entityHandle)
+{
+	for (int i = 0; i < m_Rigidbodies.size(); i++)
+	{
+		if (entityHandle == m_Rigidbodies[i].GetEntityHandle())
+		{
+			return (Rigidbody*)&m_Rigidbodies[i];
+		}
+	}
+}

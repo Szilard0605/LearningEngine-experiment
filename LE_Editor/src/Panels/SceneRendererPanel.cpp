@@ -29,7 +29,6 @@ void SceneRendererPanel::Render()
 			ImGui::SameLine();
 			if (ImGui::Button(buttonLabel.c_str()))
 			{
-				printf("[SceneRendererPanel] Reloading: %s\n", item.first.c_str());
 				shader->Reload();
 			}
 		}

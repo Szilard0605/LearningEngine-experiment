@@ -46,6 +46,8 @@ class Scene
 		inline void SetAmbientLight(AmbientLight light) { m_AmbientLight = light; }
 		inline AmbientLight GetAmbientLight() { return m_AmbientLight; }
 
+		PhysicsWorld* GetPhyiscsWorld() { return m_PhysicsWorld; }
+
 		entt::registry Registry;
 
 	private:

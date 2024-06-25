@@ -17,7 +17,7 @@ public:
 	virtual void AddRigidBody(Rigidbody* body) override;
 	virtual void StepSimulation(float timeStep) override;
 	virtual void DestroyAllRigidbodies() override;
-
+	virtual Rigidbody* GetEntityRigidbody(entt::entity entityHandle) override;
 
 private:
 	Scene* m_Scene;
