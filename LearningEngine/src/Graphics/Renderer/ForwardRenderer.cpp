@@ -90,25 +90,21 @@ void ForwardRenderer::EndScene()
 void ForwardRenderer::Present()
 {
 
+	s_RenderData.shader->Bind();
+	
+	s_RenderData.RenderDataBuffer->Bind(0);
+	s_RenderData.RenderDataBuffer->SetData(&s_RenderData.DataBuffer, sizeof(RenderDataSB), 0);
+
+	// Light setup
+	{
+		s_RenderData.LightBuffer->Bind(1);
+		s_RenderData.LightBuffer->SetData(s_RenderData.LightData.Lights.data(), sizeof(LightData) * MAX_LIGHTS, 0);
+	}
+
+
 	for (int i = 0; i < s_RenderData.meshes.size(); i++)
 	{
 		s_RenderStats.DrawCalls++;
-		
-		
-		s_RenderData.shader->Bind();
-
-
-		s_RenderData.RenderDataBuffer->Bind(0);
-		s_RenderData.RenderDataBuffer->SetData(&s_RenderData.DataBuffer, sizeof(RenderDataSB), 0);
-
-
-		// Light setup
-		{
-			s_RenderData.LightBuffer->Bind(1);
-			s_RenderData.LightBuffer->SetData(s_RenderData.LightData.Lights.data(), sizeof(LightData) * MAX_LIGHTS, 0);
-
-		}
-
 		s_RenderData.meshes[i].mesh.Render(s_RenderData.camera, s_RenderData.meshes[i].transform, s_RenderData.meshes[i].EntityID);
 	}
 }

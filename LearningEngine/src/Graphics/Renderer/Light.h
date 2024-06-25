@@ -6,6 +6,7 @@ struct AmbientLight
 {
 	glm::vec3 Color;
 	float Intensity;
+	float SpecularPower;
 };
 
 struct Light
@@ -18,11 +19,9 @@ struct Light
 struct PointLight : public Light
 {
 	glm::vec3 Position;
-	float SpecularPower;
 };
 
 struct DirectionalLight : public Light
 {
 	glm::vec3 Direction;
-	float SpecularPower;
 };

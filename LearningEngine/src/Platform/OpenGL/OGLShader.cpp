@@ -25,7 +25,7 @@ OGLShader::OGLShader(const std::string& path)
 	m_program = glCreateProgram();
 	if (!ReadShaderSource(path, m_VertexSource, m_FragmentSource))
 	{
-		LE_CORE_ERROR(std::string("Can't read shader file: ") + path);
+		LE_CORE_ERROR("Can't read shader file: %s", path);
 		return;
 	}
 
@@ -80,7 +80,7 @@ void OGLShader::Compile(ShaderType type)
 	*id = glCreateShader(ShaderTypeToGLType(type));
 	glShaderSource(*id, 1, &src, nullptr);
 
-	LE_CORE_INFO("Compiling %s: %s\n", Shader::ShaderTypeToString(type).c_str(), m_FilePath.c_str()); // replace with core log after merge
+	LE_CORE_INFO("Compiling %s: %s", Shader::ShaderTypeToString(type).c_str(), m_FilePath.c_str()); // replace with core log after merge
 	glCompileShader(*id);
 
 	int result;
@@ -98,7 +98,7 @@ void OGLShader::Compile(ShaderType type)
 		return;
 	}
 
-	LE_CORE_INFO("Succesfully compiled %s: %s\n", Shader::ShaderTypeToString(type).c_str(), m_FilePath.c_str());
+	LE_CORE_INFO("Succesfully compiled %s: %s", Shader::ShaderTypeToString(type).c_str(), m_FilePath.c_str());
 }
 
 void OGLShader::Reload()
