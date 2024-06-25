@@ -91,7 +91,7 @@ void OGLTexture2D::CreateTextureFromImage(Image& image)
 
 	}
 	//else printf("Cannot load texture image: %s\n", m_Image.GetFilePath().c_str());
-	else LE_CORE_ERROR(std::string("Cannot load texture image: ") + m_Image.GetFilePath());
+	else LE_CORE_ERROR("Cannot load texture image: %s",  m_Image.GetFilePath());
 }
 
 OGLTexture2D::~OGLTexture2D()

@@ -24,7 +24,7 @@ Shader* ShaderLibrary::GetShader(const std::string name)
 		return s_Library[name];
 	}
 
-	LE_CORE_ERROR(std::string("Couldn't find ShaderLibrary named \"") + name + "\"");
+	LE_CORE_ERROR("Couldn't find ShaderLibrary named %s", name);
 	return nullptr;
 }
 

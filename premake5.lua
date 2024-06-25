@@ -28,6 +28,7 @@ group "Dependencies"
 	include "Dependencies/imgui"
 	include "Dependencies/assimp"
 	include "Dependencies/bullet3"
+	include "Dependencies/lua"
 group ""
 
 

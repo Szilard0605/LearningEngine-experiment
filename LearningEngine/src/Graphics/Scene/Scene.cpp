@@ -13,6 +13,9 @@
 
 #include "Physics/PhysicsWorld.h"
 
+#include "Scripting/Lua/LuaScriptInstance.h"
+#include "Scripting/Lua/LuaScriptEngine.h"
+
 Scene::Scene(const std::string name)
 	: m_Name(name)
 {
@@ -88,6 +91,8 @@ Entity Scene::GetEntityByTag(std::string name)
 void Scene::OnStart()
 {
 	m_PhysicsWorld = PhysicsWorld::Create(this, { 0, -9.81f, 0 });
+
+	LuaScriptEngine::InitScene(this);
 }
 
 
@@ -95,6 +100,7 @@ void Scene::OnStop()
 {
 	m_PhysicsWorld->DestroyAllRigidbodies();
 	delete m_PhysicsWorld;
+	//LuaScripting::Shutdown();
 }
 
 template<typename... Component>
@@ -240,6 +246,13 @@ void Scene::Render(PerspectiveCamera* camera)
 
 	ForwardRenderer::EndScene();
 	ForwardRenderer::Present();
+
+	
+}
+
+void Scene::Update(Timestep timeStep)
+{
+	LuaScriptEngine::UpdateScene(this, timeStep);
 }
 
 void Scene::StepPhysicsSimulation(float timestep)

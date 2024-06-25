@@ -6,6 +6,8 @@
 
 #include "Core/Platform.h"
 
+#include <cstdarg> // For variadic functions
+
 void Log::Init()
 {
 
@@ -20,9 +22,20 @@ void Log::Init()
 #endif
 }
 
-void Log::LogMessage(LogType type, LogLevel level, const std::string& message) 
+static void PrintFormattedMessage(LogLevel level, const char* prefix, const char* format, va_list args);
+
+void Log::LogMessage(LogType type, LogLevel level, std::string format, ...)
  {
-    switch (type)
+    va_list args;
+    va_start(args, format.c_str());
+
+    const char* prefix = type == LogType::Core ? "Core" : "Client";
+
+    PrintFormattedMessage(level, prefix, format.c_str(), args);
+
+    va_end(args);
+
+    /*switch (type)
     {
         case LogType::Core:
         {
@@ -73,5 +86,30 @@ void Log::LogMessage(LogType type, LogLevel level, const std::string& message)
             }
             break;
         }
+    }*/
+}
+
+
+void PrintFormattedMessage(LogLevel level, const char* prefix, const char* format, va_list args)
+{
+    switch (level)
+    {
+        case LogLevel::Info:
+        {
+            std::cout << "\033[32m[" << prefix << " Info]:\033[0m ";
+            break;
+        }
+        case LogLevel::Warning:
+        {
+            std::cout << "\033[33m[" << prefix << " Warning]:\033[0m ";
+            break;
+        }
+        case LogLevel::Error:
+        {
+            std::cout << "\033[31m[" << prefix << " Core Error]:\033[0m ";
+            break;
+        }
     }
+    vprintf(format, args);
+    std::cout << std::endl;
 }

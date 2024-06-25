@@ -6,10 +6,11 @@
 static std::map<AssetHandle, Asset> s_AssetMap;
 static std::map<std::string, AssetType> s_AssetTypeExtensions = 
 {
-	{".png", AssetType::Texture2D},
-	{".jpg", AssetType::Texture2D},
-	{".jpeg", AssetType::Texture2D},
-	{".lescene", AssetType::Scene}
+	{ ".png",	  AssetType::Texture2D  },
+	{ ".jpg",     AssetType::Texture2D  },
+	{ ".jpeg",    AssetType::Texture2D  },
+	{ ".lescene", AssetType::Scene      },
+	{ ".lua",	  AssetType::LuaScript  }
 };
 
 AssetHandle AssetManager::CreateAsset(AssetData data)

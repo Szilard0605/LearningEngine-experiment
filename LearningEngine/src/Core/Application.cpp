@@ -57,7 +57,7 @@ void Application::Init()
 	m_PhysicsCore = PhysicsCore::Create(PhysicsAPI::Bullet);
 
 	LE_CORE_INFO("Application initialized!");
-	LE_CORE_INFO("OpenGL version: " + m_RendererAPI->GetVersionString());
+	LE_CORE_INFO("OpenGL version: %s", m_RendererAPI->GetVersionString().c_str());
 }
 
 

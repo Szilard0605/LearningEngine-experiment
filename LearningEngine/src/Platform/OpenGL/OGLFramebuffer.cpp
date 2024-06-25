@@ -122,7 +122,7 @@ void OGLFramebuffer::Invalidate()
 	glDrawBuffers(static_cast<GLsizei>(drawBuffers.size()), drawBuffers.data());
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
-		LE_CORE_ERROR(std::string("Framebuffer is incomplete! Error: ") + std::to_string(glCheckFramebufferStatus(GL_FRAMEBUFFER)));
+		LE_CORE_ERROR("Framebuffer is incomplete! Error: ", std::to_string(glCheckFramebufferStatus(GL_FRAMEBUFFER)));
 	}
 
 	Unbind();
@@ -170,7 +170,7 @@ uint32_t OGLFramebuffer::GetColorAttachmentID(uint32_t slot)
 	
 	if (m_ColorAttachments[slot] == 0)
 	{
-		LE_CORE_ERROR(std::string("[Framebuffer]: There is no color attachment at the slot ") + std::to_string(slot));
+		LE_CORE_ERROR("[Framebuffer]: There is no color attachment at the slot %d", slot);
 		return 0;
 	}
 
