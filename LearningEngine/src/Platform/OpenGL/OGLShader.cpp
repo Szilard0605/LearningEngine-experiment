@@ -80,7 +80,7 @@ void OGLShader::Compile(ShaderType type)
 	*id = glCreateShader(ShaderTypeToGLType(type));
 	glShaderSource(*id, 1, &src, nullptr);
 
-	printf("Compiling %s: %s\n", Shader::ShaderTypeToString(type).c_str(), m_FilePath.c_str()); // replace with core log after merge
+	LE_CORE_INFO("Compiling %s: %s\n", Shader::ShaderTypeToString(type).c_str(), m_FilePath.c_str()); // replace with core log after merge
 	glCompileShader(*id);
 
 	int result;
@@ -91,14 +91,14 @@ void OGLShader::Compile(ShaderType type)
 		glGetShaderiv(*id, GL_INFO_LOG_LENGTH, &length);
 		char* message = new char[length];
 		glGetShaderInfoLog(*id, length, &length, message);
-		printf("%s\n", message);
+		LE_CORE_ERROR("%s\n", message);
 
 		glDeleteShader(*id);
 
 		return;
 	}
 
-	printf("Succesfully compiled %s: %s\n", Shader::ShaderTypeToString(type).c_str(), m_FilePath.c_str());
+	LE_CORE_INFO("Succesfully compiled %s: %s\n", Shader::ShaderTypeToString(type).c_str(), m_FilePath.c_str());
 }
 
 void OGLShader::Reload()
