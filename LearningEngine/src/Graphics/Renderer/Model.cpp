@@ -9,7 +9,7 @@
 
 #include "API/API.h"
 
-Model::Model(std::filesystem::path path) : Model(path, Material(ShaderLibrary::GetShader("DefaultShader")))
+Model::Model(std::filesystem::path path) : Model(path, Material(ShaderLibrary::GetShader("ForwardRenderer")))
 {
 }
 

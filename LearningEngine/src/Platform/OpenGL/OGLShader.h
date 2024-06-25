@@ -16,7 +16,8 @@ class OGLShader : public Shader
 
 		static Ref<OGLShader> Create(const std::string& path);
  
-		int Compile(int type, const std::string& source);
+		virtual void Compile(ShaderType type = ShaderType::NONE) override;
+		virtual void Reload() override;
 		virtual void Bind() override;
 		virtual void Unbind() override;
 	
@@ -30,14 +31,21 @@ class OGLShader : public Shader
 		virtual void SetVec3f(const std::string& name, const glm::vec3& value) override;
 		virtual void SetVec4f(const std::string& name, const glm::vec4& value) override;
 
-		virtual std::string GetFilePath() override { return m_filepath; }
+		virtual std::string GetFilePath() override { return m_FilePath; }
 
 		//
 		virtual void SetFloatArray(const std::string& name, int count, const float* arr) override;
 
 	private:
+		void AttachAndLink(uint32_t vertexID, uint32_t fragmentID);
+		bool ReadShaderSource(const std::string path, std::string& vertexSource, std::string& fragmentSource);
+		uint32_t ShaderTypeToGLType(ShaderType type);
+
 		int m_program = 0;
-		std::string m_filepath;
-		std::string m_vertexshader;
-		std::string m_fragmentsahder;
+		std::string m_FilePath;
+		std::string m_VertexSource;
+		std::string m_FragmentSource;
+
+		uint32_t m_VertexShaderID;
+		uint32_t m_FragmentShaderID;
 };

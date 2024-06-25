@@ -16,6 +16,25 @@ void SceneRendererPanel::Render()
 {
 	ImGui::Begin("Scene Renderer");
 
+	if (ImGui::CollapsingHeader("Shaders"))
+	{
+		std::map<std::string, Shader*> library = ShaderLibrary::GetAllShaders();
+		for (auto item : library)
+		{
+			Shader* shader = item.second;
+
+			ImGui::Separator();
+			ImGui::Text(item.first.c_str());
+			std::string buttonLabel = "Reload##" + item.first;
+			ImGui::SameLine();
+			if (ImGui::Button(buttonLabel.c_str()))
+			{
+				printf("[SceneRendererPanel] Reloading: %s\n", item.first.c_str());
+				shader->Reload();
+			}
+		}
+	}
+
 	if (ImGui::CollapsingHeader("Skybox"))
 	{
 		if (ImGui::Button("Load"))

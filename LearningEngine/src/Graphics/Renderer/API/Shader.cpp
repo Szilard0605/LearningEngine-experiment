@@ -27,3 +27,17 @@ Shader* Shader::Create(const std::string vertex, const std::string fragment)
 	}
 	return nullptr;
 }
+
+std::string Shader::ShaderTypeToString(ShaderType type)
+{
+	switch (type)
+	{
+	case ShaderType::VERTEX_SHADER:
+		return "Vertex shader";
+	case ShaderType::FRAGMENT_SHADER:
+		return "Fragment shader";
+	default:
+		return "None";
+	}
+	return "None"; // unreachable
+}

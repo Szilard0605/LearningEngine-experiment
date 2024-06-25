@@ -19,7 +19,7 @@ struct LightData
 {
 	glm::vec4 Color;
 	glm::vec4 Position; // X, Y, Z, TYPE
-	glm::vec4 Direction;
+	glm::vec4 Direction; // X, Y, Z, SpecularPower
 };
 
 
@@ -33,6 +33,7 @@ struct RenderDataSB
 	glm::vec4 AmbientLight;
 	uint64_t NumLights;
 	uint64_t Padding;
+	glm::vec4 CameraPosition;
 };
 
 struct RenderData
@@ -70,6 +71,8 @@ void ForwardRenderer::BeginScene(PerspectiveCamera& camera)
 	s_RenderData.meshes.clear();
 
 	s_RenderData.LightData.Lights.clear();
+
+	s_RenderData.DataBuffer.CameraPosition = glm::vec4(camera.GetPosition(), 1.0f);
 
 	s_RenderData.DataBuffer.NumLights = 0;
 
@@ -135,6 +138,7 @@ void ForwardRenderer::SubmitLight(PointLight& light)
 	LightData plData;
 	plData.Position = glm::vec4(light.Position, 0.0f);
 	plData.Color = glm::vec4(light.Color, light.Intensity);
+	plData.Direction.a = light.SpecularPower;
 	s_RenderData.LightData.Lights.push_back(plData);
 
 	s_RenderData.DataBuffer.NumLights++;
@@ -145,8 +149,8 @@ void ForwardRenderer::SubmitLight(DirectionalLight& light)
 {
 	LightData dlData;
 	dlData.Position.w = 1.0f;
-	dlData.Direction = glm::vec4(light.Direction, 1.0f);
-	dlData.Color = glm::vec4(light.Color, light.Intensity);
+	dlData.Direction  = glm::vec4(light.Direction, light.SpecularPower);
+	dlData.Color      = glm::vec4(light.Color, light.Intensity);
 	s_RenderData.LightData.Lights.push_back(dlData);
 
 	s_RenderData.DataBuffer.NumLights++;

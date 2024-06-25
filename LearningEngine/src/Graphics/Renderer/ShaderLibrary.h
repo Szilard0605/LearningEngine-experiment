@@ -10,4 +10,5 @@ public:
 	static void Add(Shader* shader, const std::string name);
 	static Shader* Load(const std::string& name, const std::string& path);
 	static Shader* GetShader(const std::string name);
+	static std::map<std::string, Shader*> GetAllShaders();
 };

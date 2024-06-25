@@ -3,11 +3,11 @@
 #include <map>
 #include "Log/Log.h"
 
-static std::map<std::string, Shader*> library;
+static std::map<std::string, Shader*> s_Library;
 
 void ShaderLibrary::Add(Shader* shader, const std::string name)
 {
-	library.emplace(name, shader);
+	s_Library.emplace(name, shader);
 }
 
 Shader* ShaderLibrary::Load(const std::string& name, const std::string& path)
@@ -19,11 +19,16 @@ Shader* ShaderLibrary::Load(const std::string& name, const std::string& path)
 
 Shader* ShaderLibrary::GetShader(const std::string name)
 {
-	if (library[name])
+	if (s_Library[name])
 	{
-		return library[name];
+		return s_Library[name];
 	}
 
 	LE_CORE_ERROR(std::string("Couldn't find ShaderLibrary named \"") + name + "\"");
 	return nullptr;
+}
+
+std::map<std::string, Shader*> ShaderLibrary::GetAllShaders()
+{
+	return s_Library;
 }

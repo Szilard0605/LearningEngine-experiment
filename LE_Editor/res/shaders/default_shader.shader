@@ -27,13 +27,12 @@ void main()
 {
 	gl_Position = u_ViewProjection * u_Transform * vec4(a_position, 1.0);
 
-    fragmentdata.Position = vec3(u_Transform * vec4(a_position, 1.0));
-    fragmentdata.Normal = mat3(transpose(inverse(u_Transform))) * a_normal;
-	fragmentdata.TexCoords = a_texcoords;
-	
-    fragmentdata.Tangent = normalize(vec3(u_Transform * vec4(a_tangent, 0.0)));
-    fragmentdata.Bitangent = normalize(vec3(u_Transform * vec4(a_bitangent, 0.0)));
-    fragmentdata.Normal = normalize(vec3(u_Transform * vec4(a_normal, 0.0)));
+    fragmentdata.Position  = vec3(u_Transform * vec4(a_position, 1.0));
+	fragmentdata.TexCoords = a_texcoords;	
+    fragmentdata.Tangent   = normalize(vec3(u_Transform * vec4(a_tangent,   1.0)));
+    fragmentdata.Bitangent = normalize(vec3(u_Transform * vec4(a_bitangent, 1.0)));
+	mat3 normalMatrix = mat3(transpose(inverse(u_Transform)));
+    fragmentdata.Normal    = normalize(vec3(normalMatrix * a_normal));
     
     o_Entity = a_entity;
 	
@@ -78,6 +77,7 @@ layout(std140, binding = 0) uniform RenderData
 {
     vec4 u_AmbientLight;
     int u_NumLights;
+	vec4 u_CameraPosition;
 };
 
 
@@ -95,21 +95,45 @@ vec3 FinalGamma(vec3 color)
 
 vec3 CalculatePointLight(Light light, vec3 Position, vec3 Normal)
 {
-    vec3 lightDir = normalize(light.Position.xyz - Position);
-    float distance = length(light.Position.xyz - Position);
-    float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * distance * distance);
-    vec3 diffuse = light.Color.rgb * max(dot(Normal, lightDir), 0.0);
-    
-    return diffuse * attenuation * light.Color.a;
-}
+    // Normalize the normal vector (already normalized in vertex shader, but redundant normalization here)
+    vec3 norm = normalize(Normal);
 
+    // Calculate the direction to the light source
+    vec3 lightDir = normalize(light.Position.xyz - Position);
+    
+    // Calculate the diffuse component
+    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 diffuse = diff * light.Color.rgb;
+
+    // Calculate the view direction
+    vec3 viewDir = normalize(u_CameraPosition.xyz - Position);
+    
+    // Calculate the reflection direction
+    vec3 reflectDir = reflect(-lightDir, norm);
+
+    // Calculate the specular component
+    float specularPower = light.Direction.a;
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularPower);
+    vec3 specular = spec * u_AmbientLight.rgb;
+
+    // Apply the light intensity to both diffuse and specular components
+    float lightIntensity = light.Color.a;
+    vec3 finalColor = (diffuse + specular) * lightIntensity;
+
+    return finalColor;
+}
 
 vec3 CalculateDirectionalLight(Light light, vec3 Normal)
 {
     vec3 lightDir = normalize(-light.Direction.xyz);
     vec3 diffuse = light.Color.rgb * max(dot(Normal, lightDir), 0.0);
     
-    return diffuse * light.Color.a;
+	vec3 viewDir    = normalize(u_CameraPosition.xyz - fragmentdata.Position);
+	vec3 halfwayDir = normalize(lightDir + viewDir);
+	float spec = pow(max(dot(Normal, halfwayDir), 0.0), light.Direction.a);
+	vec3 specular = light.Color.xyz * spec;
+	
+    return (diffuse + specular) * light.Color.a;
 }
 
 void main()
@@ -139,6 +163,7 @@ void main()
     float ambientIntensity = u_AmbientLight.a;
     vec3 ambientLight = u_AmbientLight.rgb * ambientIntensity;
     
-    outColor = vec4(FinalGamma(tex.xyz * ambientLight + totalDiffuse), 1.0);
-
+	outColor = vec4(tex.xyz * ambientLight + totalDiffuse, 1.0);
+    //outColor = vec4(FinalGamma(tex.xyz * ambientLight + totalDiffuse), 1.0);
+	//outColor = texture(u_DepthMap, fragmentdata.TexCoords);
 }

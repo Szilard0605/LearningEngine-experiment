@@ -396,8 +396,10 @@ void EntityListPanel::Render()
 				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 				if (ImGui::CollapsingHeader("Point Light Component"))
 				{
-					ImGui::DragFloat("Intensity", &plc.Intensity);
 					ImGui::ColorEdit3("Color", glm::value_ptr(plc.Color));
+					ImGui::DragFloat("Intensity", &plc.Intensity);
+					ImGui::DragFloat("Specular power", &plc.SpecularPower);
+					
 				}
 			}
 
@@ -407,9 +409,10 @@ void EntityListPanel::Render()
 				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 				if (ImGui::CollapsingHeader("Directional Light Component"))
 				{
+					ImGui::ColorEdit3("Color", glm::value_ptr(dlc.Color));
 					ImGui::DragFloat3("Direction", glm::value_ptr(dlc.Direction));
 					ImGui::DragFloat("Intensity", &dlc.Intensity);
-					ImGui::ColorEdit3("Color", glm::value_ptr(dlc.Color));
+					ImGui::DragFloat("Specular power", &dlc.SpecularPower);
 				}
 			}
 

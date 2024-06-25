@@ -147,7 +147,13 @@ void WindowsWindow::Resize(uint32_t width, uint32_t height)
 
 void WindowsWindow::ShowCursor(bool show)
 {
-	uint32_t mode = show ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED | GLFW_CURSOR_HIDDEN;
+	uint32_t mode = show ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN;
+	glfwSetInputMode(m_window, GLFW_CURSOR, mode);
+}
+
+void WindowsWindow::DisableCursor(bool disable)
+{
+	uint32_t mode = disable ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL;
 	glfwSetInputMode(m_window, GLFW_CURSOR, mode);
 }
 

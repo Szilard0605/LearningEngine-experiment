@@ -76,6 +76,7 @@ struct PointLightComponent : public BaseComponent
 
 	float Intensity = 1.0f;
 	glm::vec3 Color = {1, 1, 1};
+	float SpecularPower = 1.0f;
 };
 
 struct DirectionalLightComponent : public BaseComponent
@@ -84,7 +85,8 @@ struct DirectionalLightComponent : public BaseComponent
 
 	float Intensity = 0.1f;
 	glm::vec3 Color = { 1, 1, 1 };
-	glm::vec3 Direction = { 0, 0, 0 };;
+	glm::vec3 Direction = { 0, 0, 0 };
+	float SpecularPower = 1.0f;
 };
 
 // Phyics

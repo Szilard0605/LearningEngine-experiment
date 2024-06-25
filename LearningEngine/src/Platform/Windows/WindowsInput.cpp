@@ -54,6 +54,12 @@ void Input::ShowCursor(bool show)
 	wnd->ShowCursor(show);
 }
 
+void Input::DisableCursor(bool disable)
+{
+	WindowsWindow* wnd = Application::GetInstance()->GetWindow();
+	wnd->DisableCursor(disable);
+}
+
 void Input::SetCursorPosition(glm::vec2 position)
 {
 	WindowsWindow* wnd = Application::GetInstance()->GetWindow();

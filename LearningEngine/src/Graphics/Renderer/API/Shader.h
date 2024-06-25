@@ -5,14 +5,27 @@
 
 #include "glm.hpp"
 
+enum class ShaderType
+{
+	NONE = 0,
+	VERTEX_SHADER,
+	FRAGMENT_SHADER
+};
+
 class Shader
 {
 public:
+
 	static Shader* Create(const std::string& path);
 	static Shader* Create(const std::string vertex, const std::string fragment);
 
 	virtual void Bind() = 0;
 	virtual void Unbind() = 0;
+
+	static std::string ShaderTypeToString(ShaderType type);
+
+	virtual void Compile(ShaderType type = ShaderType::NONE) = 0;
+	virtual void Reload() = 0;
 
 	virtual std::string GetFilePath() = 0;
 

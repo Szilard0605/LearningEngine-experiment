@@ -198,7 +198,13 @@ void Scene::Render(PerspectiveCamera* camera)
 		{
 			auto [tc, plc] = view.get<TransformComponent, PointLightComponent>(entity);
 
-			ForwardRenderer::SubmitLight(PointLight{plc.Color, plc.Intensity, tc.Transform.Position});
+			PointLight light;
+			light.Color = plc.Color;
+			light.Intensity = plc.Intensity;
+			light.Position = tc.Transform.Position;
+			light.SpecularPower = plc.SpecularPower;
+
+			ForwardRenderer::SubmitLight(light);
 		}
 
 
@@ -212,7 +218,7 @@ void Scene::Render(PerspectiveCamera* camera)
 		{
 			auto [tc, dlc] = view.get<TransformComponent, DirectionalLightComponent>(entity);
 
-			ForwardRenderer::SubmitLight(DirectionalLight{dlc.Color, dlc.Intensity, dlc.Direction});
+			ForwardRenderer::SubmitLight(DirectionalLight{dlc.Color, dlc.Intensity, dlc.SpecularPower, dlc.Direction});
 		
 		}
 	}

@@ -58,9 +58,6 @@ void EditorLayer::OnAttach()
 	m_TranslateIcon = Texture2D::Create("res/textures/Editor/icon_translate.png");
 	m_RotateIcon = Texture2D::Create("res/textures/Editor/icon_rotate.png");
 	m_ScaleIcon = Texture2D::Create("res/textures/Editor/icon_scale.png");
-
-	// Setting the default shader of the project
-	ShaderLibrary::Add(Shader::Create("res/shaders/default_shader.shader"), "DefaultShader");
 }
 
 void EditorLayer::OnDetach()
@@ -456,80 +453,15 @@ bool EditorLayer::OnMouseButtonChange(MouseButtonEvent& event)
 bool EditorLayer::OnMouseMove(MouseMoveEvent& event)
 {
 	//printf("{%f, %f}\n", Input::GetMousePosition().x, Input::GetMousePosition().y);
-	if (Input::IsMouseButtonPressed(MouseButton::RIGHT_CLICK) && m_ViewportActive && m_ViewportHovered)
-	{
-
-		// disable mouse for the editor when using the editor camera
-		{
-			Input::ShowCursor(false);
-			ImGuiIO& io = ImGui::GetIO();
-			io.WantCaptureMouse = false;
-
-			glm::vec2 min = m_ViewportBounds[0] + 4.0f;
-			glm::vec2 max = m_ViewportBounds[1] + 4.0f;
-
-			//printf("{%f, %f}, {%f, %f}\n", m_ViewportBounds[0].x, m_ViewportBounds[0].y, m_ViewportBounds[1].x - m_ViewportBounds[0].x, m_ViewportBounds[1].y - m_ViewportBounds[0].y);
-
-			glm::vec2 cursorPos = Input::GetMousePosition();
-
-			if(cursorPos.x > max.x)
-			{
-				LastMousePos = { -1, -1 };
-				Input::SetCursorPosition({ min.x, cursorPos.y });
-				
-			}
-
-			if (cursorPos.x < min.x)
-			{
-				LastMousePos = { -1, -1 };
-				Input::SetCursorPosition({ max.x, cursorPos.y });
-
-			}
-
-			if (cursorPos.y > max.y)
-			{
-				LastMousePos = { -1, -1 };
-				Input::SetCursorPosition({ cursorPos.x, min.y });
-
-			}
-
-			if (cursorPos.y < min.y)
-			{
-				LastMousePos = { -1, -1 };
-				Input::SetCursorPosition({ cursorPos.x, max.y });
-
-			}
-		}
-
-		if (LastMousePos == glm::vec2(-1, -1))
-			LastMousePos = event.GetPosition();
-
-		float pitch = m_EditorCamera->GetPitch() + (event.GetPosition().y - LastMousePos.y) * 0.01f;
-		float yaw = m_EditorCamera->GetYaw() + (event.GetPosition().x - LastMousePos.x) * 0.01f;
-
-		pitch = glm::clamp(pitch, -1.7f, 1.7f);
-		//pitch = glm::min(pitch, -0.90f);
-
-		m_EditorCamera->SetYaw(yaw);
-		m_EditorCamera->SetPitch(pitch);
-
-		LastMousePos = event.GetPosition();
-	}
-	else
-	{
-		Input::ShowCursor();
-		ImGuiIO& io = ImGui::GetIO();
-		io.WantCaptureMouse = true; 
-
-	}
+	
 	return true;
 }
 
 bool EditorLayer::OnMouseScrolled(MouseScrolledEvent& event)
 {
-	if (event.GetOffset().y > 0 && m_ViewportActive)
+	if (event.GetOffset().y > 0 && m_ViewportActive && !Input::IsMouseButtonPressed(MouseButton::RIGHT_CLICK))
 		m_EditorCamera->Translate(m_EditorCamera->GetPosition() + (0.5f * m_EditorCamera->GetForwardDirection()));
-	else if (event.GetOffset().y < 0 && m_ViewportActive)
+	else if (event.GetOffset().y < 0 && m_ViewportActive && !Input::IsMouseButtonPressed(MouseButton::RIGHT_CLICK))
 		m_EditorCamera->Translate(m_EditorCamera->GetPosition() - (0.5f * m_EditorCamera->GetForwardDirection()));
 
 	if (Input::IsMouseButtonPressed(MouseButton::RIGHT_CLICK) && m_ViewportActive && event.GetOffset().y > 0)
@@ -584,6 +516,34 @@ void EditorLayer::OnUpdate(Timestep timestep)
 
 			//if (Input::IsKeyPressed(Key::LeftShift))
 			//	speed *= 2;
+
+			if (Input::IsMouseButtonPressed(MouseButton::RIGHT_CLICK) &&  m_ViewportHovered)
+			{
+				Input::DisableCursor(true);
+				ImGuiIO& io = ImGui::GetIO();
+				io.WantCaptureKeyboard = false;
+				io.WantCaptureMouse = false;
+
+				if (LastMousePos == glm::vec2(-1, -1))
+					LastMousePos = Input::GetMousePosition();
+
+				float pitch = m_EditorCamera->GetPitch() + (Input::GetMousePosition().y - LastMousePos.y) * 0.01f;
+				float yaw = m_EditorCamera->GetYaw() + (Input::GetMousePosition().x - LastMousePos.x) * 0.01f;
+
+				//pitch = glm::clamp(pitch, -1.7f, 1.7f);
+
+				m_EditorCamera->SetYaw(yaw);
+				m_EditorCamera->SetPitch(pitch);
+
+				LastMousePos = Input::GetMousePosition();
+			}
+			else
+			{
+				Input::DisableCursor(false);
+				ImGuiIO& io = ImGui::GetIO();
+				io.WantCaptureKeyboard = true;
+				io.WantCaptureMouse = true;
+			}
 
 			if (Input::IsMouseButtonPressed(MouseButton::RIGHT_CLICK))
 			{

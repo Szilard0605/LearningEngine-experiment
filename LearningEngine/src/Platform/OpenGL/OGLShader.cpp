@@ -11,72 +11,28 @@
 
 OGLShader::OGLShader(const std::string& vertex, const std::string& fragment)
 {
-	m_program = glCreateProgram();
-	int fs = Compile(GL_VERTEX_SHADER, vertex);
-	int vs = Compile(GL_FRAGMENT_SHADER, fragment);
+	m_VertexSource = vertex;
+	m_FragmentSource = fragment;
 
-	glAttachShader(m_program, fs);
-	glAttachShader(m_program, vs);
-
-	glLinkProgram(m_program);
-	glValidateProgram(m_program);
-
-	glDeleteShader(fs);
-	glDeleteShader(vs);
-
+	Compile(ShaderType::VERTEX_SHADER);
+	Compile(ShaderType::FRAGMENT_SHADER);
 }
 
 
 OGLShader::OGLShader(const std::string& path)
 {
-	m_filepath = path;
-
-	std::ifstream stream(path);
-
-	if (stream.is_open())
+	m_FilePath = path;
+	m_program = glCreateProgram();
+	if (!ReadShaderSource(path, m_VertexSource, m_FragmentSource))
 	{
-		int type;
-
-		unsigned int vs = -1;
-		unsigned int fs = -1;
-
-		m_program = glCreateProgram();
-
-		std::string line;
-		std::stringstream ss[2];
-
-		while (getline(stream, line))
-		{
-			if (line.find("#shader") != std::string::npos)
-			{
-				if (line.find("vertex") != std::string::npos)
-				{
-					type = 0;
-				}
-				else if (line.find("fragment") != std::string::npos)
-				{
-					type = 1;
-				}
-			}
-			else
-			{
-				ss[(int)type] << line << "\n";
-			}
-		}
-
-		vs = Compile(GL_VERTEX_SHADER, ss[0].str());
-		glAttachShader(m_program, vs);
-
-		fs = Compile(GL_FRAGMENT_SHADER, ss[1].str());
-		glAttachShader(m_program, fs);
-
-		glLinkProgram(m_program);
-		glValidateProgram(m_program);
-
-		glDeleteShader(vs);
-		glDeleteShader(fs);
+		LE_CORE_ERROR(std::string("Can't read shader file: ") + path);
+		return;
 	}
-	else LE_CORE_ERROR(std::string("Can't open shader file: ") + path);
+
+	Compile(ShaderType::VERTEX_SHADER);
+	Compile(ShaderType::FRAGMENT_SHADER);
+
+	AttachAndLink(m_VertexShaderID, m_FragmentShaderID);
 }
 
 
@@ -96,29 +52,114 @@ void OGLShader::Unbind()
 	glUseProgram(0);
 }
 
-int OGLShader::Compile(int type, const std::string& source)
+void OGLShader::Compile(ShaderType type)
 {
-	unsigned int id = glCreateShader(type);
-	const char* src = source.c_str();
-	glShaderSource(id, 1, &src, nullptr);
-	glCompileShader(id);
+	std::string source;
+	uint32_t* id = nullptr;
+	switch (type)
+	{
+		case ShaderType::VERTEX_SHADER:
+		{
+			source = m_VertexSource;
+			id = &m_VertexShaderID;
+			break;
+		}
+		case ShaderType::FRAGMENT_SHADER:
+		{
+			source = m_FragmentSource;
+			id = &m_FragmentShaderID;
+			break;
+		}
+		default:
+			return;
+	}
 
-	//ERROR HANDLING
+	const char* src = source.c_str();
+
+
+	*id = glCreateShader(ShaderTypeToGLType(type));
+	glShaderSource(*id, 1, &src, nullptr);
+
+	printf("Compiling %s: %s\n", Shader::ShaderTypeToString(type).c_str(), m_FilePath.c_str()); // replace with core log after merge
+	glCompileShader(*id);
+
 	int result;
-	glGetShaderiv(id, GL_COMPILE_STATUS, &result);
+	glGetShaderiv(*id, GL_COMPILE_STATUS, &result);
 	if (result == GL_FALSE)
 	{
 		int length;
-		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
+		glGetShaderiv(*id, GL_INFO_LOG_LENGTH, &length);
 		char* message = new char[length];
-		glGetShaderInfoLog(id, length, &length, message);
+		glGetShaderInfoLog(*id, length, &length, message);
 		printf("%s\n", message);
 
-		glDeleteShader(id);
-		return 0;
+		glDeleteShader(*id);
 
+		return;
 	}
-	return id;
+
+	printf("Succesfully compiled %s: %s\n", Shader::ShaderTypeToString(type).c_str(), m_FilePath.c_str());
+}
+
+void OGLShader::Reload()
+{
+	glDeleteProgram(m_program);
+	if (!ReadShaderSource(m_FilePath, m_VertexSource, m_FragmentSource))
+	{
+		LE_CORE_ERROR(std::string("Can't read shader file: ") + m_FilePath);
+		return;
+	}
+
+	Compile(ShaderType::VERTEX_SHADER);
+	Compile(ShaderType::FRAGMENT_SHADER);
+
+	AttachAndLink(m_VertexShaderID, m_FragmentShaderID);
+}
+
+void OGLShader::AttachAndLink(uint32_t vertexID, uint32_t fragmentID)
+{
+	m_program = glCreateProgram();
+
+	glAttachShader(m_program, vertexID);
+	glAttachShader(m_program, fragmentID);
+	glLinkProgram(m_program);
+	glDeleteShader(vertexID);
+	glDeleteShader(fragmentID);
+}
+
+bool OGLShader::ReadShaderSource(const std::string path, std::string& vertexSource, std::string& fragmentSource)
+{
+	int type;
+
+	std::string line;
+	std::stringstream ss[2];
+	std::ifstream stream(path);
+
+	if (!stream.is_open())
+		return false;
+
+	while (getline(stream, line))
+	{
+		if (line.find("#shader") != std::string::npos)
+		{
+			if (line.find("vertex") != std::string::npos)
+			{
+				type = 0;
+			}
+			else if (line.find("fragment") != std::string::npos)
+			{
+				type = 1;
+			}
+		}
+		else
+		{
+			ss[(int)type] << line << "\n";
+		}
+	}
+	stream.close();
+	vertexSource = ss[0].str();
+	fragmentSource = ss[1].str();
+	return true;
 }
 
 void OGLShader::SetBool(const std::string& name, const bool value)
@@ -169,4 +210,17 @@ void OGLShader::SetVec4f(const std::string& name, const glm::vec4& value)
 void OGLShader::SetFloatArray(const std::string& name, int count, const float* arr)
 {
 	glUniform1fv(glGetUniformLocation(m_program, name.c_str()), count, arr);
+}
+
+uint32_t OGLShader::ShaderTypeToGLType(ShaderType type)
+{
+	switch (type)
+	{
+	case ShaderType::FRAGMENT_SHADER:
+		return GL_FRAGMENT_SHADER;
+	case ShaderType::VERTEX_SHADER:
+		return GL_VERTEX_SHADER;
+	default:
+		return GL_NONE;
+	}
 }

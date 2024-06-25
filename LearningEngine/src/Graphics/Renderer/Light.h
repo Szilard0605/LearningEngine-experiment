@@ -12,6 +12,7 @@ struct Light
 {
 	glm::vec3 Color;
 	float Intensity;
+	float SpecularPower;
 };
 
 struct PointLight : public Light
