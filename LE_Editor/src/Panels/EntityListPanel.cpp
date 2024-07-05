@@ -114,6 +114,7 @@ void EntityListPanel::Render()
 		LE_CLIENT_ERROR("There is no scene!");
 		return;
 	}
+
 	// Entity window
 	{
 		ImGui::Begin("Entities", nullptr, ImGuiWindowFlags_NoCollapse);
@@ -146,7 +147,7 @@ void EntityListPanel::Render()
 					}
 				}
 			}
-			
+
 			// Render Entity hierarchy
 			auto view = m_Scene->Registry.view<TransformComponent>();
 
@@ -206,357 +207,372 @@ void EntityListPanel::Render()
 	}
 
 	// Adding Components window
+	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10.0f, 10.0f));
+
+	// Displaying the components
+
+	ImGui::Begin("Components", nullptr, ImGuiWindowFlags_NoCollapse);
+
+	if (m_SelectedEntity == entt::null)
 	{
-		
-		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f);
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10.0f, 10.0f));
-
-		ImGui::Begin("Components", nullptr, ImGuiWindowFlags_NoCollapse);
-
-		// Displaying the components
-		if (m_SelectedEntity != entt::null)
+		ImGui::End();
+		ImGui::PopStyleVar(2);
+		return;
+	}
+	TagComponent& tc = m_Scene->Registry.get<TagComponent>(m_SelectedEntity);
+	
+	// Rename entity
+	char* input = (char*)tc.Tag.c_str();
+	
+	ImGui::SameLine();
+	ImGui::PushItemWidth(ImGui::GetWindowWidth());
+	
+	if (ImGui::InputText("##input", input, 30))
+	{
+		tc.Tag = input;
+	}
+	
+	ImGui::PopItemWidth();
+	
+	if (m_Scene->Registry.try_get<TransformComponent>(m_SelectedEntity))
+	{
+		TransformComponent& tc = m_Scene->Registry.get<TransformComponent>(m_SelectedEntity);
+		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+		if (ImGui::CollapsingHeader("Transform"))
 		{
-			TagComponent& tc = m_Scene->Registry.get<TagComponent>(m_SelectedEntity);
-
-			// Rename entity
-			char* input = (char*)tc.Tag.c_str();
-
-			ImGui::SameLine();
-			ImGui::PushItemWidth(ImGui::GetWindowWidth());
-
-			if (ImGui::InputText("##input", input, 30))
-			{
-				tc.Tag = input;
-			}
-
-			ImGui::PopItemWidth();
-
-			if (m_Scene->Registry.try_get<TransformComponent>(m_SelectedEntity))
-			{
-				TransformComponent& tc = m_Scene->Registry.get<TransformComponent>(m_SelectedEntity);
-				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-				if (ImGui::CollapsingHeader("Transform"))
-				{
-					ImGui::BeginColumns("##transform", 2, ImGuiColumnsFlags_NoResize || ImGuiColumnsFlags_NoBorder);
-					ImGui::SetColumnWidth(0, 70);
-
-					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4.0f);
-					ImGui::Text("Position:");
-					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.0f);
-					ImGui::Text("Rotation:");
-					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.0f);
-					ImGui::Text("Scale:");
-
-					ImGui::NextColumn();
-
-					glm::vec3 deltaPosition = tc.Transform.Position;
-					ImGui::DragFloat3("##position", glm::value_ptr(tc.Transform.Position), 0.1f, -1000, 1000, "%.2f");
-					deltaPosition -= tc.Transform.Position;
-					
-
-					glm::vec3& degRot = glm::degrees(tc.Transform.Rotation);
-					glm::vec3 deltaRotation = tc.Transform.Rotation;
-					ImGui::DragFloat3("##rotation", glm::value_ptr(degRot), 0.1f, -1000, 1000, "%.2f");
-					tc.Transform.Rotation = glm::radians(degRot);
-					deltaRotation -= tc.Transform.Rotation;
-
-
-					glm::vec3 deltaScale = tc.Transform.Scale;
-					ImGui::DragFloat3("##scale", glm::value_ptr(tc.Transform.Scale), 0.1f, -1000, 1000, "%.2f");
-
-					deltaScale -= tc.Transform.Scale;
-
-					BoxColliderComponent* bcc = m_Scene->Registry.try_get<BoxColliderComponent>(m_SelectedEntity);
-					if (bcc)
-					{
-						bcc->Size += deltaScale;
-					}
-					
-					Entity s_entity = Entity(m_SelectedEntity, m_Scene);
-					if (s_entity.GetChildren().size())
-					{
-						for (int i = 0; i < s_entity.GetChildren().size(); i++)
-						{
-							TransformComponent& s_tc = s_entity.GetChildren()[i].GetComponent<TransformComponent>();
-
-							s_tc.Transform.Position -= deltaPosition;
-							s_tc.Transform.Rotation -= deltaRotation;
-							s_tc.Transform.Scale -= deltaScale;
-						}
-					}
-					ImGui::EndColumns();
-				}
-			}
-
-			if (m_Scene->Registry.try_get<QuadRendererComponent>(m_SelectedEntity))
-			{
-				QuadRendererComponent& qrc = m_Scene->Registry.get<QuadRendererComponent>(m_SelectedEntity);
-				ImGui::Checkbox("##visible", &qrc.enabled);
-				ImGui::SameLine();
-				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-				if (ImGui::CollapsingHeader("Quad Renderer"))
-				{
-					ImGui::BeginColumns("##quadrenderer", 2, ImGuiColumnsFlags_NoResize || ImGuiColumnsFlags_NoBorder);
-					ImGui::SetColumnWidth(0, 70);
-					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4.0f);
-					ImGui::Text("Scale:");
-					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.0f);
-					ImGui::Text("Color:");
-					ImGui::NextColumn();
-					ImGui::ColorEdit4("##color", glm::value_ptr(qrc.Color));
-					ImGui::EndColumns();
-				}
-			}
-
-			if (m_Scene->Registry.try_get<PerspectiveCameraComponent>(m_SelectedEntity))
-			{
-				PerspectiveCameraComponent& pcc = m_Scene->Registry.get<PerspectiveCameraComponent>(m_SelectedEntity);
-				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-				if (ImGui::CollapsingHeader("Perspective Camera"))
-				{
-					ImGui::Checkbox("Main camera", &pcc.MainCamera);
-
-					ImGui::Separator();
-
-					if (ImGui::DragFloat3("Focal point", glm::value_ptr(pcc.FocalPoint)))
-						pcc.Camera->SetFocalPoint(pcc.FocalPoint);
-
-					ImGui::Separator();
-
-					if (ImGui::DragFloat("Distance", &pcc.Distance))
-						pcc.Camera->SetDistance(pcc.Distance);
-
-					if (ImGui::DragFloat("Yaw", &pcc.Yaw))
-						pcc.Camera->SetYaw(pcc.Yaw);
-
-					if (ImGui::DragFloat("Pitch", &pcc.Pitch))
-						pcc.Camera->SetPitch(pcc.Pitch);
-
-					if (ImGui::DragFloat("FOV", &pcc.FOV))
-						pcc.Camera->SetFOV(pcc.FOV);
-
-					ImGui::Separator();
-
-					ImGui::PushItemWidth(100.0f);
-					ImGui::BeginDisabled(pcc.FixedAspectRatio);
-					if (ImGui::DragFloat("AspectRatio", &pcc.AspectRatio))
-						pcc.Camera->SetAspectRatio(pcc.AspectRatio);
-
-					ImGui::PopItemWidth();
-					ImGui::EndDisabled();
-
-					if (ImGui::Checkbox("Fixed", &pcc.FixedAspectRatio) && pcc.FixedAspectRatio)
-					{
-						glm::vec2 vpSize = EditorLayer::GetMainViewportSize();
-
-						pcc.AspectRatio = vpSize.x / vpSize.y;
-						pcc.Camera->SetAspectRatio(pcc.AspectRatio);
-					}
-
-					ImGui::Separator();
-
-					if (ImGui::DragFloat("Near clip", &pcc.NearClip))
-						pcc.Camera->SetNearClip(pcc.NearClip);
-
-					if (ImGui::DragFloat("Far clip", &pcc.FarClip))
-						pcc.Camera->SetFarClip(pcc.FarClip);
-				}
-			}
-
-
-			if (m_Scene->Registry.try_get<StaticModelComponent>(m_SelectedEntity))
-			{
-				StaticModelComponent& smc = m_Scene->Registry.get<StaticModelComponent>(m_SelectedEntity);
-				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-				if (ImGui::CollapsingHeader("Static Mesh Component"))
-				{
-					std::string ModelPath = "-";
-
-					if (smc.StaticModel)
-						ModelPath = smc.StaticModel->GetSourceFilePath().string();
-					
-
-					ImGui::InputText("Source Path", (char*)ModelPath.c_str(), sizeof(ModelPath.c_str()));
-				
-					ImGui::SameLine();
-
-					if (ImGui::Button("Load", { ImGui::CalcTextSize("Load").x + 10.0f, 20.0f }))
-					{
-						if (Utils::FileDialog::OpenFile("3D Model (*.*)\0*.**\0", ModelPath))
-						{
-							smc.StaticModel = new Model(ModelPath);
-						}
-					}
-				}
-			}
-
-			if (m_Scene->Registry.try_get<LuaScriptComponent>(m_SelectedEntity))
-			{
-				LuaScriptComponent& lsc = m_Scene->Registry.get<LuaScriptComponent>(m_SelectedEntity);
-				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-				if (ImGui::CollapsingHeader("Lua script Component"))
-				{
+			ImGui::BeginColumns("##transform", 2, ImGuiColumnsFlags_NoResize || ImGuiColumnsFlags_NoBorder);
+			ImGui::SetColumnWidth(0, 70);
+	
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4.0f);
+			ImGui::Text("Position:");
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.0f);
+			ImGui::Text("Rotation:");
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.0f);
+			ImGui::Text("Scale:");
+	
+			ImGui::NextColumn();
+	
+			glm::vec3 deltaPosition = tc.Transform.Position;
+			ImGui::DragFloat3("##position", glm::value_ptr(tc.Transform.Position), 0.1f, -1000, 1000, "%.2f");
+			deltaPosition -= tc.Transform.Position;
 			
-					const char* inputText = strlen(lsc.sourcePath) > 0 ? lsc.sourcePath : "-";
-					ImGui::InputText("Source Path", (char*)inputText, sizeof(inputText));
-
-					ImGui::SameLine();
-
-					if (ImGui::Button("Load", { ImGui::CalcTextSize("Load").x + 10.0f, 20.0f }))
-					{
-						std::string sourcePath;
-						if (Utils::FileDialog::OpenFile("3D Model (*.lua)\0*.lua\0", sourcePath))
-						{
-							LE_CORE_INFO("Added script: %s", sourcePath.c_str());
-							lsc.sourcePath = new char[sourcePath.length() + 1];
-							strcpy(lsc.sourcePath, sourcePath.c_str());
-						}
-					}
-				}
-			}
-
-			if (m_Scene->Registry.try_get<PointLightComponent>(m_SelectedEntity))
+	
+			glm::vec3& degRot = glm::degrees(tc.Transform.Rotation);
+			glm::vec3 deltaRotation = tc.Transform.Rotation;
+			ImGui::DragFloat3("##rotation", glm::value_ptr(degRot), 0.1f, -1000, 1000, "%.2f");
+			tc.Transform.Rotation = glm::radians(degRot);
+			deltaRotation -= tc.Transform.Rotation;
+	
+	
+			glm::vec3 deltaScale = tc.Transform.Scale;
+			ImGui::DragFloat3("##scale", glm::value_ptr(tc.Transform.Scale), 0.1f, -1000, 1000, "%.2f");
+	
+			deltaScale -= tc.Transform.Scale;
+	
+			BoxColliderComponent* bcc = m_Scene->Registry.try_get<BoxColliderComponent>(m_SelectedEntity);
+			if (bcc)
 			{
-				PointLightComponent& plc = m_Scene->Registry.get<PointLightComponent>(m_SelectedEntity);
-				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-				if (ImGui::CollapsingHeader("Point Light Component"))
-				{
-					ImGui::ColorEdit3("Color", glm::value_ptr(plc.Color));
-					ImGui::DragFloat("Intensity", &plc.Intensity);
-					ImGui::DragFloat("Specular power", &plc.SpecularPower);
-					
-				}
+				bcc->Size += deltaScale;
 			}
-
-			if (m_Scene->Registry.try_get<DirectionalLightComponent>(m_SelectedEntity))
+			
+			Entity s_entity = Entity(m_SelectedEntity, m_Scene);
+			if (s_entity.GetChildren().size())
 			{
-				DirectionalLightComponent& dlc = m_Scene->Registry.get<DirectionalLightComponent>(m_SelectedEntity);
-				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-				if (ImGui::CollapsingHeader("Directional Light Component"))
+				for (int i = 0; i < s_entity.GetChildren().size(); i++)
 				{
-					ImGui::ColorEdit3("Color", glm::value_ptr(dlc.Color));
-					ImGui::DragFloat3("Direction", glm::value_ptr(dlc.Direction));
-					ImGui::DragFloat("Intensity", &dlc.Intensity);
-					ImGui::DragFloat("Specular power", &dlc.SpecularPower);
+					TransformComponent& s_tc = s_entity.GetChildren()[i].GetComponent<TransformComponent>();
+	
+					s_tc.Transform.Position -= deltaPosition;
+					s_tc.Transform.Rotation -= deltaRotation;
+					s_tc.Transform.Scale -= deltaScale;
 				}
 			}
-
-			if (m_Scene->Registry.try_get<RigidbodyComponent>(m_SelectedEntity))
-			{
-				RigidbodyComponent& rc = m_Scene->Registry.get<RigidbodyComponent>(m_SelectedEntity);
-				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-				if (ImGui::CollapsingHeader("Rigidbody Component"))
-				{
-					
-					ImGui::DragFloat("Mass", &rc.Mass, 0.1f, 0.0f, 1000.0f);
-					ImGui::DragFloat("Linear damping", &rc.LinearDamping, 0.1f, 0.0f, 1000.0f);
-					ImGui::DragFloat("Angular damping", &rc.AngularDamping, 0.1f, 0.0f, 1000.0f);
-				}
-			}
-
-			if (m_Scene->Registry.try_get<BoxColliderComponent>(m_SelectedEntity))
-			{
-				BoxColliderComponent& bcc = m_Scene->Registry.get<BoxColliderComponent>(m_SelectedEntity);
-				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-				if(ImGui::CollapsingHeader("Box Collider"))
-				{
-					ImGui::DragFloat3("Size", glm::value_ptr(bcc.Size));
-				}
-			}
-
-			if (m_Scene->Registry.try_get<SphereColliderComponent>(m_SelectedEntity))
-			{
-				SphereColliderComponent& scc = m_Scene->Registry.get<SphereColliderComponent>(m_SelectedEntity);
-				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-
-				if (ImGui::CollapsingHeader("Sphere Collider"))
-				{
-					ImGui::DragFloat("Radius", &scc.Radius);
-				}
-			}
-
+			ImGui::EndColumns();
+		}
+	}
+	
+	if (m_Scene->Registry.try_get<QuadRendererComponent>(m_SelectedEntity))
+	{
+		QuadRendererComponent& qrc = m_Scene->Registry.get<QuadRendererComponent>(m_SelectedEntity);
+		ImGui::Checkbox("##visible", &qrc.enabled);
+		ImGui::SameLine();
+		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+		if (ImGui::CollapsingHeader("Quad Renderer"))
+		{
+			ImGui::BeginColumns("##quadrenderer", 2, ImGuiColumnsFlags_NoResize || ImGuiColumnsFlags_NoBorder);
+			ImGui::SetColumnWidth(0, 70);
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4.0f);
+			ImGui::Text("Scale:");
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.0f);
+			ImGui::Text("Color:");
+			ImGui::NextColumn();
+			ImGui::ColorEdit4("##color", glm::value_ptr(qrc.Color));
+			ImGui::EndColumns();
+		}
+	}
+	
+	if (m_Scene->Registry.try_get<PerspectiveCameraComponent>(m_SelectedEntity))
+	{
+		PerspectiveCameraComponent& pcc = m_Scene->Registry.get<PerspectiveCameraComponent>(m_SelectedEntity);
+		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+		if (ImGui::CollapsingHeader("Perspective Camera"))
+		{
+			ImGui::Checkbox("Main camera", &pcc.MainCamera);
+	
 			ImGui::Separator();
-
-			if (ImGui::Button("Add Component", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
+	
+			if (ImGui::DragFloat3("Focal point", glm::value_ptr(pcc.FocalPoint)))
+				pcc.Camera->SetFocalPoint(pcc.FocalPoint);
+	
+			ImGui::Separator();
+	
+			if (ImGui::DragFloat("Distance", &pcc.Distance))
+				pcc.Camera->SetDistance(pcc.Distance);
+	
+			if (ImGui::DragFloat("Yaw", &pcc.Yaw))
+				pcc.Camera->SetYaw(pcc.Yaw);
+	
+			if (ImGui::DragFloat("Pitch", &pcc.Pitch))
+				pcc.Camera->SetPitch(pcc.Pitch);
+	
+			if (ImGui::DragFloat("FOV", &pcc.FOV))
+				pcc.Camera->SetFOV(pcc.FOV);
+	
+			ImGui::Separator();
+	
+			ImGui::PushItemWidth(100.0f);
+			ImGui::BeginDisabled(pcc.FixedAspectRatio);
+			if (ImGui::DragFloat("AspectRatio", &pcc.AspectRatio))
+				pcc.Camera->SetAspectRatio(pcc.AspectRatio);
+	
+			ImGui::PopItemWidth();
+			ImGui::EndDisabled();
+	
+			if (ImGui::Checkbox("Fixed", &pcc.FixedAspectRatio) && pcc.FixedAspectRatio)
 			{
-				ImGui::OpenPopup("ContextMenu");
+				glm::vec2 vpSize = EditorLayer::GetMainViewportSize();
+	
+				pcc.AspectRatio = vpSize.x / vpSize.y;
+				pcc.Camera->SetAspectRatio(pcc.AspectRatio);
+			}
+	
+			ImGui::Separator();
+	
+			if (ImGui::DragFloat("Near clip", &pcc.NearClip))
+				pcc.Camera->SetNearClip(pcc.NearClip);
+	
+			if (ImGui::DragFloat("Far clip", &pcc.FarClip))
+				pcc.Camera->SetFarClip(pcc.FarClip);
+		}
+	}
+	
+	
+	if (m_Scene->Registry.try_get<StaticModelComponent>(m_SelectedEntity))
+	{
+		StaticModelComponent& smc = m_Scene->Registry.get<StaticModelComponent>(m_SelectedEntity);
+		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+		if (ImGui::CollapsingHeader("Static Mesh Component"))
+		{
+			std::string ModelPath = "-";
+	
+			if (smc.StaticModel)
+				ModelPath = smc.StaticModel->GetSourceFilePath().string();
+			
+	
+			ImGui::InputText("Source Path", (char*)ModelPath.c_str(), sizeof(ModelPath.c_str()));
+		
+			ImGui::SameLine();
+	
+			if (ImGui::Button("##Load", { ImGui::CalcTextSize("Load").x + 10.0f, 20.0f }))
+			{
+				if (Utils::FileDialog::OpenFile("3D Model (*.*)\0*.**\0", ModelPath))
+				{
+					smc.StaticModel = new Model(ModelPath);
+				}
+			}
+		}
+	}
+	
+	if (m_Scene->Registry.try_get<LuaScriptComponent>(m_SelectedEntity))
+	{
+		LuaScriptComponent& lsc = m_Scene->Registry.get<LuaScriptComponent>(m_SelectedEntity);
+		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+		if (ImGui::CollapsingHeader("Lua script Component"))
+		{
+	
+			const char* inputText = strlen(lsc.sourcePath) > 0 ? lsc.sourcePath : "-";
+			ImGui::InputText("Source Path", (char*)inputText, sizeof(inputText));
+	
+			ImGui::SameLine();
+	
+			if (ImGui::Button("Load", { ImGui::CalcTextSize("Load").x + 10.0f, 20.0f }))
+			{
+				std::string sourcePath;
+				if (Utils::FileDialog::OpenFile("3D Model (*.lua)\0*.lua\0", sourcePath))
+				{
+					LE_CORE_INFO("Added script: %s", sourcePath.c_str());
+					lsc.sourcePath = new char[sourcePath.length() + 1];
+					strcpy(lsc.sourcePath, sourcePath.c_str());
+				}
+			}
+		}
+	}
+	
+	if (m_Scene->Registry.try_get<PointLightComponent>(m_SelectedEntity))
+	{
+		PointLightComponent& plc = m_Scene->Registry.get<PointLightComponent>(m_SelectedEntity);
+		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+		if (ImGui::CollapsingHeader("Point Light Component"))
+		{
+			ImGui::ColorEdit3("Color", glm::value_ptr(plc.Color));
+			ImGui::DragFloat("Intensity", &plc.Intensity);
+			ImGui::DragFloat("Specular power", &plc.SpecularPower);
+			
+		}
+	}
+	
+	if (m_Scene->Registry.try_get<DirectionalLightComponent>(m_SelectedEntity))
+	{
+		DirectionalLightComponent& dlc = m_Scene->Registry.get<DirectionalLightComponent>(m_SelectedEntity);
+		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+		if (ImGui::CollapsingHeader("Directional Light Component"))
+		{
+			ImGui::ColorEdit3("Color", glm::value_ptr(dlc.Color));
+			ImGui::DragFloat3("Direction", glm::value_ptr(dlc.Direction));
+			ImGui::DragFloat("Intensity", &dlc.Intensity);
+			ImGui::DragFloat("Specular power", &dlc.SpecularPower);
+		}
+	}
+	
+	if (m_Scene->Registry.try_get<RigidbodyComponent>(m_SelectedEntity))
+	{
+		RigidbodyComponent& rc = m_Scene->Registry.get<RigidbodyComponent>(m_SelectedEntity);
+		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+		if (ImGui::CollapsingHeader("Rigidbody Component"))
+		{
+			
+			ImGui::DragFloat("Mass", &rc.Mass, 0.1f, 0.0f, 1000.0f);
+			ImGui::DragFloat("Linear damping", &rc.LinearDamping, 0.1f, 0.0f, 1000.0f);
+			ImGui::DragFloat("Angular damping", &rc.AngularDamping, 0.1f, 0.0f, 1000.0f);
+		}
+	}
+	
+	if (m_Scene->Registry.try_get<BoxColliderComponent>(m_SelectedEntity))
+	{
+		BoxColliderComponent& bcc = m_Scene->Registry.get<BoxColliderComponent>(m_SelectedEntity);
+		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+		if(ImGui::CollapsingHeader("Box Collider"))
+		{
+			ImGui::DragFloat3("Size", glm::value_ptr(bcc.Size));
+		}
+	}
+	
+	if (m_Scene->Registry.try_get<SphereColliderComponent>(m_SelectedEntity))
+	{
+		SphereColliderComponent& scc = m_Scene->Registry.get<SphereColliderComponent>(m_SelectedEntity);
+		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+	
+		if (ImGui::CollapsingHeader("Sphere Collider"))
+		{
+			ImGui::DragFloat("Radius", &scc.Radius);
+		}
+	}
+	
+	ImGui::Separator();
+	
+	if (ImGui::Button("Add Component", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
+	{
+		ImGui::OpenPopup("ContextMenu");
+	}
+	
+	if (ImGui::BeginPopup("ContextMenu"))
+	{
+	
+		if (ImGui::BeginMenu("Rendering"))
+		{
+			if (ImGui::MenuItem("Quad Renderer"))
+			{
+				QuadRendererComponent qrc;
+				m_Scene->Registry.emplace<QuadRendererComponent>(m_SelectedEntity, qrc);
+			}
+	
+			if (ImGui::MenuItem("Perspective Camera"))
+			{
+				PerspectiveCameraComponent pcc;
+				pcc.Camera = new PerspectiveCamera(pcc.FOV, pcc.AspectRatio, pcc.NearClip, pcc.FarClip);
+				m_Scene->Registry.emplace<PerspectiveCameraComponent>(m_SelectedEntity, pcc);
 			}
 
-			if (ImGui::BeginPopup("ContextMenu"))
+			if (ImGui::BeginMenu("Static Models"))
 			{
-
-				if (ImGui::BeginMenu("Rendering"))
+				if (ImGui::BeginMenu("Defaults"))
 				{
-					if (ImGui::MenuItem("Quad Renderer"))
-					{
-						QuadRendererComponent qrc;
-						m_Scene->Registry.emplace<QuadRendererComponent>(m_SelectedEntity, qrc);
-					}
-
-					if (ImGui::MenuItem("Perspective Camera"))
-					{
-						PerspectiveCameraComponent pcc;
-						pcc.Camera = new PerspectiveCamera(pcc.FOV, pcc.AspectRatio, pcc.NearClip, pcc.FarClip);
-						m_Scene->Registry.emplace<PerspectiveCameraComponent>(m_SelectedEntity, pcc);
-					}
-
-					if (ImGui::MenuItem("Static Model"))
+					if (ImGui::MenuItem("Cube"))
 					{
 						StaticModelComponent smc;
+						smc.StaticModel = new Model("res/models/defaults/Cube.gltf");
 						m_Scene->Registry.emplace<StaticModelComponent>(m_SelectedEntity, smc);
 					}
 
-
-					if (ImGui::MenuItem("Point Light"))
-					{
-						PointLightComponent plc;
-						m_Scene->Registry.emplace<PointLightComponent>(m_SelectedEntity, plc);
-					}
-
-					if (ImGui::MenuItem("Directional Light"))
-					{
-						DirectionalLightComponent dlc;
-						m_Scene->Registry.emplace<DirectionalLightComponent>(m_SelectedEntity, dlc);
-					}
-					ImGui::EndMenu();
-				}
-				if (ImGui::BeginMenu("Physics"))
-				{
-					if (ImGui::MenuItem("Rigidbody"))
-					{
-						RigidbodyComponent rc;
-						m_Scene->Registry.emplace<RigidbodyComponent>(m_SelectedEntity, rc);
-					}
-
-					if (ImGui::MenuItem("Box Collider"))
-					{
-						BoxColliderComponent bcc;
-						bcc.Size = m_Scene->Registry.get<TransformComponent>(m_SelectedEntity).Transform.Scale;
-						m_Scene->Registry.emplace<BoxColliderComponent>(m_SelectedEntity, bcc);
-					}
-
-					if (ImGui::MenuItem("Sphere Collider"))
-					{
-						SphereColliderComponent scc;
-						scc.Radius = 1.0f;
-						m_Scene->Registry.emplace<SphereColliderComponent>(m_SelectedEntity, scc);
-
-					}
-
 					ImGui::EndMenu();
 				}
 
-				if (ImGui::MenuItem("Lua script"))
+				if (ImGui::MenuItem("Import..."))
 				{
-					LuaScriptComponent lsc;
-					m_Scene->Registry.emplace<LuaScriptComponent>(m_SelectedEntity, lsc);
+					StaticModelComponent smc;
+					m_Scene->Registry.emplace<StaticModelComponent>(m_SelectedEntity, smc);
 				}
-				ImGui::EndPopup();
+
+				ImGui::EndMenu();
 			}
-
-
+	
+			if (ImGui::MenuItem("Point Light"))
+			{
+				PointLightComponent plc;
+				m_Scene->Registry.emplace<PointLightComponent>(m_SelectedEntity, plc);
+			}
+	
+			if (ImGui::MenuItem("Directional Light"))
+			{
+				DirectionalLightComponent dlc;
+				m_Scene->Registry.emplace<DirectionalLightComponent>(m_SelectedEntity, dlc);
+			}
+			ImGui::EndMenu();
 		}
-		ImGui::End();
-		ImGui::PopStyleVar(2);
+		if (ImGui::BeginMenu("Physics"))
+		{
+			if (ImGui::MenuItem("Rigidbody"))
+			{
+				RigidbodyComponent rc;
+				m_Scene->Registry.emplace<RigidbodyComponent>(m_SelectedEntity, rc);
+			}
+	
+			if (ImGui::MenuItem("Box Collider"))
+			{
+				BoxColliderComponent bcc;
+				bcc.Size = m_Scene->Registry.get<TransformComponent>(m_SelectedEntity).Transform.Scale;
+				m_Scene->Registry.emplace<BoxColliderComponent>(m_SelectedEntity, bcc);
+			}
+	
+			if (ImGui::MenuItem("Sphere Collider"))
+			{
+				SphereColliderComponent scc;
+				scc.Radius = 1.0f;
+				m_Scene->Registry.emplace<SphereColliderComponent>(m_SelectedEntity, scc);
+	
+			}
+	
+			ImGui::EndMenu();
+		}
+	
+		if (ImGui::MenuItem("Lua script"))
+		{
+			LuaScriptComponent lsc;
+			m_Scene->Registry.emplace<LuaScriptComponent>(m_SelectedEntity, lsc);
+		}
+		ImGui::EndPopup();
 	}
+	ImGui::End();
+	ImGui::PopStyleVar(2);
 }

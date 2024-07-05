@@ -81,6 +81,7 @@ void SceneSerializer::Serialize(Scene* scene, std::string filepath)
         {
             s_JSON[enttID][plc->ID]["Color"] = { plc->Color.x, plc->Color.y, plc->Color.z };
             s_JSON[enttID][plc->ID]["Intensity"] = plc->Intensity;
+            s_JSON[enttID][plc->ID]["SpecularPower"] = plc->SpecularPower;
         }
 
         DirectionalLightComponent* dlc = scene->Registry.try_get<DirectionalLightComponent>(entityID);
@@ -89,6 +90,7 @@ void SceneSerializer::Serialize(Scene* scene, std::string filepath)
             s_JSON[enttID][dlc->ID]["Color"] = { dlc->Color.x, dlc->Color.y, dlc->Color.z };
             s_JSON[enttID][dlc->ID]["Intensity"] = dlc->Intensity;
             s_JSON[enttID][dlc->ID]["Direction"] = { dlc->Direction.x,  dlc->Direction.y, dlc->Direction.z };
+            s_JSON[enttID][dlc->ID]["SpecularPower"] = dlc->SpecularPower;
         }
 
         RigidbodyComponent* rc = scene->Registry.try_get<RigidbodyComponent>(entityID);
@@ -230,6 +232,7 @@ Scene* SceneSerializer::Load(const std::filesystem::path path)
                 plc.Color[i] = entry.value()[plc.ID]["Color"][i];
 
             plc.Intensity = entry.value()[plc.ID]["Intensity"];
+            plc.SpecularPower = entry.value()[plc.ID]["SpecularPower"];
 
             entity.AddOrReplaceComponent<PointLightComponent>(plc);
         }
@@ -244,7 +247,8 @@ Scene* SceneSerializer::Load(const std::filesystem::path path)
                 dlc.Direction[i] = entry.value()[dlc.ID]["Direction"][i];
             }
             dlc.Intensity = entry.value()[dlc.ID]["Intensity"];
-        
+            dlc.SpecularPower = entry.value()[dlc.ID]["SpecularPower"];
+
             entity.AddOrReplaceComponent<DirectionalLightComponent>(dlc);
         }
 
