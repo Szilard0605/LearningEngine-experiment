@@ -74,12 +74,11 @@ void LuaScriptInstance::RegisterEntity()
 {
 	auto& lua = *m_State;
 
-
 	// Input
 	LUA_REGISTER_FUNCTION("isKeyPressed", [this](uint32_t keyCode) -> bool { return Input::IsKeyPressed(keyCode); });
 
-
 	// Entity
+	LUA_REGISTER_FUNCTION("getEntityByName", [this](const char* name) -> Entity { return GetEntityByName(name); });
 	LUA_REGISTER_FUNCTION("getPosition", [this]() -> glm::vec3 { return Entity(m_EntityHandle, m_Scene).GetPosition(); });
 	LUA_REGISTER_FUNCTION("setPosition", [this](glm::vec3 pos) { Entity(m_EntityHandle, m_Scene).SetPosition(pos); });
 
@@ -95,7 +94,8 @@ void LuaScriptInstance::Rigidbody_ApplyForce(glm::vec3 force, glm::vec3 origin)
 	Rigidbody* rb = m_Scene->GetPhyiscsWorld()->GetEntityRigidbody(m_EntityHandle);
 	if (!rb)
 	{
-		LE_CORE_ERROR("[Rigidbody_ApplyForce]: There is no rigidbody");
+		const char* entityName = Entity(m_EntityHandle, m_Scene).GetName().c_str();
+		LE_CORE_ERROR("[Rigidbody_ApplyForce]: Entity %s is not a rigidbody", entityName);
 		return;
 	}
 
@@ -107,7 +107,8 @@ void LuaScriptInstance::Rigidbody_WakeUp(bool forceWakeUp)
 	Rigidbody* rb = m_Scene->GetPhyiscsWorld()->GetEntityRigidbody(m_EntityHandle);
 	if (!rb)
 	{
-		LE_CORE_ERROR("[Rigidbody_WakeUp]: There is no rigidbody");
+		const char* entityName = Entity(m_EntityHandle, m_Scene).GetName().c_str();
+		LE_CORE_ERROR("[Rigidbody_ApplyForce]: Entity %s is not a rigidbody", entityName);
 		return;
 	}
 
@@ -119,8 +120,19 @@ void LuaScriptInstance::Rigidbody_Sleep()
 	Rigidbody* rb = m_Scene->GetPhyiscsWorld()->GetEntityRigidbody(m_EntityHandle);
 	if (!rb)
 	{
-		LE_CORE_ERROR("[Rigidbody_Sleep]: There is no rigidbody");
+		const char* entityName = Entity(m_EntityHandle, m_Scene).GetName().c_str();
+		LE_CORE_ERROR("[Rigidbody_ApplyForce]: Entity %s is not a rigidbody", entityName);
 		return;
 	}
 	rb->Sleep();
+}
+
+Entity LuaScriptInstance::GetEntityByName(const char* name)
+{
+	Entity entity = m_Scene->GetEntityByTag(name);
+	if (entity.IsValid())
+		return entity;
+
+	LE_CORE_ERROR("Couldn't find entity with name: %s", name);
+	return Entity();
 }

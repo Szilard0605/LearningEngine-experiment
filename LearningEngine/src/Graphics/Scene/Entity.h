@@ -113,10 +113,16 @@ class Entity
 			tc.Transform.Position = position;
 		}
 
-		glm::vec3 GetPosition()
+		glm::vec3 GetPosition() 
 		{
 			TransformComponent& tc = GetComponent<TransformComponent>();
 			return tc.Transform.Position;
+		}
+
+		glm::vec3 GetRotation()
+		{
+			TransformComponent& tc = GetComponent<TransformComponent>();
+			return tc.Transform.Rotation;
 		}
 
 		void SetRotation(glm::vec3 rotation)

@@ -26,6 +26,8 @@ private:
 	void Rigidbody_Sleep();
 
 
+	Entity GetEntityByName(const char* name);
+
 	sol::state* m_State;
 	Scene* m_Scene;
 	entt::entity m_EntityHandle;
