@@ -5,6 +5,7 @@
 #include "Panels/EntityListPanel.h"
 #include "Panels/ContentBrowser.h"
 #include "Panels/SceneRendererPanel.h"
+#include "Panels/MaterialInspectorPanel.h"
 
 #include "EditorRuntime.h"
 
@@ -55,6 +56,7 @@ private:
 	EntityListPanel m_EntitiesPanel;
 	ContentBrowser m_ContentBrowser;
 	SceneRendererPanel m_SceneRendererPanel;
+	MaterialInspectorPanel m_MaterialInspectorPanel;
 
 	Texture2D* m_TexPlayButton;
 	bool m_PressedPlay = false;

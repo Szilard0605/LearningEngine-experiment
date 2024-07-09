@@ -43,8 +43,8 @@ void EditorLayer::OnAttach()
 	m_Scene->SetMainCamera(m_EditorCamera);
 	m_Scene->OnViewportResize(s_MainViewportSize.x, s_MainViewportSize.y);
 	m_EntitiesPanel = EntityListPanel(m_Scene);
-	m_ContentBrowser = ContentBrowser();
 	m_SceneRendererPanel = SceneRendererPanel(m_Scene);
+	m_MaterialInspectorPanel = MaterialInspectorPanel(&m_EntitiesPanel);
 
 	/* ---- Loading Assets ------
 	 Note (Szilard): We should load registry from the project 
@@ -129,6 +129,7 @@ void EditorLayer::OnImGuiRender()
 	m_EntitiesPanel.Render();
 	m_ContentBrowser.Render();
 	m_SceneRendererPanel.Render();
+	m_MaterialInspectorPanel.Render();
 
 	//Viewport window
 	{

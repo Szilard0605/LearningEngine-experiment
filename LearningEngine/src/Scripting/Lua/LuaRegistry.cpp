@@ -47,7 +47,10 @@ void LuaRegistry::RegisterFunctions(sol::state* state)
 		);
 
 		state->new_usertype<Entity>("Entity", 
-			"getPosition", &Entity::GetPosition
+			"getPosition", &Entity::GetPosition,
+			"setPosition", &Entity::SetPosition,
+			"getRotation", &Entity::GetRotation,
+			"setRotation", &Entity::SetRotation
 		);
 	}
 

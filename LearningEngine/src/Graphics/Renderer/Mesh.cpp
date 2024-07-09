@@ -44,8 +44,8 @@ Mesh::~Mesh()
 
 void Mesh::Render(PerspectiveCamera& camera, glm::mat4 transform, int entity)
 {
-	for (int i = 0; i < m_Vertices.size(); i++)
-		m_Vertices[i].EntityID = entity;
+	/*for (int i = 0; i < m_Vertices.size(); i++)
+		m_Vertices[i].EntityID = entity;*/
 
 	camera.UpdateView();
 

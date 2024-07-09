@@ -13,12 +13,13 @@ public:
 
 	void Render();
 	void SetScene(Scene* scene);
+	Scene* GetScene() { return m_Scene; }
 
 	void DeleteEntity(Entity entity);
 	void ShowDeleteEntityPopup() { m_DeleteEntityPopup = true; }
 
 	entt::entity GetSelectedEntity() { return m_SelectedEntity; }
-	void SetSelectedEntity(entt::entity entity) { m_SelectedEntity = entity; }
+	void SetSelectedEntity(entt::entity entity);
 private:
 	void DisplayHierarchy(Entity entity);
 

@@ -11,11 +11,16 @@
 
 #include <IconsFontAwesome5.h>
 
+
 EntityListPanel::EntityListPanel(Scene *scene)
 	: m_Scene(scene)
 {
 }
 
+void EntityListPanel::SetSelectedEntity(entt::entity entity)
+{
+	m_SelectedEntity = entity;
+}
 void EntityListPanel::DisplayHierarchy(Entity entity)
 {
 	ImGui::PushID(reinterpret_cast<const void*>(static_cast<intptr_t>(entity.GetHandle())));
