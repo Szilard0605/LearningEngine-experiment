@@ -4,17 +4,13 @@
 
 #include "Graphics/Scene/Entity.h"
 
-struct RigidbodyData
-{
-	Entity EntityID;
-};
-
 BulletRigidbody::BulletRigidbody(Entity entity)
 {
 	m_EntityHandle = entity.GetHandle();
 
 	m_Data = new RigidbodyData();
-	m_Data->EntityID = entity;
+	m_Data->EntityID = (uint32_t)entity.GetHandle();
+	m_Data->Scene = entity.GetScene();
 
 	Math::Transform transform = entity.GetComponent<TransformComponent>().Transform;
 
@@ -27,15 +23,16 @@ BulletRigidbody::BulletRigidbody(Entity entity)
 	btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(1.0f, motionState, colShape, Inertia);
 
 	m_btRigidbody = new btRigidBody(groundRigidBodyCI);
-	m_btRigidbody->setUserPointer(this);
+	m_btRigidbody->setUserPointer(m_Data);
 }
 
-BulletRigidbody::BulletRigidbody(Entity entity, BoxShape& shape)
+BulletRigidbody::BulletRigidbody(Entity entity, BoxShape shape)
 {
 	m_EntityHandle = entity.GetHandle();
 
 	m_Data = new RigidbodyData();
-	m_Data->EntityID = entity;
+	m_Data->EntityID = (uint32_t)entity.GetHandle();
+	m_Data->Scene = entity.GetScene();
 
 	Math::Transform transform = entity.GetComponent<TransformComponent>().Transform;
 
@@ -48,15 +45,16 @@ BulletRigidbody::BulletRigidbody(Entity entity, BoxShape& shape)
 	btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(1.0f, motionState, colShape, Inertia);
 
 	m_btRigidbody = new btRigidBody(groundRigidBodyCI);
-	m_btRigidbody->setUserPointer(this);
+	m_btRigidbody->setUserPointer(m_Data);
 }
 
-BulletRigidbody::BulletRigidbody(Entity entity, SphereShape& shape)
+BulletRigidbody::BulletRigidbody(Entity entity, SphereShape shape)
 {
 	m_EntityHandle = entity.GetHandle();
 
 	m_Data = new RigidbodyData();
-	m_Data->EntityID = entity;
+	m_Data->EntityID = (uint32_t)entity.GetHandle();
+	m_Data->Scene = entity.GetScene();
 
 	Math::Transform transform = entity.GetComponent<TransformComponent>().Transform;
 
@@ -69,7 +67,7 @@ BulletRigidbody::BulletRigidbody(Entity entity, SphereShape& shape)
 	btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(1.0f, motionState, colShape, Inertia);
 
 	m_btRigidbody = new btRigidBody(groundRigidBodyCI);
-	m_btRigidbody->setUserPointer(this);
+	m_btRigidbody->setUserPointer(m_Data);
 }
 
 BulletRigidbody::~BulletRigidbody()
@@ -126,15 +124,15 @@ void BulletRigidbody::ApplyCentralForce(glm::vec3 force)
 	m_btRigidbody->applyCentralForce({ force.x, force.y, force.z });
 }
 
-void BulletRigidbody::SetShape(BoxShape& shape)
+void BulletRigidbody::SetShape(BoxShape shape)
 {
-	m_Shape = shape;
+	m_Shape = (RigidbodyShape)shape;
 	m_btRigidbody->setCollisionShape(new btBoxShape({ shape.Size.x, shape.Size.y, shape.Size.z }));
 }
 
-void BulletRigidbody::SetShape(SphereShape& shape)
+void BulletRigidbody::SetShape(SphereShape shape)
 {
-	m_Shape = shape;
+	m_Shape = (RigidbodyShape)shape;
 	m_btRigidbody->setCollisionShape(new btSphereShape(shape.Radius));
 }
 
@@ -150,8 +148,9 @@ Math::Transform BulletRigidbody::GetTransform()
 	retTransform.Rotation = { roll, pitch, yaw };
 
 	BulletRigidbody* rb = (BulletRigidbody*)m_btRigidbody->getUserPointer();
-	RigidbodyData* data = rb->GetData();
-	retTransform.Scale = data->EntityID.GetTransform().Scale;
+	RigidbodyData data = *(RigidbodyData*)rb->GetData();
+	Entity entity((entt::entity)data.EntityID, data.Scene);
+	retTransform.Scale = entity.GetTransform().Scale;
 
 	return retTransform;
 }

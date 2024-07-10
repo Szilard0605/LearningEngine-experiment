@@ -40,17 +40,19 @@ void LuaRegistry::RegisterFunctions(sol::state* state)
 			"x", &glm::vec3::x,
 			"y", &glm::vec3::y,
 			"z", &glm::vec3::z,
-			sol::meta_function::addition, add_overloads,
-			sol::meta_function::subtraction, sub_overloads,
+			sol::meta_function::addition,       add_overloads,
+			sol::meta_function::subtraction,    sub_overloads,
 			sol::meta_function::multiplication, mult_overloads,
-			sol::meta_function::division, div_overloads
+			sol::meta_function::division,       div_overloads
 		);
 
 		state->new_usertype<Entity>("Entity", 
 			"getPosition", &Entity::GetPosition,
 			"setPosition", &Entity::SetPosition,
 			"getRotation", &Entity::GetRotation,
-			"setRotation", &Entity::SetRotation
+			"setRotation", &Entity::SetRotation,
+			"getID",	   &Entity::GetHandle,
+			"getName",	   &Entity::GetNameCStr
 		);
 	}
 

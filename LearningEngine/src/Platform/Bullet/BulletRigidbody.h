@@ -2,15 +2,14 @@
 
 #include "Physics/Rigidbody.h"
 
-struct RigidbodyData;
 class btRigidBody;
 
 class BulletRigidbody : public Rigidbody
 {
 public:
 	BulletRigidbody(Entity entity);
-	BulletRigidbody(Entity entity, SphereShape& shape);
-	BulletRigidbody(Entity entity, BoxShape& shape);
+	BulletRigidbody(Entity entity, SphereShape shape);
+	BulletRigidbody(Entity entity, BoxShape shape);
 	//BulletRigidbody(Math::Transform& transform, BoxShape& shape);
 	~BulletRigidbody();
 
@@ -29,8 +28,8 @@ public:
 	virtual void ApplyForce(glm::vec3 force, glm::vec3 relativePos) override;
 	virtual void ApplyCentralForce(glm::vec3 force) override;
 
-	virtual void SetShape(BoxShape& shape) override;
-	virtual void SetShape(SphereShape& shape) override;
+	virtual void SetShape(BoxShape shape) override;
+	virtual void SetShape(SphereShape shape) override;
 	virtual Math::Transform GetTransform() override;
 	virtual void SetTransform(Math::Transform transform) override;
 

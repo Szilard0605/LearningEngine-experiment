@@ -5,6 +5,7 @@
 #include "Graphics/Scene/Scene.h"
 
 #include "BulletRigidbody.h"
+#include "BulletContactListener.h"
 
 class btDiscreteDynamicsWorld;
 
@@ -23,5 +24,7 @@ private:
 	Scene* m_Scene;
 	std::vector<BulletRigidbody> m_Rigidbodies;
 	btDiscreteDynamicsWorld* m_btWorld;
+
+	BulletContactListener m_ContactCallback;
 };
 

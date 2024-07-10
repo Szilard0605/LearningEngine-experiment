@@ -7,10 +7,6 @@
 
 #include "Graphics/Scene/Entity.h"
 
-struct RigidbodyData
-{
-	Entity EntityID;
-};
 
 BulletWorld::BulletWorld(Scene* scene, glm::vec3 gravity)
 	: m_Scene(scene)
@@ -62,7 +58,7 @@ void BulletWorld::AddRigidBody(Rigidbody* body)
 	m_Rigidbodies.push_back(*bulletBody);
 
 	BulletRigidbody test = m_Rigidbodies[m_Rigidbodies.size()-1];
-	printf("entity: %d\n", test.GetData()->EntityID.GetHandle());
+	printf("entity: %d\n", test.GetData()->EntityID);
 
 	m_btWorld->addRigidBody(bulletBody->GetBulletRigidbody());
 }
@@ -75,7 +71,7 @@ void BulletWorld::StepSimulation(float timeStep)
 	{
 		BulletRigidbody rigidBody = m_Rigidbodies[i];
 		btRigidBody* btRigidBody = rigidBody.GetBulletRigidbody();
-		Entity entity = rigidBody.GetData()->EntityID;
+		Entity entity((entt::entity)rigidBody.GetData()->EntityID, rigidBody.GetData()->Scene);
 
 		btTransform& simTransform = btRigidBody->getWorldTransform();
 		entity.SetPosition({ simTransform.getOrigin().x(), simTransform.getOrigin().y(), simTransform.getOrigin().z() });
@@ -87,6 +83,8 @@ void BulletWorld::StepSimulation(float timeStep)
 		RigidbodyComponent& rc = entity.GetComponent<RigidbodyComponent>();
 		btRigidBody->setMassProps(rc.Mass, btRigidBody->getLocalInertia());
 		btRigidBody->setDamping(rc.LinearDamping, rc.AngularDamping);
+
+		m_btWorld->contactTest(btRigidBody, m_ContactCallback);
 	}
 }
 

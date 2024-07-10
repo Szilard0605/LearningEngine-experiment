@@ -7,7 +7,7 @@
 
 #include "Graphics/Scene/Entity.h"
 
-Rigidbody* Rigidbody::Create(Entity entity, SphereShape& shape)
+Rigidbody* Rigidbody::Create(Entity entity, SphereShape shape)
 {
     PhysicsCore* core = Application::GetInstance()->GetPhysicsCore();
 
@@ -21,7 +21,7 @@ Rigidbody* Rigidbody::Create(Entity entity, SphereShape& shape)
     return nullptr;
 }
 
-Rigidbody* Rigidbody::Create(Entity entity, BoxShape& shape)
+Rigidbody* Rigidbody::Create(Entity entity, BoxShape shape)
 {
     PhysicsCore* core = Application::GetInstance()->GetPhysicsCore();
 

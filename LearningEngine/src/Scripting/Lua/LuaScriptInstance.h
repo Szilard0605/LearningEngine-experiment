@@ -24,8 +24,8 @@ private:
 	void Rigidbody_ApplyForce(glm::vec3 force, glm::vec3 origin);
 	void Rigidbody_WakeUp(bool forceWakeUp);
 	void Rigidbody_Sleep();
-
-
+	
+	Entity GetEntityByID(uint32_t id);
 	Entity GetEntityByName(const char* name);
 
 	sol::state* m_State;

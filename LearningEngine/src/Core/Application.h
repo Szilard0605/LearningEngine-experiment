@@ -26,21 +26,21 @@ public:
 
 	PhysicsCore* GetPhysicsCore() { return m_PhysicsCore; }
 
-	private:
-		static Application* s_Instance;
+private:
+	static Application* s_Instance;
 
-		RendererAPI* m_RendererAPI;
+	RendererAPI* m_RendererAPI;
 
-		float m_LastTime = 0.0f;
-		std::string m_name;
-		uint32_t m_width, m_height;
+	float m_LastTime = 0.0f;
+	std::string m_name;
+	uint32_t m_width, m_height;
 
-		bool m_running = false;
+	bool m_running = false;
 
-		WindowsWindow* m_window;
-		LayerStack m_layerstack;
+	WindowsWindow* m_window;
+	LayerStack m_layerstack;
 
-		PhysicsCore* m_PhysicsCore;
+	PhysicsCore* m_PhysicsCore;
 
 };
 

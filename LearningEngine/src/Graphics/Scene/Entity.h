@@ -25,6 +25,12 @@ class Entity
 			return tag.Tag;
 		}
 		
+		std::string GetNameCStr()
+		{
+			TagComponent& tag = GetComponent<TagComponent>();
+			return tag.Tag.c_str();
+		}
+
 		bool IsValid()
 		{
 			return m_EntityHandle != entt::null;
