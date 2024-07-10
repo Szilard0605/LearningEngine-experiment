@@ -39,8 +39,9 @@ void EntityListPanel::DisplayHierarchy(Entity entity)
 	if (!hasChild)
 		flags |= ImGuiTreeNodeFlags_Leaf;
 
-
-	bool nodeOpen = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity.GetHandle(), flags, entityStr);
+	std::string idPrefix = " [" + std::to_string((uint32_t)entity.GetHandle()) + "]";
+	std::string entityDisp = entityStr + idPrefix;
+	bool nodeOpen = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity.GetHandle(), flags, entityDisp.c_str());
 
 	if (ImGui::IsItemClicked())
 		m_SelectedEntity = entity.GetHandle();

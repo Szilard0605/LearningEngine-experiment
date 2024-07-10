@@ -84,6 +84,7 @@ void LuaScriptInstance::RegisterEntity()
 	LUA_REGISTER_FUNCTION("setPosition", [this](glm::vec3 pos) { Entity(m_EntityHandle, m_Scene).SetPosition(pos); });
 
 	// Phyiscs
+	// TODO: Add rigidbody component to scripting so we can replace this.
 	LUA_REGISTER_FUNCTION("rbApplyForce", [this](glm::vec3 force, glm::vec3 origin) { Rigidbody_ApplyForce(force, origin); });
 	LUA_REGISTER_FUNCTION("rbWakeUp", [this](bool forceWakeUp) { Rigidbody_WakeUp(forceWakeUp); });
 	LUA_REGISTER_FUNCTION("rbSleep", [this]() { Rigidbody_Sleep(); });
