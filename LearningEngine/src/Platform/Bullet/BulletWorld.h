@@ -19,12 +19,13 @@ public:
 	virtual void StepSimulation(float timeStep) override;
 	virtual void DestroyAllRigidbodies() override;
 	virtual Rigidbody* GetEntityRigidbody(entt::entity entityHandle) override;
+	virtual void SetContactCallback(std::function<void(PhysicsContactEvent&)> callback) override;
 
 private:
 	Scene* m_Scene;
 	std::vector<BulletRigidbody> m_Rigidbodies;
 	btDiscreteDynamicsWorld* m_btWorld;
 
-	BulletContactListener m_ContactCallback;
+	BulletContactListener m_ContactListener;
 };
 

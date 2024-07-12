@@ -15,7 +15,10 @@ public:
 	void LoadScript(std::filesystem::path path);
 	void OnCreate();
 	void OnUpdate(Timestep timestep);
+	void OnPhysicsContact(Entity entity);
 	void RegisterEntity();
+
+	entt::entity GetEntityHandle() { return m_EntityHandle; }
 
 	sol::state* GetState() { return m_State; }
 
@@ -30,6 +33,6 @@ private:
 
 	sol::state* m_State;
 	Scene* m_Scene;
-	entt::entity m_EntityHandle;
+	entt::entity m_EntityHandle = entt::null;
 };
 

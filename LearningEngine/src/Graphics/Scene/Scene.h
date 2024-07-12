@@ -14,6 +14,10 @@
 
 #include "Core/Timestep.h"
 
+#include <Events/PhysicsEvents.h>
+
+#include <functional>
+
 class Entity;
 class PhysicsWorld;
 
@@ -51,13 +55,13 @@ class Scene
 		entt::registry Registry;
 
 	private:
+		void OnPhysicsContact(PhysicsContactEvent& event);
+
 		std::string m_Name;
 		friend class Entity;
 
 		AmbientLight m_AmbientLight = { glm::vec3(1.0f),  1};
-
 		PerspectiveCamera* m_MainCamera = nullptr;
-
 		PhysicsWorld* m_PhysicsWorld = nullptr;
 };
 

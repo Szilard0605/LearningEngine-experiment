@@ -28,11 +28,11 @@ LuaScriptInstance::LuaScriptInstance(entt::entity entity, Scene* scene, std::fil
 
 	lua_State* L = m_State->lua_state();
 	L->l_G->panic = [](lua_State* L)
-		{
-			const char* errorMessage = lua_tostring(L, -1);
-			LE_CORE_ERROR("Lua panic: %s", errorMessage);
-			return 0;
-		};
+	{
+		const char* errorMessage = lua_tostring(L, -1);
+		LE_CORE_ERROR("Lua panic: %s", errorMessage);
+		return 0;
+	};
 
 	lua_atpanic(L, &Lua_AtPanicHandler);
 }
@@ -70,6 +70,16 @@ void LuaScriptInstance::OnUpdate(Timestep timestep)
 	LUA_CALL("onUpdate", timestep.Milliseconds());
 }
 
+void LuaScriptInstance::OnPhysicsContact(Entity entity)
+{
+	Entity thisentity(m_EntityHandle, m_Scene);
+	if (entity.IsValid())
+	{
+		auto& lua = *m_State;
+		LUA_CALL("onPhysicsContact", entity);
+	}
+}
+
 void LuaScriptInstance::RegisterEntity()
 {
 	auto& lua = *m_State;
@@ -78,6 +88,7 @@ void LuaScriptInstance::RegisterEntity()
 	LUA_REGISTER_FUNCTION("isKeyPressed", [this](uint32_t keyCode) -> bool { return Input::IsKeyPressed(keyCode); });
 
 	// Entity
+	
 	LUA_REGISTER_FUNCTION("getEntityByID", [this](uint32_t id) -> Entity { return GetEntityByID(id); });
 	LUA_REGISTER_FUNCTION("getEntityByName", [this](const char* name) -> Entity { return GetEntityByName(name); });
 	LUA_REGISTER_FUNCTION("getPosition", [this]() -> glm::vec3 { return Entity(m_EntityHandle, m_Scene).GetPosition(); });

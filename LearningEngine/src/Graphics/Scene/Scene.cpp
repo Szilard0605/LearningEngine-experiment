@@ -91,7 +91,7 @@ Entity Scene::GetEntityByTag(std::string name)
 void Scene::OnStart()
 {
 	m_PhysicsWorld = PhysicsWorld::Create(this, { 0, -9.81f, 0 });
-
+	m_PhysicsWorld->SetContactCallback(BIND_EVENT_FN(Scene::OnPhysicsContact));
 	LuaScriptEngine::InitScene(this);
 }
 
@@ -143,6 +143,14 @@ Scene* Scene::Copy(Scene* scene)
 	retScene->SetAmbientLight(scene->GetAmbientLight());
 
 	return retScene;
+}
+
+void Scene::OnPhysicsContact(PhysicsContactEvent& event)
+{
+	// for debug
+	Entity entity0(event.GetEntityHandleA(), this);
+	Entity entity1(event.GetEntityHandleB(), this);
+	LuaScriptEngine::OnPhysicsContact(entity0, entity1);
 }
 
 void Scene::Render(PerspectiveCamera* camera)

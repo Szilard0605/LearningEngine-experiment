@@ -12,12 +12,13 @@ class Entity
 	public:
 		Entity() = default;
 
-		//Entity(const std::string& name, entt::entity handle, Scene* scene);
-
 		Entity(entt::entity handle, Scene* scene) 
 			: m_EntityHandle(handle), m_Scene(scene) { }
 
-		~Entity();
+		~Entity()
+		{
+
+		}
 
 		std::string GetName() 
 		{ 

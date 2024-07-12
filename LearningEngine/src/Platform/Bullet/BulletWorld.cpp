@@ -5,6 +5,7 @@
 #include "btBulletDynamicsCommon.h"
 #include "BulletRigidbody.h"
 
+#include "Events/Event.h"
 #include "Graphics/Scene/Entity.h"
 
 
@@ -84,7 +85,7 @@ void BulletWorld::StepSimulation(float timeStep)
 		btRigidBody->setMassProps(rc.Mass, btRigidBody->getLocalInertia());
 		btRigidBody->setDamping(rc.LinearDamping, rc.AngularDamping);
 
-		m_btWorld->contactTest(btRigidBody, m_ContactCallback);
+		m_btWorld->contactTest(btRigidBody, m_ContactListener);
 	}
 }
 
@@ -105,4 +106,9 @@ Rigidbody* BulletWorld::GetEntityRigidbody(entt::entity entityHandle)
 			return (Rigidbody*)&m_Rigidbodies[i];
 		}
 	}
+}
+
+void BulletWorld::SetContactCallback(std::function<void(PhysicsContactEvent&)> callback)
+{
+	m_ContactListener.SetContactCallback(callback);
 }

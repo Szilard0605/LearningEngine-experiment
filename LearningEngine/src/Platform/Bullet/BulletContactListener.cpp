@@ -2,6 +2,7 @@
 
 #include "Log/Log.h"
 #include "Graphics/Scene/Entity.h"
+#include <Events/PhysicsEvents.h>
 
 btScalar BulletContactListener::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1)
 {
@@ -19,8 +20,8 @@ btScalar BulletContactListener::addSingleResult(btManifoldPoint& cp, const btCol
         LE_CORE_ERROR("Collision with invalid entity (or entites) %d and %d", entity0.GetHandle(), entity1.GetHandle());
         return 0;
     }
-
     
-
+    PhysicsContactEvent contactEvent(entity0.GetHandle(), entity1.GetHandle());
+    m_ContactCallback(contactEvent);
     return 0;
 }
