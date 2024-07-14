@@ -7,17 +7,21 @@
 #include "Light.h"
 
 #define MAX_LIGHTS 100
+#define MAX_MESHES 20000
 
 class ForwardRenderer
 {
 public:
 	struct RenderStatistics
 	{
-		uint32_t DrawCalls;
-		uint32_t MeshCount;
-		uint32_t Vertices;
-		uint32_t PointLightCount;
-		uint32_t DirectionalLightCount;
+		uint32_t DrawCalls = 0;
+		uint32_t MeshCount = 0;
+		uint32_t TotalVertices = 0;
+		uint32_t PointLightCount = 0;
+		uint32_t DirectionalLightCount = 0;
+
+
+		double CPURenderTime = .0f;
 	};
 
 	static void Init(RendererAPI* rendererapi);

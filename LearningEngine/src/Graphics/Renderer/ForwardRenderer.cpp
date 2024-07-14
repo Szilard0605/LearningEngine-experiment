@@ -67,28 +67,28 @@ void ForwardRenderer::Init(RendererAPI* rendererapi)
 void ForwardRenderer::BeginScene(PerspectiveCamera& camera)
 {
 	s_RenderData.camera = camera;
-	
+
+
 	s_RenderData.meshes.clear();
-
-	s_RenderData.LightData.Lights.clear();
-
 	s_RenderData.DataBuffer.CameraPosition = glm::vec4(camera.GetPosition(), 1.0f);
-
+	
 	s_RenderData.DataBuffer.NumLights = 0;
-
 	s_RenderStats.DrawCalls = 0;
 	s_RenderStats.MeshCount = 0;
-	s_RenderStats.Vertices = 0;
+	s_RenderStats.TotalVertices = 0;
 	s_RenderStats.PointLightCount = 0;
+	s_RenderStats.DirectionalLightCount = 0;
+	s_RenderData.LightData.Lights.clear();
 }
 
 void ForwardRenderer::EndScene()
 {
-	
+
 }
 
 void ForwardRenderer::Present()
 {
+	auto beginTime = std::chrono::high_resolution_clock::now();
 
 	s_RenderData.shader->Bind();
 	
@@ -96,17 +96,19 @@ void ForwardRenderer::Present()
 	s_RenderData.RenderDataBuffer->SetData(&s_RenderData.DataBuffer, sizeof(RenderDataSB), 0);
 
 	// Light setup
-	{
-		s_RenderData.LightBuffer->Bind(1);
-		s_RenderData.LightBuffer->SetData(s_RenderData.LightData.Lights.data(), sizeof(LightData) * MAX_LIGHTS, 0);
-	}
-
+	
+	s_RenderData.LightBuffer->Bind(1);
+	s_RenderData.LightBuffer->SetData(s_RenderData.LightData.Lights.data(), sizeof(LightData) * MAX_LIGHTS, 0);
 
 	for (int i = 0; i < s_RenderData.meshes.size(); i++)
 	{
 		s_RenderStats.DrawCalls++;
 		s_RenderData.meshes[i].mesh.Render(s_RenderData.camera, s_RenderData.meshes[i].transform, s_RenderData.meshes[i].EntityID);
 	}
+
+	auto endTime = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double, std::milli> finalTime = endTime - beginTime;
+	s_RenderStats.CPURenderTime = finalTime.count();
 }
 
 void ForwardRenderer::SubmitLight(AmbientLight& light)
@@ -117,18 +119,21 @@ void ForwardRenderer::SubmitLight(AmbientLight& light)
 void ForwardRenderer::SubmitMesh(Mesh& mesh, glm::mat4 transform, int entity)
 {
 	s_RenderStats.MeshCount++;
-	s_RenderStats.Vertices += mesh.GetVertices().size();
+	s_RenderStats.TotalVertices += mesh.GetVertices().size();
 
-	s_RenderData.meshes.emplace_back(MeshRenderData{ mesh,transform, entity });
+	s_RenderData.meshes.push_back(MeshRenderData{ mesh,transform, entity });
 }
 
 void ForwardRenderer::SubmitModel(Model& model, glm::mat4 transform, int entity)
-{
+{	
+	s_RenderData.meshes.reserve(model.GetMeshes().size());
+
 	for (int i = 0; i < model.GetMeshes().size(); i++)
 	{
 		SubmitMesh(model.GetMeshes()[i], transform, entity);
 	}
 }
+
 void ForwardRenderer::SubmitLight(PointLight& light)
 {
 	LightData plData;
