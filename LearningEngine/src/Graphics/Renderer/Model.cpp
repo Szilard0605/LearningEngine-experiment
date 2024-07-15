@@ -6,6 +6,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <assimp/material.h>
 
 #include "API/API.h"
 
@@ -85,7 +86,14 @@ Model::Model(std::filesystem::path path, Material material)
 		}
 
 		const aiMesh* model = scene->mMeshes[i];
-		const aiMaterial* mtl = scene->mMaterials[model->mMaterialIndex];
+		const aiMaterial* mtl = scene->mMaterials[model->mMaterialIndex];	
+
+		aiColor4D baseColor;
+		material.BaseColor = { 255, 255, 255, 255 };
+		if (AI_SUCCESS == aiGetMaterialColor(mtl, AI_MATKEY_COLOR_DIFFUSE, &baseColor)) {
+			material.BaseColor = { baseColor.r, baseColor.g, baseColor.b, baseColor.a };
+		}
+	
 
 		Texture2D* baseColorTexture = nullptr;
 		// Base Color textures
@@ -98,6 +106,7 @@ Model::Model(std::filesystem::path path, Material material)
 				baseColorTexture = Texture2D::Create(path.remove_filename().string() + texpath.C_Str());
 			}
 		}
+
 		material.SetTexture(baseColorTexture);
 
 		Texture2D* normalMapTexture = nullptr;
@@ -112,7 +121,7 @@ Model::Model(std::filesystem::path path, Material material)
 			}
 		}
 		material.SetNormalMap(normalMapTexture);
-
+		material.SetName(model->mName.C_Str() + std::to_string(model->mMaterialIndex));
 
 		m_Meshes.push_back(Mesh(Vertices, Indices, material));
 	}

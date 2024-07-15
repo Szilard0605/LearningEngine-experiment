@@ -22,9 +22,16 @@ class Material
 		void SetNormalMap(Texture2D* normalmap) { m_NormalMap = normalmap; }
 		Texture2D* GetNormalmap() { return m_NormalMap; }
 		
+		const std::string GetName() const { return m_Name; }
+		void SetName(std::string name)
+		{
+			m_Name = name;
+		}
 
 		glm::vec4 BaseColor;
 	private:
+		std::string m_Name;
+
 		Texture2D* m_Texture = nullptr;
 		Texture2D* m_NormalMap = nullptr;
 
