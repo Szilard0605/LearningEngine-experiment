@@ -16,6 +16,18 @@ void SceneRendererPanel::Render()
 {
 	ImGui::Begin("Scene Renderer");
 
+
+	if (ImGui::CollapsingHeader("Statistics"))
+	{
+		ForwardRenderer::RenderStatistics stats = ForwardRenderer::GetRenderStatistics();
+		ImGui::Text("CPU Render time: %f", stats.CPURenderTime);
+		ImGui::Text("Mesh count: %d", stats.MeshCount);
+		ImGui::Text("Total vertices: %d", stats.TotalVertices);
+		ImGui::Text("Draw calls: %d", stats.DrawCalls);
+		ImGui::Text("Directional lights: %d", stats.DirectionalLightCount);
+		ImGui::Text("Point lights: %d", stats.PointLightCount);
+	}
+
 	if (ImGui::CollapsingHeader("Shaders"))
 	{
 		std::map<std::string, Shader*> library = ShaderLibrary::GetAllShaders();
