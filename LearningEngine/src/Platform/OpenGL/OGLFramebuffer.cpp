@@ -26,6 +26,9 @@ void OGLFramebuffer::AttachColorTexture(uint32_t& id, int samples, uint32_t inte
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 	}
 
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, TextureTarget(multisampled), id, 0);
@@ -176,6 +179,11 @@ uint32_t OGLFramebuffer::GetColorAttachmentID(uint32_t slot)
 
 	return m_ColorAttachments[slot];
 
+}
+
+uint32_t OGLFramebuffer::GetDepthAttachmentID()
+{
+	return m_DepthAttachment;
 }
 
 int OGLFramebuffer::ReadPixel(uint32_t attachment, int x, int y)

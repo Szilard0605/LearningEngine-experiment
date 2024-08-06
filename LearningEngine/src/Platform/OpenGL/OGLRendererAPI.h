@@ -18,6 +18,7 @@ public:
 	virtual RenderContext* GetContext() override;
 	virtual std::string GetVersionString() override;
 	virtual void Clear(const glm::vec4& color) override;
+	virtual void ClearDepthBuffer() override;
 	virtual void Resize(const int width, const int height) override;
 	virtual void Present() override;
 	virtual void UseDepthTesting(bool enable) override;

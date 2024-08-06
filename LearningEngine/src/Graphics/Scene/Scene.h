@@ -14,7 +14,8 @@
 
 #include "Core/Timestep.h"
 
-#include <Events/PhysicsEvents.h>
+#include "Events/PhysicsEvents.h"
+#include "Graphics/Renderer/API/Framebuffer.h"
 
 #include <functional>
 
@@ -32,7 +33,7 @@ class Scene
 		void DestroyEntity(Entity entity);
 		Entity GetEntityByTag(std::string name);
 		void OnStart();
-		void Render(PerspectiveCamera* camera = nullptr);
+		void Render(Framebuffer* FrameBuffer, PerspectiveCamera* camera = nullptr);
 		void Update(Timestep timeStep);
 		void StepPhysicsSimulation(float timestep);
 		void OnStop();

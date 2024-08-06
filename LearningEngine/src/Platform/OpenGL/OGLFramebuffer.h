@@ -17,6 +17,7 @@ public:
 	virtual void Resize(uint32_t width, uint32_t height) override;
 	virtual FramebufferSpecifications& GetSpecification() override { return m_Specification; }
 	virtual uint32_t GetColorAttachmentID(uint32_t slot) override;
+	virtual uint32_t GetDepthAttachmentID() override;
 	virtual int ReadPixel(uint32_t attachment, int x, int y) override;
 
 	void AttachColorTexture(uint32_t& id, int samples, uint32_t internalFormat, uint32_t format, uint32_t width, uint32_t height, int index);

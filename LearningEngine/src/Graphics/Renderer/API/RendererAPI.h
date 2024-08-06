@@ -21,6 +21,7 @@ public:
 	virtual RenderContext* GetContext() = 0;
 	virtual std::string GetVersionString() = 0;
 	virtual void Clear(const glm::vec4& color) = 0;
+	virtual void ClearDepthBuffer() = 0;
 	virtual void Resize(const int width, const int height) = 0;
 	virtual void Present() = 0;
 	virtual void UseDepthTesting(bool enable) = 0;

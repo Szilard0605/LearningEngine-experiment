@@ -244,6 +244,12 @@ void EditorLayer::OnImGuiRender()
 
 		//ImGui::PopItemWidth();
 	}
+
+	// debug
+	ImGui::Begin("DepthMap");
+	ImGui::Image((ImTextureID)ForwardRenderer::GetDepthMapDBG(), {1024, 1024});
+	ImGui::End();
+	//
 	
 	// Tool bar
 	{
@@ -480,40 +486,16 @@ bool EditorLayer::OnMouseScrolled(MouseScrolledEvent& event)
 
 void EditorLayer::OnUpdate(Timestep timestep)
 {
-	m_Framebuffer->Bind();
-
-	Renderer2D::ClearColor(glm::vec4(0.5, 0.5, 0.5, 1));
-
 	if (m_PressedPlay)
 	{
 		m_Runtime.Update(timestep);
 	}
 	else
 	{
-		
-		m_Scene->Render(m_EditorCamera);
+		m_Scene->Render(m_Framebuffer, m_EditorCamera);
 
 		if (m_ViewportActive)
 		{
-
-			auto [mx, my] = ImGui::GetMousePos();
-			mx -= m_ViewportBounds[0].x;
-			my -= m_ViewportBounds[0].y;
-			glm::vec2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0];
-			my = viewportSize.y - my;
-			int mouseX = (int)mx;
-			int mouseY = (int)my;
-
-			if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
-			{
-				int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
-				m_HoveredEntity = pixelData == -1 ? entt::null : (entt::entity)pixelData;
-
-				if (m_Scene->Registry.valid(m_HoveredEntity))
-				{
-					TagComponent& tc = m_Scene->Registry.get<TagComponent>(m_HoveredEntity);
-				}
-			}
 
 			//if (Input::IsKeyPressed(Key::LeftShift))
 			//	speed *= 2;

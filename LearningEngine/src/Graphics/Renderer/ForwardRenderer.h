@@ -27,11 +27,12 @@ public:
 	static void Init(RendererAPI* rendererapi);
 	static void BeginScene(PerspectiveCamera& camera);
 	static void EndScene();
-	static void Present();
+	static void Present(Framebuffer* FrameBuffer);
 
 	static void SubmitMesh(Mesh& mesh, glm::mat4 transform, int entity = -1);
 	static void SubmitModel(Model& model, glm::mat4 transform, int entity = -1);
 
+	static uint32_t GetDepthMapDBG();
 
 	static void SubmitLight(AmbientLight& light);
 

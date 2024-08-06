@@ -48,20 +48,7 @@ void Mesh::Render(PerspectiveCamera& camera, glm::mat4 transform, int entity)
 		m_Vertices[i].EntityID = entity;*/
 
 	camera.UpdateView();
-
-	m_Material->GetShader()->Bind();
-
-	m_Material->GetShader()->SetMatrix4f("u_ViewProjection", camera.GetViewProjection());
-
-	m_Material->GetShader()->SetMatrix4f("u_Transform", transform);
-
 	m_VertexBuffer->SetData(m_Vertices.data(), static_cast<uint32_t>(m_Vertices.size() * sizeof(Vertex)));
-
-	if (m_Material->GetTexture())
-	{
-		m_Material->GetTexture()->Bind(0);
-	}
-
 
 	m_VertexArray->Bind();
 	m_IndexBuffer->Bind();

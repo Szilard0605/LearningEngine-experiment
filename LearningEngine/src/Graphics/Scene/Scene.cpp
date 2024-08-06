@@ -153,7 +153,7 @@ void Scene::OnPhysicsContact(PhysicsContactEvent& event)
 	LuaScriptEngine::OnPhysicsContact(entity0, entity1);
 }
 
-void Scene::Render(PerspectiveCamera* camera)
+void Scene::Render(Framebuffer* FrameBuffer, PerspectiveCamera* camera)
 {
 	PerspectiveCamera* mainCamera = camera;
 
@@ -253,7 +253,7 @@ void Scene::Render(PerspectiveCamera* camera)
 	}
 
 	ForwardRenderer::EndScene();
-	ForwardRenderer::Present();
+	ForwardRenderer::Present(FrameBuffer);
 
 	
 }
