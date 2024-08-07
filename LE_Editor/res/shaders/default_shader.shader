@@ -9,6 +9,7 @@ layout(location = 4) in vec2 a_texcoords;
 layout(location = 5) in int  a_entity;
 
 uniform mat4 u_ViewProjection;
+uniform mat4 u_LightSpaceMatrix;
 uniform mat4 u_Transform;
 
 struct FragmentData
@@ -18,6 +19,7 @@ struct FragmentData
 	vec3 Tangent;
 	vec3 Bitangent;
 	vec2 TexCoords;
+    vec4 LightSpaceFragPos;
 };
 
 layout(location = 0) out FragmentData fragmentdata;
@@ -33,7 +35,8 @@ void main()
     fragmentdata.Bitangent = normalize(vec3(u_Transform * vec4(a_bitangent, 1.0)));
 	mat3 normalMatrix = mat3(transpose(inverse(u_Transform)));
     fragmentdata.Normal    = normalize(vec3(normalMatrix * a_normal));
-    
+    fragmentdata.LightSpaceFragPos = u_LightSpaceMatrix * vec4(fragmentdata.Position, 1.0);
+
     o_Entity = a_entity;
 	
 };
@@ -51,6 +54,7 @@ struct FragmentData
 	vec3 Tangent;
 	vec3 Bitangent;
 	vec2 TexCoords;
+    vec4 LightSpaceFragPos;
 };
 
 layout(location = 0) in FragmentData fragmentdata;
@@ -58,10 +62,15 @@ layout(location = 14) in flat int in_Entity;
 
 
 layout(binding = 0) uniform sampler2D u_Texture;
+layout(binding = 1) uniform sampler2D u_DepthMap;
+//uniform sampler2D u_DepthMap;
+//uniform sampler2D u_LightSpaceMatrix;
 
 #define GAMMA 2.2
 
 #define MAX_LIGHTS 100
+
+
 
 struct Light
 {
@@ -69,7 +78,6 @@ struct Light
     vec4 Position;
     vec4 Direction;
 };
-
 
 //uniform PointLight u_PointLights[MAX_POINT_LIGHTS];
 
@@ -93,17 +101,33 @@ vec3 FinalGamma(vec3 color)
 	return pow(color, vec3(1.0 / GAMMA));
 }
 
+float ShadowCalculation(vec4 fragPosLightSpace) 
+{
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    projCoords = projCoords * 0.5 + 0.5;
+    float closestDepth = texture(u_DepthMap, projCoords.xy).r;
+    float currentDepth = projCoords.z;
+    float bias = 0.005;
+    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+    return shadow;
+}
+
 vec3 CalculatePointLight(Light light, vec3 Position, vec3 Normal)
 {
+    const float constantAtt = 0;
+    const float linearAtt = 0.1;
+    const float quadraticAtt = 0.1;
+
     // Normalize the normal vector (already normalized in vertex shader, but redundant normalization here)
     vec3 norm = normalize(Normal);
-
     // Calculate the direction to the light source
     vec3 lightDir = normalize(light.Position.xyz - Position);
-    
+    float distance = length(lightDir);
+    float attenuation = 1.0 / (constantAtt + linearAtt + distance + quadraticAtt * distance * distance);
+
     // Calculate the diffuse component
     float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = diff * light.Color.rgb;
+    vec3 diffuse = diff * light.Color.rgb * attenuation;
 
     // Calculate the view direction
     vec3 viewDir = normalize(u_CameraPosition.xyz - Position);
@@ -132,8 +156,10 @@ vec3 CalculateDirectionalLight(Light light, vec3 Normal)
 	vec3 halfwayDir = normalize(lightDir + viewDir);
 	float spec = pow(max(dot(Normal, halfwayDir), 0.0), light.Direction.a);
 	vec3 specular = light.Color.xyz * spec;
+
+    float shadow = ShadowCalculation(fragmentdata.LightSpaceFragPos);
 	
-    return (diffuse + specular) * light.Color.a;
+    return (1.0 - shadow) * (diffuse + light.Color.a + specular);
 }
 
 void main()
@@ -163,7 +189,9 @@ void main()
     float ambientIntensity = u_AmbientLight.a;
     vec3 ambientLight = u_AmbientLight.rgb * ambientIntensity;
     
-	outColor = vec4(tex.xyz * ambientLight + totalDiffuse, 1.0);
+    vec3 lighting = ambientLight + totalDiffuse;
+
+	outColor = vec4(tex.xyz  * lighting, 1.0);
     //outColor = vec4(FinalGamma(tex.xyz * ambientLight + totalDiffuse), 1.0);
-	//outColor = texture(u_DepthMap, fragmentdata.TexCoords);
+	//outColor = texture(u_DepthMap, projCoords.xy);
 }
