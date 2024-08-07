@@ -32,6 +32,8 @@ public:
 	static void SubmitMesh(Mesh& mesh, glm::mat4 transform, int entity = -1);
 	static void SubmitModel(Model& model, glm::mat4 transform, int entity = -1);
 
+	static void DBGOrtho(float nearPlane, float farPlane, float left = -10.0f, float right = 10.0f, float bottom = -10.0f, float top = 10.0f);
+
 	static uint32_t GetDepthMapDBG();
 
 	static void SubmitLight(AmbientLight& light);

@@ -247,8 +247,43 @@ void EditorLayer::OnImGuiRender()
 
 	// debug
 	ImGui::Begin("DepthMap");
-	ImGui::Image((ImTextureID)ForwardRenderer::GetDepthMapDBG(), {1024, 1024});
+	ImVec2 originalSize = ImVec2(1024, 1024);
+
+	// Desired width (for example, 512)
+	float desiredWidth = 512.0f;
+
+	// Calculate the corresponding height to maintain aspect ratio
+	float aspectRatio = originalSize.y / originalSize.x;
+	float desiredHeight = desiredWidth * aspectRatio;
+
+	// Set the display size while maintaining aspect ratio
+	ImVec2 displaySize = ImVec2(desiredWidth, desiredHeight);
+
+	// Display the downsized depth map
+	ImGui::Begin("DepthMap");
+	ImGui::Image((ImTextureID)ForwardRenderer::GetDepthMapDBG(), displaySize, ImVec2(0, 1), ImVec2(1, 0));
 	ImGui::End();
+	ImGui::End();
+	//
+
+		// debug
+	// Set the orthographic projection matrix
+	static float nearPlane = 0.1f;
+	static float farPlane = 70.0f;
+	static float left = -10.0f; // Adjust based on your scene
+	static float right = 10.0f;
+	static float bottom = -10.0f;
+	static float top = 10.0f;
+	ImGui::Begin("DepthMapOrtho");
+	ImGui::DragFloat("nearPlane", &nearPlane);
+	ImGui::DragFloat("farPlane", &farPlane);
+	ImGui::DragFloat("left", &left);
+	ImGui::DragFloat("right", &right);
+	ImGui::DragFloat("top", &top);  
+	ImGui::DragFloat("bottom", &bottom);
+	ImGui::End();
+
+	ForwardRenderer::DBGOrtho(nearPlane,farPlane, left, right, bottom, top);
 	//
 	
 	// Tool bar
