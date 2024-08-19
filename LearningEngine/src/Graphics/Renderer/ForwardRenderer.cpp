@@ -70,9 +70,9 @@ void ForwardRenderer::Init(RendererAPI* rendererapi)
 
 
 	FramebufferSpecifications depthFBSpecs;
-	depthFBSpecs.Attachments = { FramebufferAttachment::RGBA8, FramebufferAttachment::Depth };
-	depthFBSpecs.Width = 1024;
-	depthFBSpecs.Height = 1024;
+	depthFBSpecs.Attachments = { FramebufferAttachment::Depth };
+	depthFBSpecs.Width = 2048;
+	depthFBSpecs.Height = 2048;
 	s_RenderData.DepthMapFB = Framebuffer::Create(depthFBSpecs);
 
 	s_RenderData.DepthMapShader = Shader::Create("res/shaders/depthmap.shader");
@@ -102,12 +102,13 @@ void ForwardRenderer::EndScene()
 
 // Set the orthographic projection matrix
 static float s_nearPlane = 0.1f;
-static float s_farPlane = 70.0f;
+static float s_farPlane = 20.0f;
 static float s_left = -10.0f; // Adjust based on your scene
 static float s_right = 10.0f;
 static float s_bottom = -10.0f;
 static float s_top = 10.0f;
-
+static float s_lightDist = 10.0f;
+static float s_sceneSize = 10.0f;
 
 void ForwardRenderer::Present(Framebuffer* FrameBuffer)
 {
@@ -124,27 +125,28 @@ void ForwardRenderer::Present(Framebuffer* FrameBuffer)
 		if (s_RenderData.LightData.Lights[i].Position.w == 1)
 		{
 			glm::vec3 lightDirection = glm::normalize(glm::vec3(light.Direction)); // Light's direction (normalized)
-			glm::vec3 lightPosition = -lightDirection * 10.0f; // Place light far away from origin
+			glm::vec3 lightPosition = -lightDirection * s_lightDist; // Place light far away from origin
 			glm::vec3 lightTarget = lightPosition + lightDirection; // The target is the origin or the center of the scene
-			glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f); // Up vector, usually the y-axis
-			glm::mat4 lightView = glm::lookAt(lightPosition, lightTarget, upVector);
+			//glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f); // Up vector, usually the y-axis
+			glm::vec3 upVector = abs(lightDirection.y) > 0.9f ? glm::vec3(0.0f, 0.0f, 1.0f) : glm::vec3(0.0f, 1.0f, 0.0f);
+			glm::mat4 lightView = glm::lookAt(lightPosition, glm::vec3(0.0f), upVector);
 			
 
-			glm::mat4 lightProjection = glm::ortho(s_left, s_right, s_bottom, s_top, s_nearPlane, s_farPlane);
-
+			glm::mat4 lightProjection = glm::ortho(-s_sceneSize, s_sceneSize, -s_sceneSize, s_sceneSize, s_nearPlane, s_farPlane);
 			lightSpaceMatrix = lightProjection * lightView;
 
 			// Send lightSpaceMatrix to the shader
 			s_RenderData.DepthMapShader->Bind();
 
 			RendererAPI* api = Application::GetInstance()->GetRenderer();
+			api->SetViewportSize(2048, 2048);
 			s_RenderData.DepthMapFB->Bind();
-			api->SetViewportSize(1024, 1024);
-			s_RenderData.DepthMapShader->SetMatrix4f("u_LightSpaceMatrix", lightSpaceMatrix);
 			api->ClearDepthBuffer();
 			for (int i = 0; i < s_RenderData.meshes.size(); i++)
 			{
-				s_RenderData.DepthMapShader->SetMatrix4f("u_Model", s_RenderData.meshes[i].transform);
+
+				s_RenderData.DepthMapShader->SetMatrix4f("u_LightSpaceMatrix", lightSpaceMatrix * s_RenderData.meshes[i].transform);
+				//s_RenderData.DepthMapShader->SetMatrix4f("u_Model", s_RenderData.meshes[i].transform);
 				s_RenderStats.DrawCalls++;
 				s_RenderData.meshes[i].mesh.Render(s_RenderData.camera, s_RenderData.meshes[i].transform, s_RenderData.meshes[i].EntityID);
 				
@@ -164,16 +166,17 @@ void ForwardRenderer::Present(Framebuffer* FrameBuffer)
 
 	glBindTextureUnit(1, s_RenderData.DepthMapFB->GetDepthAttachmentID());
 	s_RenderData.shader->SetInt("u_DepthMap", 1);
-	s_RenderData.shader->SetMatrix4f("u_LightSpaceMatrix", lightSpaceMatrix);
+	
 	FrameBuffer->Bind();
 	api->Clear({ 0.5, 0.5, 0.5, 1 });
 	api->ClearDepthBuffer();
+	
 	for (int i = 0; i < s_RenderData.meshes.size(); i++)
 	{
 		s_RenderStats.DrawCalls++;
 		s_RenderData.meshes[i].mesh.GetMaterial()->GetShader()->SetMatrix4f("u_ViewProjection", s_RenderData.camera.GetViewProjection());
 		s_RenderData.meshes[i].mesh.GetMaterial()->GetShader()->SetMatrix4f("u_Transform", s_RenderData.meshes[i].transform);
-		
+		s_RenderData.meshes[i].mesh.GetMaterial()->GetShader()->SetMatrix4f("u_LightSpaceMatrix", lightSpaceMatrix * s_RenderData.meshes[i].transform);
 		if (s_RenderData.meshes[i].mesh.GetMaterial()->GetTexture())
 		{
 			s_RenderData.meshes[i].mesh.GetMaterial()->GetTexture()->Bind(0);
@@ -210,7 +213,7 @@ void ForwardRenderer::SubmitModel(Model& model, glm::mat4 transform, int entity)
 	}
 }
 
-void ForwardRenderer::DBGOrtho(float nearPlane, float farPlane, float left, float right, float bottom, float top)
+void ForwardRenderer::DBGOrtho(float nearPlane, float farPlane, float left, float right, float bottom, float top, float lightDist, float sceneSize)
 {
 	s_nearPlane = nearPlane;
 	s_farPlane = farPlane;
@@ -218,6 +221,8 @@ void ForwardRenderer::DBGOrtho(float nearPlane, float farPlane, float left, floa
 	s_right = right;
 	s_bottom = bottom;
 	s_top = top;
+	s_lightDist = lightDist;
+	s_sceneSize = sceneSize;
 }
 
 uint32_t ForwardRenderer::GetDepthMapDBG()

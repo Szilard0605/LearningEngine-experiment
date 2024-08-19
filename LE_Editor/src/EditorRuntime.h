@@ -11,7 +11,7 @@ public:
 	void Start(Scene* scene);
 	void Stop();
 	void Update(Timestep timeStep);
-
+	void Render(Framebuffer* frameBuffer);
 	Scene* GetScene() { return m_Scene; }
 
 private:

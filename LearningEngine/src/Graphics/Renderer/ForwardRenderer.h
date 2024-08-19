@@ -32,7 +32,7 @@ public:
 	static void SubmitMesh(Mesh& mesh, glm::mat4 transform, int entity = -1);
 	static void SubmitModel(Model& model, glm::mat4 transform, int entity = -1);
 
-	static void DBGOrtho(float nearPlane, float farPlane, float left = -10.0f, float right = 10.0f, float bottom = -10.0f, float top = 10.0f);
+	static void DBGOrtho(float nearPlane, float farPlane, float left = -10.0f, float right = 10.0f, float bottom = -10.0f, float top = 10.0f, float lightDist = 124.0f, float sceneSize = 10.f);
 
 	static uint32_t GetDepthMapDBG();
 

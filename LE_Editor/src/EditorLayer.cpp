@@ -269,11 +269,13 @@ void EditorLayer::OnImGuiRender()
 		// debug
 	// Set the orthographic projection matrix
 	static float nearPlane = 0.1f;
-	static float farPlane = 70.0f;
+	static float farPlane = 20.0f;
 	static float left = -10.0f; // Adjust based on your scene
 	static float right = 10.0f;
 	static float bottom = -10.0f;
 	static float top = 10.0f;
+	static float lightDist = 10.0f;
+	static float sceneSize = 10.0f;
 	ImGui::Begin("DepthMapOrtho");
 	ImGui::DragFloat("nearPlane", &nearPlane);
 	ImGui::DragFloat("farPlane", &farPlane);
@@ -281,9 +283,11 @@ void EditorLayer::OnImGuiRender()
 	ImGui::DragFloat("right", &right);
 	ImGui::DragFloat("top", &top);  
 	ImGui::DragFloat("bottom", &bottom);
+	ImGui::DragFloat("lightDist", &lightDist);
+	ImGui::DragFloat("sceneSize", &sceneSize);
 	ImGui::End();
 
-	ForwardRenderer::DBGOrtho(nearPlane,farPlane, left, right, bottom, top);
+	ForwardRenderer::DBGOrtho(nearPlane,farPlane, left, right, bottom, top, lightDist, sceneSize);
 	//
 	
 	// Tool bar
@@ -524,6 +528,7 @@ void EditorLayer::OnUpdate(Timestep timestep)
 	if (m_PressedPlay)
 	{
 		m_Runtime.Update(timestep);
+		m_Runtime.Render(m_Framebuffer);
 	}
 	else
 	{
