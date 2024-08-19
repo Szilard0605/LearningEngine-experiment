@@ -164,7 +164,7 @@ void ForwardRenderer::Present(Framebuffer* FrameBuffer)
 	s_RenderData.shader->Bind();
 	//s_RenderData.shader->SetMatrix4f("u_LightSpaceMatrix", lightSpaceMatrix);
 
-	glBindTextureUnit(1, s_RenderData.DepthMapFB->GetDepthAttachmentID());
+	s_RenderData.DepthMapFB->BindDepthTexture(1);
 	s_RenderData.shader->SetInt("u_DepthMap", 1);
 	
 	FrameBuffer->Bind();
@@ -248,7 +248,7 @@ void ForwardRenderer::SubmitLight(DirectionalLight& light)
 	LightData dlData;
 	dlData.Position.w = 1.0f;
 	dlData.Direction  = glm::vec4(light.Direction, light.SpecularPower);
-	dlData.Color      = glm::vec4(light.Color, light.Intensity);
+	dlData.Color = glm::vec4(light.Color, light.Intensity);
 	s_RenderData.LightData.Lights.push_back(dlData);
 
 	s_RenderData.DataBuffer.NumLights++;

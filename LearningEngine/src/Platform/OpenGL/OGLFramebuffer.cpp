@@ -201,3 +201,8 @@ int OGLFramebuffer::ReadPixel(uint32_t attachment, int x, int y)
 	glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_INT, &pixelData);
 	return pixelData;
 }
+
+void OGLFramebuffer::BindDepthTexture(uint32_t slot)
+{
+	glBindTextureUnit(slot, m_DepthAttachment);
+}

@@ -19,6 +19,7 @@ public:
 	virtual uint32_t GetColorAttachmentID(uint32_t slot) override;
 	virtual uint32_t GetDepthAttachmentID() override;
 	virtual int ReadPixel(uint32_t attachment, int x, int y) override;
+	virtual void BindDepthTexture(uint32_t slot = 0) override;
 
 	void AttachColorTexture(uint32_t& id, int samples, uint32_t internalFormat, uint32_t format, uint32_t width, uint32_t height, int index);
 	void AttachDepthTexture(int samples, uint32_t format, uint32_t attachmentType, uint32_t width, uint32_t height);

@@ -89,7 +89,6 @@ void SceneSerializer::Serialize(Scene* scene, std::string filepath)
         {
             s_JSON[enttID][dlc->ID]["Color"] = { dlc->Color.x, dlc->Color.y, dlc->Color.z };
             s_JSON[enttID][dlc->ID]["Intensity"] = dlc->Intensity;
-            s_JSON[enttID][dlc->ID]["Direction"] = { dlc->Direction.x,  dlc->Direction.y, dlc->Direction.z };
             s_JSON[enttID][dlc->ID]["SpecularPower"] = dlc->SpecularPower;
         }
 
@@ -244,7 +243,6 @@ Scene* SceneSerializer::Load(const std::filesystem::path path)
             for (int i = 0; i < 3; i++)
             {
                 dlc.Color[i] = entry.value()[dlc.ID]["Color"][i];
-                dlc.Direction[i] = entry.value()[dlc.ID]["Direction"][i];
             }
             dlc.Intensity = entry.value()[dlc.ID]["Intensity"];
             dlc.SpecularPower = entry.value()[dlc.ID]["SpecularPower"];

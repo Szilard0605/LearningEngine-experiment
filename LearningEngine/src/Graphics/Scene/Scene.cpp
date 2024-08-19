@@ -232,7 +232,7 @@ void Scene::Render(Framebuffer* FrameBuffer, PerspectiveCamera* camera)
 		{
 			auto [tc, dlc] = view.get<TransformComponent, DirectionalLightComponent>(entity);
 
-			ForwardRenderer::SubmitLight(DirectionalLight{dlc.Color, dlc.Intensity, dlc.SpecularPower, dlc.Direction});
+			ForwardRenderer::SubmitLight(DirectionalLight{dlc.Color, dlc.Intensity, dlc.SpecularPower, tc.Transform.Rotation});
 		
 		}
 	}

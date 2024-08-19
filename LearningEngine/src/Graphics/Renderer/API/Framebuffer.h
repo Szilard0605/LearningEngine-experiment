@@ -40,5 +40,6 @@ public:
 	virtual uint32_t GetDepthAttachmentID() = 0;
 	virtual FramebufferSpecifications& GetSpecification() = 0;
 	virtual int ReadPixel(uint32_t attachment, int x, int y) = 0;
+	virtual void BindDepthTexture(uint32_t slot = 0) = 0;
 };
 
