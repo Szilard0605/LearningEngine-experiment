@@ -13,6 +13,8 @@
 
 struct HierarchyComponent
 {
+	const char* ID = "HierarchyComponent";
+
 	entt::entity Parent = entt::null;
 	std::vector<entt::entity> Children;
 };
@@ -118,7 +120,8 @@ struct LuaScriptComponent : public BaseComponent
 {
 	const char* ID = "LuaScriptComponent";
 
-	char* sourcePath = "-";
+	//char* sourcePath = "-";
+	std::string SourcePath;
 };
 
 template <typename... Component>
@@ -131,4 +134,4 @@ using EveryComponent = Components<TransformComponent, TagComponent, HierarchyCom
 								  PerspectiveCameraComponent, StaticModelComponent, 
 								  RigidbodyComponent, BoxColliderComponent, SphereColliderComponent,
 	                              PointLightComponent, DirectionalLightComponent,
-								  LuaScriptComponent>;
+								  LuaScriptComponent, HierarchyComponent>;

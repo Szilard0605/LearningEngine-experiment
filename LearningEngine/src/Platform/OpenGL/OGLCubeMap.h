@@ -11,7 +11,7 @@ public:
 
 	virtual void SetFaceImage(CubeMapFace face, Image& image) override;
 	//virtual Image GetFaceImage(CubeMapFace face) override;
-	virtual void Bind() override;
+	virtual void Bind(uint32_t slot = 0) override;
 	virtual void Unbind() override;
 
 	void LoadCubeMapFaceLayout(Image& image, CubeMapLayout layout);

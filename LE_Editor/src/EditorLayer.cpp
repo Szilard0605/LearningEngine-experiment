@@ -269,12 +269,12 @@ void EditorLayer::OnImGuiRender()
 		// debug
 	// Set the orthographic projection matrix
 	static float nearPlane = 0.1f;
-	static float farPlane = 20.0f;
+	static float farPlane = 1000.0f;
 	static float left = -10.0f; // Adjust based on your scene
 	static float right = 10.0f;
 	static float bottom = -10.0f;
 	static float top = 10.0f;
-	static float lightDist = 10.0f;
+	static float lightDist = 64.0f;
 	static float sceneSize = 10.0f;
 	ImGui::Begin("DepthMapOrtho");
 	ImGui::DragFloat("nearPlane", &nearPlane);
@@ -313,6 +313,9 @@ void EditorLayer::OnImGuiRender()
 			{
 				m_Runtime.Start(m_Scene);
 				m_EntitiesPanel.SetScene(m_Runtime.GetScene());
+
+				// fix for the wrong aspect ratio of the main scene camera
+				m_Scene->OnViewportResize(s_MainViewportSize.x, s_MainViewportSize.y);
 			}
 			else
 			{

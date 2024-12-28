@@ -74,12 +74,20 @@ void BulletWorld::StepSimulation(float timeStep)
 		btRigidBody* btRigidBody = rigidBody.GetBulletRigidbody();
 		Entity entity((entt::entity)rigidBody.GetData()->EntityID, rigidBody.GetData()->Scene);
 
+		Math::Transform transform;
+
 		btTransform& simTransform = btRigidBody->getWorldTransform();
-		entity.SetPosition({ simTransform.getOrigin().x(), simTransform.getOrigin().y(), simTransform.getOrigin().z() });
+		//entity.SetPosition({ simTransform.getOrigin().x(), simTransform.getOrigin().y(), simTransform.getOrigin().z() });
+		transform.Position = { simTransform.getOrigin().x(), simTransform.getOrigin().y(), simTransform.getOrigin().z() };
 
 		float yaw, pitch, roll;
 		simTransform.getBasis().getEulerZYX(yaw, pitch, roll);
-		entity.SetRotation({ roll, pitch, yaw });
+		//entity.SetRotation({ roll, pitch, yaw });
+		transform.Rotation = { roll, pitch, yaw };
+		transform.Scale = entity.GetTransform().Scale;
+
+		entity.SetTransform(transform);
+		
 
 		RigidbodyComponent& rc = entity.GetComponent<RigidbodyComponent>();
 		btRigidBody->setMassProps(rc.Mass, btRigidBody->getLocalInertia());

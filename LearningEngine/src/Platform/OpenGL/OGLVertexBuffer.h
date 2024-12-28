@@ -9,7 +9,7 @@ class OGLVertexBuffer : public VertexBuffer
 {
 	public:
 		OGLVertexBuffer() = default;
-		OGLVertexBuffer(const void* verticies, uint32_t size);
+		OGLVertexBuffer(const void* vertices, uint32_t size);
 		OGLVertexBuffer(uint32_t size);
 		~OGLVertexBuffer();
 
@@ -22,6 +22,8 @@ class OGLVertexBuffer : public VertexBuffer
 
 	private:
 		uint32_t m_buffer = 0;
+		void* m_Data;
+		uint32_t m_Size;
 		BufferLayout m_layout;
 };
 

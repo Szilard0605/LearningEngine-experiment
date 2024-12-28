@@ -166,6 +166,9 @@ void Scene::Render(Framebuffer* FrameBuffer, PerspectiveCamera* camera)
 
 			camera.Camera->Translate(transform.Transform.Position);
 			
+			camera.Camera->SetYaw(transform.Transform.Rotation.x);
+			camera.Camera->SetPitch(transform.Transform.Rotation.y);
+
 			if (camera.MainCamera)
 			{
 				mainCamera = camera.Camera;

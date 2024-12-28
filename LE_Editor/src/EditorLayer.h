@@ -44,7 +44,6 @@ private:
 
 	static glm::vec2 s_MainViewportSize;
 	glm::vec2 m_ViewportBounds[2];
-
 	glm::vec2 LastMousePos = {-1, -1};
 
 	entt::entity m_HoveredEntity;

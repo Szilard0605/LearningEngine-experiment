@@ -1,24 +1,20 @@
 
 #include "SceneSerializer.h"
-
-#include "json.hpp"
-#include <iostream>
-
+#include "Log/Log.h"
 #include "Entity.h"
 #include "Components.h"
-
-#include <fstream>
-
-#include <Log/Log.h>
+#include "Utils/JSONHelper.h"
 
 #include "gtc/type_ptr.hpp"
+#include "json.hpp"
+#include <iostream>
+#include <fstream>
 
 using json = nlohmann::json;
 static json s_JSON;
 
 void SceneSerializer::Serialize(Scene* scene, std::string filepath)
 {
-
     s_JSON = nullptr;
 
     AmbientLight& ambientLight = scene->GetAmbientLight();
@@ -34,6 +30,13 @@ void SceneSerializer::Serialize(Scene* scene, std::string filepath)
         s_JSON[enttID] = json::object();
         s_JSON[enttID]["Name"] = entityName;
         s_JSON[enttID]["ID"] = tag.ID;
+
+        HierarchyComponent* hc = scene->Registry.try_get<HierarchyComponent>(entityID);
+        if (hc)
+        {
+            LE_CORE_INFO("%d parent: %d", entityID, hc->Parent);
+            s_JSON[enttID][hc->ID]["Parent"] = (int)hc->Parent;
+        }
 
         TransformComponent* tc = scene->Registry.try_get<TransformComponent>(entityID);
         if (tc)
@@ -65,7 +68,7 @@ void SceneSerializer::Serialize(Scene* scene, std::string filepath)
             s_JSON[enttID][pcc->ID]["Yaw"] = pcc->Yaw;
             s_JSON[enttID][pcc->ID]["FOV"] = pcc->FOV;
             s_JSON[enttID][pcc->ID]["AspectRatio"] = pcc->AspectRatio;
-            s_JSON[enttID][pcc->ID]["FixedAspectRatio"] = pcc->AspectRatio;
+            s_JSON[enttID][pcc->ID]["FixedAspectRatio"] = pcc->FixedAspectRatio;
             s_JSON[enttID][pcc->ID]["NearClip"] = pcc->NearClip;
             s_JSON[enttID][pcc->ID]["FarClip"] = pcc->FarClip;
         }
@@ -115,7 +118,7 @@ void SceneSerializer::Serialize(Scene* scene, std::string filepath)
         LuaScriptComponent* lsc = scene->Registry.try_get<LuaScriptComponent>(entityID);
         if (lsc)
         {
-            s_JSON[enttID][lsc->ID]["SourcePath"] = lsc->sourcePath;
+            s_JSON[enttID][lsc->ID]["SourcePath"] = lsc->SourcePath;
         }
     });
 
@@ -141,70 +144,72 @@ Scene* SceneSerializer::Load(const std::filesystem::path path)
     {
         AmbientLight ambientLight;
         
-        for (int i = 0; i < 3; i++)
-            ambientLight.Color[i] = s_JSON.at("AmbientLight")["Color"][i];
+        const auto& alData = JSONHelper::GetObject(s_JSON, "AmbientLight");
 
-        ambientLight.Intensity = s_JSON.at("AmbientLight")["Intensity"];
+        ambientLight.Color = JSONHelper::ReadVec3(alData, "Color");
+        ambientLight.Intensity = JSONHelper::ReadAs<float>(alData, "Intensity");
 
         scene->SetAmbientLight(ambientLight);
     }
 
-    for (const auto& entry : s_JSON.items()) 
+    for (const auto& it : s_JSON.items()) 
     {
-     
         Entity entity;
 
-        if (entry.value().contains("Name") && entry.value().contains("ID"))
+        json entry = it.value();
+
+        if (entry.contains("Name") && entry.contains("ID"))
         {
-            entity = scene->NewEntity(entry.value()["Name"]);
+            entity = scene->NewEntity(entry["Name"]);
             TagComponent tag = entity.GetComponent<TagComponent>();
-            tag.Tag = entry.value()["Name"];
-            tag.ID = entry.value()["ID"];
+            tag.Tag = JSONHelper::ReadAs<std::string>(entry, "Name");
+            tag.ID  = JSONHelper::ReadAs<int>(entry, "ID");
         }
 
-        if (entry.value().contains("TransformComponent"))
+        if (entry.contains("HierarchyComponent"))
+        {
+            HierarchyComponent hc;
+            hc.Parent = (entt::entity)entry[hc.ID]["Parent"];
+            entity.AddOrReplaceComponent<HierarchyComponent>(hc);
+        }
+
+        if (entry.contains("TransformComponent"))
         {
 			TransformComponent tc;
 
-            for (int i = 0; i < 3; i++)
-            {
-				tc.Transform.Position[i] = (float)entry.value()[tc.ID]["Position"][i];
-				tc.Transform.Rotation[i] = (float)entry.value()[tc.ID]["Rotation"][i];
-				tc.Transform.Scale[i]     = (float)entry.value()[tc.ID]["Scale"][i];
-			}
-			
+            const auto& tcData = JSONHelper::GetObject(entry, "TransformComponent");
+            tc.Transform.Position = JSONHelper::ReadVec3(tcData, "Position");
+            tc.Transform.Rotation = JSONHelper::ReadVec3(tcData, "Rotation");
+            tc.Transform.Scale = JSONHelper::ReadVec3(tcData, "Scale");
+
 			entity.AddOrReplaceComponent<TransformComponent>(tc);
 		}
 
-        if (entry.value().contains("QuadRendererComponent")) 
+        if (entry.contains("QuadRendererComponent")) 
         {
             QuadRendererComponent qrc;           
 
-            for (int i = 0; i < 4; i++)
-                qrc.Color[i] = (float)entry.value()[qrc.ID]["Color"][i];
-
+            const auto& tcData = JSONHelper::GetObject(entry, "QuadRendererComponent");
+            qrc.Color = JSONHelper::ReadVec4(tcData, "Color");
+      
             entity.AddOrReplaceComponent<QuadRendererComponent>(qrc);
         }
 
-        if (entry.value().contains("PerspectiveCameraComponent"))
+        if (entry.contains("PerspectiveCameraComponent"))
         {
             PerspectiveCameraComponent pcc;
+            const auto& pccData = JSONHelper::GetObject(entry, "PerspectiveCameraComponent");
 
-            pcc.MainCamera = entry.value()[pcc.ID]["MainCamera"];
-
-            for (int i = 0; i < 3; i++)
-                pcc.FocalPoint[i] = entry.value()[pcc.ID]["FocalPoint"][i];
-
-            pcc.Distance = entry.value()[pcc.ID]["Distance"];
-            pcc.Pitch = entry.value()[pcc.ID]["Pitch"];
-            pcc.Yaw = entry.value()[pcc.ID]["Yaw"];
-            pcc.FOV = entry.value()[pcc.ID]["FOV"];
-            pcc.AspectRatio = entry.value()[pcc.ID]["AspectRatio"];
-            pcc.FixedAspectRatio = (float)entry.value()[pcc.ID]["FixedAspectRatio"];
-            pcc.NearClip = entry.value()[pcc.ID]["NearClip"];
-            pcc.FarClip = entry.value()[pcc.ID]["FarClip"];
-            pcc.MainCamera = entry.value()[pcc.ID]["MainCamera"];
-
+            pcc.FocalPoint = JSONHelper::ReadVec3(pccData, "FocalPoint");
+            pcc.MainCamera = JSONHelper::ReadAs<bool>(pccData, "MainCamera");
+            pcc.Pitch = JSONHelper::ReadAs<float>(pccData, "Pitch");
+            pcc.Yaw = JSONHelper::ReadAs<float>(pccData, "Yaw");
+            pcc.FOV = JSONHelper::ReadAs<float>(pccData, "FOV");
+            pcc.AspectRatio = JSONHelper::ReadAs<float>(pccData, "AspectRatio");
+            pcc.FixedAspectRatio = JSONHelper::ReadAs<bool>(pccData,  "FixedAspectRatio");
+            pcc.NearClip = JSONHelper::ReadAs<float>(pccData, "NearClip");
+            pcc.FarClip = JSONHelper::ReadAs<float>(pccData, "FarClip");
+           
             pcc.Camera = new PerspectiveCamera(pcc.FOV, pcc.AspectRatio, pcc.NearClip, pcc.FarClip);
 
             pcc.Camera->SetPitch(pcc.Pitch);
@@ -213,83 +218,98 @@ Scene* SceneSerializer::Load(const std::filesystem::path path)
             entity.AddOrReplaceComponent<PerspectiveCameraComponent>(pcc);
         }
 
-        if (entry.value().contains("StaticModelComponent"))
+        if (entry.contains("StaticModelComponent"))
         {
             StaticModelComponent smc;
 
-            std::string path = entry.value()[smc.ID]["SourcePath"];
+            //std::string path = entry[smc.ID]["SourcePath"];
+            const auto& smcData = JSONHelper::GetObject(entry, "StaticModelComponent");
+            std::string path = JSONHelper::ReadAs<std::string>(smcData, "SourcePath");
+
             smc.StaticModel = new Model(path);
-        
             entity.AddOrReplaceComponent<StaticModelComponent>(smc);
         }
 
-        if (entry.value().contains("PointLightComponent"))
+        if (entry.contains("PointLightComponent"))
         {
             PointLightComponent plc;
 
-            for (int i = 0; i < 3; i++)
-                plc.Color[i] = entry.value()[plc.ID]["Color"][i];
-
-            plc.Intensity = entry.value()[plc.ID]["Intensity"];
-            plc.SpecularPower = entry.value()[plc.ID]["SpecularPower"];
+            const auto& plcData = JSONHelper::GetObject(entry, "PointLightComponent");
+            plc.Color = JSONHelper::ReadVec3(plcData, "Color");
+            plc.Intensity = JSONHelper::ReadAs<float>(plcData, "Intensity");
+            plc.SpecularPower = JSONHelper::ReadAs<float>(plcData, "SpecularPower");
 
             entity.AddOrReplaceComponent<PointLightComponent>(plc);
         }
 
-        if (entry.value().contains("DirectionalLightComponent"))
+        if (entry.contains("DirectionalLightComponent"))
         {
             DirectionalLightComponent dlc;
 
-            for (int i = 0; i < 3; i++)
-            {
-                dlc.Color[i] = entry.value()[dlc.ID]["Color"][i];
-            }
-            dlc.Intensity = entry.value()[dlc.ID]["Intensity"];
-            dlc.SpecularPower = entry.value()[dlc.ID]["SpecularPower"];
+            const auto& dlcData = JSONHelper::GetObject(entry, "DirectionalLightComponent");
+
+            dlc.Color = JSONHelper::ReadVec3(dlcData, "Color");
+            dlc.Intensity = JSONHelper::ReadAs<float>(dlcData, "Intensity");
+            dlc.SpecularPower = JSONHelper::ReadAs<float>(dlcData, "SpecularPower");
 
             entity.AddOrReplaceComponent<DirectionalLightComponent>(dlc);
         }
 
-        if (entry.value().contains("RigidbodyComponent"))
+        if (entry.contains("RigidbodyComponent"))
         {
             RigidbodyComponent rc;
 
             TransformComponent& tc = scene->Registry.get<TransformComponent>(entity.GetHandle());
             //rc.Rigidbody = Rigidbody::Create(tc.Transform);
 
-            rc.Mass = entry.value()[rc.ID]["Mass"];
-            rc.LinearDamping = entry.value()[rc.ID]["LinearDamping"];
-            rc.AngularDamping = entry.value()[rc.ID]["AngularDamping"];
+            const auto& rcData = JSONHelper::GetObject(entry, "RigidbodyComponent");
+
+            rc.Mass = JSONHelper::ReadAs<float>(rcData, "Mass");
+            rc.LinearDamping = JSONHelper::ReadAs<float>(rcData, "LinearDamping");
+            rc.AngularDamping = JSONHelper::ReadAs<float>(rcData, "AngularDamping");
 
             entity.AddOrReplaceComponent<RigidbodyComponent>(rc);
         }
 
-        if (entry.value().contains("BoxColliderComponent"))
+        if (entry.contains("BoxColliderComponent"))
         {
             BoxColliderComponent bcc;
-
-            for (int i = 0; i < 3; i++)
-            {
-                bcc.Size[i] = entry.value()[bcc.ID]["Size"][i];
-            }
+            const auto& bccData = JSONHelper::GetObject(entry, "BoxColliderComponent");
+            bcc.Size = JSONHelper::ReadVec3(bccData, "Size");
 
             entity.AddOrReplaceComponent<BoxColliderComponent>(bcc);
         }
 
-        if (entry.value().contains("SphereColliderComponent"))
+        if (entry.contains("SphereColliderComponent"))
         {
             SphereColliderComponent scc;
-            scc.Radius = entry.value()[scc.ID]["Radius"];
+            const auto& sccData = JSONHelper::GetObject(entry, "SphereColliderComponent");
+            scc.Radius = JSONHelper::ReadAs<float>(sccData, "Radius");
+
             entity.AddOrReplaceComponent<SphereColliderComponent>(scc);
         }
 
-        if (entry.value().contains("LuaScriptComponent"))
+        if (entry.contains("LuaScriptComponent"))
         {
             LuaScriptComponent lsc;
-            std::string Path = entry.value()[lsc.ID]["SourcePath"];
-            lsc.sourcePath = new char[Path.length() + 1];
-            strcpy(lsc.sourcePath, Path.c_str());
+            const auto& lscData = JSONHelper::GetObject(entry, "LuaScriptComponent");
+            lsc.SourcePath = JSONHelper::ReadAs<std::string>(lscData, "SourcePath");
             entity.AddOrReplaceComponent<LuaScriptComponent>(lsc);
+        }
+    }
+
+    // Completing entity hieararchy
+
+    auto view = scene->Registry.view<HierarchyComponent>();
+
+    for (auto it = view.begin(); it < view.end(); it++)
+    {
+        Entity entity(view[it.index()], scene);
+        HierarchyComponent& hc = entity.GetComponent<HierarchyComponent>();
+        Entity parent(hc.Parent, scene);
+        if (parent.IsValid())
+        {
+            parent.AddChildren(entity);
         }
     }
 

@@ -53,7 +53,7 @@ void SceneRendererPanel::Render()
 			std::string CubeMapPath;
 			if (Utils::FileDialog::OpenFile("Cube map (*.all)\0*.**\0", CubeMapPath))
 			{
-				//m_Scene->SetSkyboxCubeMap(CubeMapPath, CubeMapLayout::HorizontalCross);
+				ForwardRenderer::SetSkybox(CubeMap::Create(CubeMapPath, CubeMapLayout::HorizontalCross));
 			}
 		}
 	}

@@ -5,6 +5,8 @@
 
 #include "Scene.h"
 
+#include "Log/Log.h"
+
 #include "Components.h"
 
 class Entity
@@ -87,6 +89,12 @@ class Entity
 			return children;
 		}
 
+		void AddChildren(Entity entity)
+		{
+			HierarchyComponent& hc = GetComponent<HierarchyComponent>();
+			hc.Children.push_back(entity.GetHandle());
+		}
+
 		template<typename T, typename... Args>
 		void AddComponent(Args&&... args)
 		{
@@ -140,8 +148,27 @@ class Entity
 
 		void SetTransform(Math::Transform transform)
 		{
+			HierarchyComponent& hc = GetComponent<HierarchyComponent>();
+			for (auto it_child : hc.Children)
+			{
+				Entity child(it_child, m_Scene);
+				if (child.IsValid())
+				{
+					Math::Transform deltaTransform = GetTransform();
+					deltaTransform.Position = transform.Position - deltaTransform.Position;
+					deltaTransform.Rotation = transform.Rotation - deltaTransform.Rotation;
+
+					Math::Transform transform = child.GetTransform();
+					transform.Position += deltaTransform.Position;
+					transform.Rotation += deltaTransform.Rotation;
+
+					child.SetTransform(transform);
+				}
+			}
+
 			TransformComponent& tc = GetComponent<TransformComponent>();
 			tc.Transform = transform;
+
 		}
 
 		Math::Transform GetTransform()

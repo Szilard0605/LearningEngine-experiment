@@ -16,6 +16,12 @@ public:
 		None, D3D11, OpenGL
 	};
 
+	enum class DepthFunc
+	{
+		NEVER, LESS, LEQUAL, EQUAL, 
+		GREATER, NOTEQUAL, GEQUAL, ALWAYS
+	};
+
 	static RendererAPI* Create(WindowsWindow& window);
 
 	virtual RenderContext* GetContext() = 0;
@@ -26,6 +32,7 @@ public:
 	virtual void Present() = 0;
 	virtual void UseDepthTesting(bool enable) = 0;
 	virtual void EnableBlending(bool enable) = 0;
+	virtual void SetDepthFunc(DepthFunc func) = 0;
 	virtual void BindViewport() = 0;
 	virtual void SetViewportSize(int width, int height) = 0;
 	virtual glm::vec2 GetViewportSize() = 0;

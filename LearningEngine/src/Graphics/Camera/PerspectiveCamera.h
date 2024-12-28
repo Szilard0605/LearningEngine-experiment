@@ -1,6 +1,7 @@
 #pragma once
 
 #include "glm.hpp"
+#include "Math/Transform.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "gtx/quaternion.hpp"

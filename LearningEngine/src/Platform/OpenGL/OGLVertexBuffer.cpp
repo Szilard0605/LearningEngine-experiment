@@ -2,16 +2,21 @@
 
 #include <glew.h>
 
-OGLVertexBuffer::OGLVertexBuffer(const void* verticies, uint32_t size)
+OGLVertexBuffer::OGLVertexBuffer(const void* vertices, uint32_t size)
 {
+	//memcpy(m_Data, vertices, size);
+	m_Size = size;
+
 	glCreateBuffers(1, &m_buffer);
 	Bind();
-	glBufferData(GL_ARRAY_BUFFER, size, verticies, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
 }
 
 
 OGLVertexBuffer::OGLVertexBuffer(uint32_t size)
 {
+	m_Size = size;
+
 	glCreateBuffers(1, &m_buffer);
 	Bind();
 	glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);

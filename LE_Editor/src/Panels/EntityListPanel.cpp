@@ -269,8 +269,7 @@ void EntityListPanel::Render()
 			ImGui::DragFloat3("##rotation", glm::value_ptr(degRot), 0.1f, -1000, 1000, "%.2f");
 			tc.Transform.Rotation = glm::radians(degRot);
 			deltaRotation -= tc.Transform.Rotation;
-	
-	
+			
 			glm::vec3 deltaScale = tc.Transform.Scale;
 			ImGui::DragFloat3("##scale", glm::value_ptr(tc.Transform.Scale), 0.1f, -1000, 1000, "%.2f");
 	
@@ -333,7 +332,7 @@ void EntityListPanel::Render()
 	
 			ImGui::Separator();
 	
-			if (ImGui::DragFloat("Distance", &pcc.Distance))
+			/*if (ImGui::DragFloat("Distance", &pcc.Distance))
 				pcc.Camera->SetDistance(pcc.Distance);
 	
 			if (ImGui::DragFloat("Yaw", &pcc.Yaw))
@@ -343,7 +342,8 @@ void EntityListPanel::Render()
 				pcc.Camera->SetPitch(pcc.Pitch);
 	
 			if (ImGui::DragFloat("FOV", &pcc.FOV))
-				pcc.Camera->SetFOV(pcc.FOV);
+				pcc.Camera->SetFOV(pcc.FOV);*/
+
 	
 			ImGui::Separator();
 	
@@ -386,7 +386,7 @@ void EntityListPanel::Render()
 				ModelPath = smc.StaticModel->GetSourceFilePath().string();
 			
 	
-			ImGui::InputText("Source Path", (char*)ModelPath.c_str(), sizeof(ModelPath.c_str()));
+			ImGui::InputText("##ModelSourcePath", (char*)ModelPath.c_str(), sizeof(ModelPath.c_str()));
 		
 			ImGui::SameLine();
 	
@@ -407,8 +407,7 @@ void EntityListPanel::Render()
 		if (ImGui::CollapsingHeader("Lua script Component"))
 		{
 	
-			const char* inputText = strlen(lsc.sourcePath) > 0 ? lsc.sourcePath : "-";
-			ImGui::InputText("Source Path", (char*)inputText, sizeof(inputText));
+			ImGui::InputText("##ScriptSourcePath", (char*)lsc.SourcePath.c_str(), lsc.SourcePath.size() + 1);
 	
 			ImGui::SameLine();
 	
@@ -418,8 +417,7 @@ void EntityListPanel::Render()
 				if (Utils::FileDialog::OpenFile("3D Model (*.lua)\0*.lua\0", sourcePath))
 				{
 					LE_CORE_INFO("Added script: %s", sourcePath.c_str());
-					lsc.sourcePath = new char[sourcePath.length() + 1];
-					strcpy(lsc.sourcePath, sourcePath.c_str());
+					lsc.SourcePath = sourcePath;
 				}
 			}
 		}

@@ -23,8 +23,9 @@ void OGLCubeMap::SetFaceImage(CubeMapFace face, Image& image)
 	//m_FaceMap[face] = image;
 }
 
-void OGLCubeMap::Bind()
+void OGLCubeMap::Bind(uint32_t slot)
 {
+	glActiveTexture(GL_TEXTURE0 + slot);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, m_CubeMap);
 }
 

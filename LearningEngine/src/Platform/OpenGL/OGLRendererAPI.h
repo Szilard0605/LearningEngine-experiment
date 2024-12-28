@@ -23,6 +23,7 @@ public:
 	virtual void Present() override;
 	virtual void UseDepthTesting(bool enable) override;
 	virtual void EnableBlending(bool enable) override;
+	virtual void SetDepthFunc(DepthFunc func) override;
 	virtual void BindViewport() override;
 	virtual void SetViewportSize(int width, int height) override;
 	virtual glm::vec2 GetViewportSize() override;

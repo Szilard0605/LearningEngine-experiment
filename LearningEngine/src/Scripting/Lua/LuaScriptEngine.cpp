@@ -20,15 +20,14 @@ void LuaScriptEngine::InitScene(Scene* scene)
 	for (auto entity : view)
 	{
 		auto& lsc = view.get<LuaScriptComponent>(entity);
-		std::string sourcePath = lsc.sourcePath;
-		if (sourcePath.length())
+		if (lsc.SourcePath.length())
 		{
-			s_ScriptData.m_ScriptInstances.push_back(LuaScriptInstance(entity, scene, sourcePath));
+			s_ScriptData.m_ScriptInstances.push_back(LuaScriptInstance(entity, scene, lsc.SourcePath));
 			LuaScriptInstance& instance = s_ScriptData.m_ScriptInstances.front();
 
 			LuaRegistry::RegisterFunctions(instance.GetState());
 			instance.RegisterEntity();
-			instance.LoadScript(sourcePath);
+			instance.LoadScript(lsc.SourcePath);
 
 			instance.OnCreate();
 		}

@@ -69,6 +69,35 @@ void OGLRendererAPI::EnableBlending(bool enable)
 	}
 }
 
+GLenum DepthFuncToGLenum(RendererAPI::DepthFunc func)
+{
+	switch (func)
+	{
+	case RendererAPI::DepthFunc::NEVER:
+		return GL_NEVER;
+	case RendererAPI::DepthFunc::LESS:
+		return GL_LESS;
+	case RendererAPI::DepthFunc::LEQUAL:
+		return GL_LEQUAL;
+	case RendererAPI::DepthFunc::EQUAL:
+		return GL_EQUAL;
+	case RendererAPI::DepthFunc::GREATER:
+		return GL_GREATER;
+	case RendererAPI::DepthFunc::NOTEQUAL:
+		return GL_NOTEQUAL;
+	case RendererAPI::DepthFunc::GEQUAL:
+		return GL_GEQUAL;
+	case RendererAPI::DepthFunc::ALWAYS:
+		return GL_ALWAYS;
+	}
+	return GL_NEVER;
+}
+
+void OGLRendererAPI::SetDepthFunc(DepthFunc func)
+{
+	glDepthFunc(DepthFuncToGLenum(func));
+}
+
 void OGLRendererAPI::BindViewport()
 {
 }
