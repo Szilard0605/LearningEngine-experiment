@@ -313,7 +313,7 @@ void EditorLayer::OnImGuiRender()
 			{
 				m_Runtime.Start(m_Scene);
 				m_EntitiesPanel.SetScene(m_Runtime.GetScene());
-
+	
 				// fix for the wrong aspect ratio of the main scene camera
 				m_Scene->OnViewportResize(s_MainViewportSize.x, s_MainViewportSize.y);
 			}
@@ -478,12 +478,7 @@ bool EditorLayer::OnKeyChange(KeyEvent& keyevent)
 
 bool EditorLayer::OnMouseButtonChange(MouseButtonEvent& event)
 {
-	if (event.GetButton() == MouseButton::RIGHT_CLICK && event.GetAction() == KeyAction::RELEASED)
-	{
-		LastMousePos = { -1, -1 };
-	}
-		
-	if (event.GetButton() == MouseButton::LEFT_CLICK && event.GetAction() == KeyAction::PRESSED &&
+	if (event.GetButton() == MouseButton::LEFT_CLICK && event.GetAction() == (uint32_t)KeyState::PRESSED &&
 		m_ViewportHovered && !ImGuizmo::IsOver() && !m_OperationIconHovered)
 	{
 		if (m_Scene->Registry.valid(m_HoveredEntity))
@@ -501,24 +496,23 @@ bool EditorLayer::OnMouseButtonChange(MouseButtonEvent& event)
 
 bool EditorLayer::OnMouseMove(MouseMoveEvent& event)
 {
-	//printf("{%f, %f}\n", Input::GetMousePosition().x, Input::GetMousePosition().y);
 	
 	return true;
 }
 
 bool EditorLayer::OnMouseScrolled(MouseScrolledEvent& event)
 {
-	if (event.GetOffset().y > 0 && m_ViewportActive && !Input::IsMouseButtonPressed(MouseButton::RIGHT_CLICK))
+	if (event.GetOffset().y > 0 && m_MovingEditorCamera && !Input::IsMouseButtonPressed(MouseButton::RIGHT_CLICK))
 		m_EditorCamera->Translate(m_EditorCamera->GetPosition() + (0.5f * m_EditorCamera->GetForwardDirection()));
-	else if (event.GetOffset().y < 0 && m_ViewportActive && !Input::IsMouseButtonPressed(MouseButton::RIGHT_CLICK))
+	else if (event.GetOffset().y < 0 && m_MovingEditorCamera && !Input::IsMouseButtonPressed(MouseButton::RIGHT_CLICK))
 		m_EditorCamera->Translate(m_EditorCamera->GetPosition() - (0.5f * m_EditorCamera->GetForwardDirection()));
 
-	if (Input::IsMouseButtonPressed(MouseButton::RIGHT_CLICK) && m_ViewportActive && event.GetOffset().y > 0)
+	if (Input::IsKeyPressed(Key::LeftAlt) && m_MovingEditorCamera && event.GetOffset().y > 0)
 	{
 		m_EditorCamSpeed += 0.1f;
 		m_EditorCamSpeed = glm::clamp(m_EditorCamSpeed, 0.1f, 3.0f);
 	}
-	else if (Input::IsMouseButtonPressed(MouseButton::RIGHT_CLICK) && m_ViewportActive && event.GetOffset().y < 0)
+	else if (Input::IsKeyPressed(Key::LeftAlt) && m_MovingEditorCamera && event.GetOffset().y < 0)
 	{
 		m_EditorCamSpeed -= 0.1f;
 		m_EditorCamSpeed = glm::clamp(m_EditorCamSpeed, 0.1f, 3.0f);
@@ -537,70 +531,71 @@ void EditorLayer::OnUpdate(Timestep timestep)
 	{
 		m_Scene->Render(m_Framebuffer, m_EditorCamera);
 
-		if (m_ViewportActive)
+		if (Input::IsMouseButtonPressed(MouseButton::RIGHT_CLICK) && m_ViewportHovered)
 		{
+			auto& io = ImGui::GetIO();
 
-			//if (Input::IsKeyPressed(Key::LeftShift))
-			//	speed *= 2;
+			io.ConfigFlags |= ImGuiConfigFlags_NoMouse;
+			io.ConfigFlags |= ImGuiConfigFlags_NavNoCaptureKeyboard;
+		
+			m_LastMousePos = Input::GetMousePosition();
+			m_MovingEditorCamera = true;
+			Input::DisableCursor(true);
+		}
+		
+		if (Input::GetKeyState(Key::Escape) == KeyState::PRESSED && m_MovingEditorCamera)
+		{
+			auto& io = ImGui::GetIO();
 
-			if (Input::IsMouseButtonPressed(MouseButton::RIGHT_CLICK) &&  m_ViewportHovered)
+			io.ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
+			io.ConfigFlags &= ~ImGuiConfigFlags_NavNoCaptureKeyboard;
+
+			m_MovingEditorCamera = false;
+			Input::DisableCursor(false);
+		}
+
+		if(m_MovingEditorCamera)
+		{
+			float pitch = m_EditorCamera->GetPitch();
+			float yaw = m_EditorCamera->GetYaw();
+
+			float sensitivity = 0.0069f;
+			yaw += (Input::GetMousePosition().x - m_LastMousePos.x) * sensitivity;
+			pitch += (Input::GetMousePosition().y - m_LastMousePos.y) * sensitivity;
+			m_LastMousePos = Input::GetMousePosition();
+
+			pitch = glm::clamp(pitch, -1.57f, 1.57f);
+
+			m_EditorCamera->SetPitch(pitch);
+			m_EditorCamera->SetYaw(yaw);
+			
+			
+			if (Input::IsKeyPressed(Key::W))
 			{
-				Input::DisableCursor(true);
-				ImGuiIO& io = ImGui::GetIO();
-				io.WantCaptureKeyboard = false;
-				io.WantCaptureMouse = false;
-
-				if (LastMousePos == glm::vec2(-1, -1))
-					LastMousePos = Input::GetMousePosition();
-
-				float pitch = m_EditorCamera->GetPitch() + (Input::GetMousePosition().y - LastMousePos.y) * 0.01f;
-				float yaw = m_EditorCamera->GetYaw() + (Input::GetMousePosition().x - LastMousePos.x) * 0.01f;
-
-				//pitch = glm::clamp(pitch, -1.7f, 1.7f);
-
-				m_EditorCamera->SetYaw(yaw);
-				m_EditorCamera->SetPitch(pitch);
-
-				LastMousePos = Input::GetMousePosition();
+				m_EditorCamera->Translate(m_EditorCamera->GetPosition() + (m_EditorCamSpeed * m_EditorCamera->GetForwardDirection()));
 			}
-			else
+			if (Input::IsKeyPressed(Key::S))
 			{
-				Input::DisableCursor(false);
-				ImGuiIO& io = ImGui::GetIO();
-				io.WantCaptureKeyboard = true;
-				io.WantCaptureMouse = true;
+				m_EditorCamera->Translate(m_EditorCamera->GetPosition() - (m_EditorCamSpeed * m_EditorCamera->GetForwardDirection()));
 			}
-
-			if (Input::IsMouseButtonPressed(MouseButton::RIGHT_CLICK))
+			if (Input::IsKeyPressed(Key::D))
 			{
-				if (Input::IsKeyPressed(Key::W))
-				{
-					m_EditorCamera->Translate(m_EditorCamera->GetPosition() + (m_EditorCamSpeed * m_EditorCamera->GetForwardDirection()));
-				}
-				if (Input::IsKeyPressed(Key::S))
-				{
-					m_EditorCamera->Translate(m_EditorCamera->GetPosition() - (m_EditorCamSpeed * m_EditorCamera->GetForwardDirection()));
-				}
-				if (Input::IsKeyPressed(Key::D))
-				{
-					m_EditorCamera->Translate(m_EditorCamera->GetPosition() + (m_EditorCamSpeed * m_EditorCamera->GetRightDirection()));
-				}
-				if (Input::IsKeyPressed(Key::A))
-				{
-					m_EditorCamera->Translate(m_EditorCamera->GetPosition() - (m_EditorCamSpeed * m_EditorCamera->GetRightDirection()));
-				}
-				if (Input::IsKeyPressed(Key::E))
-				{
-					m_EditorCamera->Translate(m_EditorCamera->GetPosition() + (m_EditorCamSpeed * m_EditorCamera->GetUpDirection()));
-				}
-				if (Input::IsKeyPressed(Key::Q))
-				{
-					m_EditorCamera->Translate(m_EditorCamera->GetPosition() - (m_EditorCamSpeed * m_EditorCamera->GetUpDirection()));
-				}
+				m_EditorCamera->Translate(m_EditorCamera->GetPosition() + (m_EditorCamSpeed * m_EditorCamera->GetRightDirection()));
+			}
+			if (Input::IsKeyPressed(Key::A))
+			{
+				m_EditorCamera->Translate(m_EditorCamera->GetPosition() - (m_EditorCamSpeed * m_EditorCamera->GetRightDirection()));
+			}
+			if (Input::IsKeyPressed(Key::E))
+			{
+				m_EditorCamera->Translate(m_EditorCamera->GetPosition() + (m_EditorCamSpeed * m_EditorCamera->GetUpDirection()));
+			}
+			if (Input::IsKeyPressed(Key::Q))
+			{
+				m_EditorCamera->Translate(m_EditorCamera->GetPosition() - (m_EditorCamSpeed * m_EditorCamera->GetUpDirection()));
 			}
 		}
 	}
 
 	m_Framebuffer->Unbind();
-	//printf("Hovered entity: %d\n", (int)m_HoveredEntity);
 }

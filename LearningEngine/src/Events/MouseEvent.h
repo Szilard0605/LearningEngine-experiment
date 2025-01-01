@@ -17,8 +17,8 @@ class MouseButtonEvent : public Event
 
 		EventType GetType() const override { return EventType::MOUSE_BUTTON_CHANGE; }
 		static EventType GetStaticType() { return EventType::MOUSE_BUTTON_CHANGE; }
-		int GetButton() const { return m_MouseButton; }
-		int GetAction() const { return m_Action; }
+		uint32_t GetButton() const { return m_MouseButton; }
+		uint32_t GetAction() const { return m_Action; }
 };
 
 class MouseMoveEvent : public Event

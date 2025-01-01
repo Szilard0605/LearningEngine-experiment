@@ -41,10 +41,11 @@ private:
 	PerspectiveCamera* m_EditorCamera;
 	bool m_ViewportActive = false;
 	bool m_ViewportHovered = false;
+	bool m_MovingEditorCamera = false;
 
 	static glm::vec2 s_MainViewportSize;
 	glm::vec2 m_ViewportBounds[2];
-	glm::vec2 LastMousePos = {-1, -1};
+	glm::vec2 m_LastMousePos = {-1, -1};
 
 	entt::entity m_HoveredEntity;
 

@@ -7,8 +7,8 @@
 #include "Platform/Windows/WindowsWindow.h"
 
 
-static int m_buttons[MAX_BUTTONS];
-static bool m_KeyState[MAX_KEYS];
+static uint32_t s_MButtonStates[MAX_BUTTONS];
+static uint32_t s_KeyStates[MAX_KEYS];
 static glm::vec2 m_MousePosition;
 static double scroll_xOffset;
 static double scroll_yOffset;
@@ -17,17 +17,22 @@ static bool mouse_scrolled = false;
 
 void Input::OnKeyChange(const int key, const int scancode, const int action, const int mods)
 {
-	SetKeyState(key, action != GLFW_RELEASE);
+	SetKeyState(key, action);
 }
 
-void Input::SetKeyState(const uint32_t key, const bool state)
+void Input::SetKeyState(const uint32_t key, const uint32_t state)
 {
-	m_KeyState[key] = state;
+	s_KeyStates[key] = state;
 }
 
 bool Input::IsKeyPressed(uint32_t keycode)
 {
-	return m_KeyState[keycode];
+	return s_KeyStates[keycode];
+}
+
+KeyState Input::GetKeyState(uint32_t keycode)
+{
+	return (KeyState)s_KeyStates[keycode];
 }
 
 void Input::OnMouseMove(const double mx, const double my)
@@ -66,6 +71,11 @@ void Input::SetCursorPosition(glm::vec2 position)
 	wnd->SetCursorPosition(position);
 }
 
+KeyState Input::GetMouseButtonState(const uint32_t button)
+{
+	return (KeyState)s_MButtonStates[button];
+}
+
 glm::vec2 Input::GetScrollOffset()
 {
 	return glm::vec2(scroll_xOffset, scroll_yOffset);
@@ -81,23 +91,23 @@ void Input::SetMousePosition(glm::vec2 position)
 	m_MousePosition = position;
 }
 
-void Input::SetButtonState(const unsigned int button, const int state)
+void Input::SetButtonState(const uint32_t button, const uint32_t state)
 {
-	m_buttons[button] = state;
+	s_MButtonStates[button] = state;
 }
 
-bool Input::IsMouseButtonPressed(const unsigned int button)
+bool Input::IsMouseButtonPressed(const uint32_t button)
 {
-	return (m_buttons[button] == GLFW_PRESS);
+	return (s_MButtonStates[button] == GLFW_PRESS);
 }
 
-bool Input::IsMouseButtonReleased(const unsigned int button)
+bool Input::IsMouseButtonReleased(const uint32_t button)
 {
-	return (m_buttons[button] == GLFW_RELEASE);
+	return (s_MButtonStates[button] == GLFW_RELEASE);
 }
 
-bool Input::IsMouseButtonHold(const unsigned int button)
+bool Input::IsMouseButtonHold(const uint32_t button)
 {
 	//TODO
-	return false;
+	return (s_MButtonStates[button] != GLFW_RELEASE);
 }
