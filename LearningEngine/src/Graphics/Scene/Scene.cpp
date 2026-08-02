@@ -248,8 +248,8 @@ void Scene::Render(Framebuffer* FrameBuffer, PerspectiveCamera* camera)
 		{
 			auto [tc, smc] = view.get<TransformComponent, StaticModelComponent>(entity);
 
-			if (smc.StaticModel)
-				ForwardRenderer::SubmitModel(*smc.StaticModel, tc.Transform.GetTransformMatrix(), (int)entity);
+			if (smc.StaticModel.GetMeshes().size() > 0)
+				ForwardRenderer::SubmitModel(smc.StaticModel, tc.Transform.GetTransformMatrix(), (int)entity);
 			//smc.StaticModel->Render(*mainCamera, tc.GetTransform());
 
 		}

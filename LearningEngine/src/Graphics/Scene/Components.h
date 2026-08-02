@@ -69,7 +69,7 @@ struct StaticModelComponent : public BaseComponent
 	const char* ID = "StaticModelComponent";
 
 	// TODO (Szilard): We HAVE TO change this to store Model Asset handle (when asset system done)
-	Model* StaticModel = nullptr;
+	Model StaticModel;
 };
 
 struct PointLightComponent : public BaseComponent

@@ -14,18 +14,22 @@ class Model
 {
 public:
 	Model() = default;
-	Model(std::filesystem::path path);
-	Model(std::filesystem::path path, Material material);
+	Model(Model& other) {
+		m_Meshes = other.m_Meshes;
+		m_SourcePath = other.m_SourcePath;
+	}
+	Model(std::vector<Mesh> meshes) {
+		m_Meshes = meshes;
+	}
 
 	std::vector<Mesh>& GetMeshes() { return m_Meshes; }
 
+	void SetSourcePath(std::filesystem::path path) { m_SourcePath = path; }
+	std::filesystem::path GetSourcePath() { return m_SourcePath; }
 	void Render(PerspectiveCamera& camera, glm::mat4 transform);
 	void AddMesh(Mesh mesh);
-
-	std::filesystem::path GetSourceFilePath() { return m_Path; }
 private:
-
 	std::vector<Mesh> m_Meshes;
-	std::filesystem::path m_Path;
+	std::filesystem::path m_SourcePath;
 };
 

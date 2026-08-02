@@ -7,6 +7,9 @@ Sandbox/Debug
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
+LE_Editor/res/models
+LE_Editor/res/textures
+LE_Editor/res/scenes
 
 *.zip
 Planning

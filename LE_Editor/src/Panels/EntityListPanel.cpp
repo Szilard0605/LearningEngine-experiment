@@ -6,6 +6,8 @@
 #include <imgui_internal.h>
 
 #include "../EditorLayer.h"
+#include "Graphics/Renderer/ModelImporter.h"
+
 // GLM
 #include "gtc/type_ptr.hpp"
 
@@ -382,8 +384,8 @@ void EntityListPanel::Render()
 		{
 			std::string ModelPath = "-";
 	
-			if (smc.StaticModel)
-				ModelPath = smc.StaticModel->GetSourceFilePath().string();
+			if (smc.StaticModel.GetSourcePath().string().length())
+				ModelPath = smc.StaticModel.GetSourcePath().string();
 			
 	
 			ImGui::InputText("##ModelSourcePath", (char*)ModelPath.c_str(), sizeof(ModelPath.c_str()));
@@ -394,7 +396,7 @@ void EntityListPanel::Render()
 			{
 				if (Utils::FileDialog::OpenFile("3D Model (*.*)\0*.**\0", ModelPath))
 				{
-					smc.StaticModel = new Model(ModelPath);
+					smc.StaticModel = ModelImporter::LoadModel(ModelPath);
 				}
 			}
 		}
@@ -514,7 +516,7 @@ void EntityListPanel::Render()
 					if (ImGui::MenuItem("Cube"))
 					{
 						StaticModelComponent smc;
-						smc.StaticModel = new Model("res/models/defaults/Cube.gltf");
+						smc.StaticModel = ModelImporter::LoadModel("res/models/defaults/Cube.gltf");
 						m_Scene->Registry.emplace<StaticModelComponent>(m_SelectedEntity, smc);
 					}
 

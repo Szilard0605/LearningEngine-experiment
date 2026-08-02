@@ -23,9 +23,7 @@ void OGLVertexArray::Unbind()
 
 void OGLVertexArray::DrawIndexed(uint32_t count)
 {
-	Bind();
 	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
-
 }
 
 static GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type)

@@ -12,9 +12,9 @@ Texture2D* AssetLoader::LoadAsset<Texture2D*>(AssetHandle handle)
 	return Texture2D::Create(asset.Data.Path.string());
 }
 
-template<>
+/*template<>
 Model* AssetLoader::LoadAsset<Model*>(AssetHandle handle)
 {
 	Asset asset = AssetManager::GetAssetByHandle(handle);
 	return new Model(asset.Data.Path.string());
-}
+}*/

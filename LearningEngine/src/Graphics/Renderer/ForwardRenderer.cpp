@@ -10,9 +10,9 @@
 #include <glew.h>
 #include <imgui.h>
 
-struct MeshRenderData
+struct ModelRenderData
 {
-	Mesh mesh;
+	Model* mesh;
 	glm::mat4 transform;
 	int EntityID;
 };
@@ -43,7 +43,7 @@ struct RenderData
 	ShaderBuffer* RenderDataBuffer;
 	RenderDataSB DataBuffer;
 	
-	std::vector<MeshRenderData> meshes;
+	std::vector<ModelRenderData> models;
 	Shader* shader;
 	PerspectiveCamera camera;
 
@@ -79,8 +79,8 @@ void ForwardRenderer::Init(RendererAPI* rendererapi)
 	// Directional shadow mapping setup
 	FramebufferSpecifications depthFBSpecs;
 	depthFBSpecs.Attachments = { FramebufferAttachment::Depth };
-	depthFBSpecs.Width = 2048;
-	depthFBSpecs.Height = 2048;
+	depthFBSpecs.Width = 512;
+	depthFBSpecs.Height = 512;
 	s_RenderData.DepthMapFB = Framebuffer::Create(depthFBSpecs);
 
 	s_RenderData.DepthMapShader = Shader::Create("res/shaders/depthmap.shader");
@@ -119,9 +119,9 @@ void ForwardRenderer::Init(RendererAPI* rendererapi)
 void ForwardRenderer::BeginScene(PerspectiveCamera& camera)
 {
 	s_RenderData.camera = camera;
+	s_RenderData.camera.UpdateView();
 
-
-	s_RenderData.meshes.clear();
+	s_RenderData.models.clear();
 	s_RenderData.DataBuffer.CameraPosition = glm::vec4(camera.GetPosition(), 1.0f);
 	
 	s_RenderData.DataBuffer.NumLights = 0;
@@ -150,7 +150,7 @@ static float s_sceneSize = 10.0f;
 
 void RenderSkybox()
 {
-	if (!s_RenderData.SkyboxCubeMap)
+	if(!s_RenderData.SkyboxCubeMap)
 		return;
 
 	s_RenderData.SkyboxShader->Bind();
@@ -170,12 +170,16 @@ void RenderSkybox()
 
 void ForwardRenderer::Present(Framebuffer* FrameBuffer)
 {
-	RendererAPI* api = Application::GetInstance()->GetRenderer();
 	auto beginTime = std::chrono::high_resolution_clock::now();
+	
+	RendererAPI* api = Application::GetInstance()->GetRenderer();
 
 	// directional light shadow map pass
 	glm::mat4 lightSpaceMatrix;
 
+	s_RenderData.DepthMapFB->Bind();
+	api->SetViewportSize(512, 512);
+	api->ClearDepthBuffer();
 	for (int i = 0; i < s_RenderData.LightData.Lights.size(); i++)
 	{
 		LightData& light = s_RenderData.LightData.Lights[i];
@@ -188,37 +192,37 @@ void ForwardRenderer::Present(Framebuffer* FrameBuffer)
 			//glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f); // Up vector, usually the y-axis
 			glm::vec3 upVector = abs(lightDirection.y) > 0.9f ? glm::vec3(0.0f, 0.0f, 1.0f) : glm::vec3(0.0f, 1.0f, 0.0f);
 			glm::mat4 lightView = glm::lookAt(lightPosition, glm::vec3(0.0f), upVector);
-			
+
 
 			glm::mat4 lightProjection = glm::ortho(-s_sceneSize, s_sceneSize, -s_sceneSize, s_sceneSize, s_nearPlane, s_farPlane);
 			lightSpaceMatrix = lightProjection * lightView;
 
 			// Send lightSpaceMatrix to the shader
-			s_RenderData.DepthMapShader->Bind();
-
-			RendererAPI* api = Application::GetInstance()->GetRenderer();
-			api->SetViewportSize(2048, 2048);
-			s_RenderData.DepthMapFB->Bind();
-			api->ClearDepthBuffer();
-			for (int i = 0; i < s_RenderData.meshes.size(); i++)
+			
+			for (int i = 0; i < s_RenderData.models.size(); i++)
 			{
-
-				s_RenderData.DepthMapShader->SetMatrix4f("u_LightSpaceMatrix", lightSpaceMatrix * s_RenderData.meshes[i].transform);
-				//s_RenderData.DepthMapShader->SetMatrix4f("u_Model", s_RenderData.meshes[i].transform);
+				s_RenderData.DepthMapShader->SetMatrix4f("u_LightSpaceMatrix", lightSpaceMatrix * s_RenderData.models[i].transform);
 				s_RenderStats.DrawCalls++;
-				s_RenderData.meshes[i].mesh.Render(s_RenderData.camera, s_RenderData.meshes[i].transform, s_RenderData.meshes[i].EntityID);
-				
+
+				s_RenderData.DepthMapShader->Bind();
+				for(auto& mesh : s_RenderData.models[i].mesh->GetMeshes())
+				{
+					//mesh.GetMaterial()->GetShader()->Bind();
+					//mesh.GetMaterial()->GetShader()->SetMatrix4f("u_LightSpaceMatrix", lightSpaceMatrix * s_RenderData.models[i].transform);
+					mesh.Render();
+				}
+
 			}
 		}
 	}
-	
 	FrameBuffer->Bind();
 	api->Clear({ 0.5, 0.5, 0.5, 1 });
+	api->SetViewportSize(FrameBuffer->GetSpecification().Width, FrameBuffer->GetSpecification().Height);
 	api->ClearDepthBuffer();
-	
-	api->SetDepthFunc(RendererAPI::DepthFunc::LEQUAL);
+
+	/*api->SetDepthFunc(RendererAPI::DepthFunc::LEQUAL);
 	RenderSkybox();
-	api->SetDepthFunc(RendererAPI::DepthFunc::LESS);
+	api->SetDepthFunc(RendererAPI::DepthFunc::LESS);*/
 	s_RenderData.RenderDataBuffer->Bind(0);
 	s_RenderData.RenderDataBuffer->SetData(&s_RenderData.DataBuffer, sizeof(RenderDataSB), 0);
 
@@ -229,20 +233,22 @@ void ForwardRenderer::Present(Framebuffer* FrameBuffer)
 	s_RenderData.shader->Bind();
 	s_RenderData.DepthMapFB->BindDepthTexture(1);
 	s_RenderData.shader->SetInt("u_DepthMap", 1);
-
-	for (int i = 0; i < s_RenderData.meshes.size(); i++)
+	s_RenderData.shader->SetMatrix4f("u_ViewProjection", s_RenderData.camera.GetViewProjection());
+	for (int i = 0; i < s_RenderData.models.size(); i++)
 	{
-		s_RenderStats.DrawCalls++;
-		s_RenderData.meshes[i].mesh.GetMaterial()->GetShader()->SetMatrix4f("u_ViewProjection", s_RenderData.camera.GetViewProjection());
-		s_RenderData.meshes[i].mesh.GetMaterial()->GetShader()->SetMatrix4f("u_Transform", s_RenderData.meshes[i].transform);
-		s_RenderData.meshes[i].mesh.GetMaterial()->GetShader()->SetMatrix4f("u_LightSpaceMatrix", lightSpaceMatrix * s_RenderData.meshes[i].transform);
-		
-		if (s_RenderData.meshes[i].mesh.GetMaterial()->GetTexture())
+		for (auto& mesh : s_RenderData.models[i].mesh->GetMeshes())
 		{
-			s_RenderData.meshes[i].mesh.GetMaterial()->GetTexture()->Bind(0);
-		}
+			s_RenderStats.DrawCalls++;
+			s_RenderData.shader->SetMatrix4f("u_Transform", s_RenderData.models[i].transform);
+			s_RenderData.shader->SetMatrix4f("u_LightSpaceMatrix", lightSpaceMatrix * s_RenderData.models[i].transform);
 
-		s_RenderData.meshes[i].mesh.Render(s_RenderData.camera, s_RenderData.meshes[i].transform, s_RenderData.meshes[i].EntityID);
+			if (mesh.GetMaterial()->GetTexture())
+			{
+				mesh.GetMaterial()->GetTexture()->Bind(0);
+			}
+
+			mesh.Render();
+		}
 	}
 
 	auto endTime = std::chrono::high_resolution_clock::now();
@@ -255,22 +261,20 @@ void ForwardRenderer::SubmitLight(AmbientLight& light)
 	s_RenderData.DataBuffer.AmbientLight = glm::vec4(light.Color, light.Intensity);
 }
 
-void ForwardRenderer::SubmitMesh(Mesh& mesh, glm::mat4 transform, int entity)
+/*void ForwardRenderer::SubmitMesh(Mesh& mesh, glm::mat4 transform, int entity)
 {
 	s_RenderStats.MeshCount++;
 	s_RenderStats.TotalVertices += mesh.GetVertices().size();
 
-	s_RenderData.meshes.push_back(MeshRenderData{ mesh,transform, entity });
-}
+	s_RenderData.meshes.push_back(ModelRenderData{ mesh,transform, entity });
+}*/
 
 void ForwardRenderer::SubmitModel(Model& model, glm::mat4 transform, int entity)
 {	
-	s_RenderData.meshes.reserve(model.GetMeshes().size());
+	s_RenderStats.MeshCount++;
+	//s_RenderStats.TotalVertices += mesh.GetVertices().size();
 
-	for (int i = 0; i < model.GetMeshes().size(); i++)
-	{
-		SubmitMesh(model.GetMeshes()[i], transform, entity);
-	}
+	s_RenderData.models.push_back(ModelRenderData{ &model, transform, entity });
 }
 
 void ForwardRenderer::SetSkybox(CubeMap* cubeMap)

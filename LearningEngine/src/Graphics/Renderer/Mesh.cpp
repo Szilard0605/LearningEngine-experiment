@@ -1,24 +1,15 @@
 #include "Mesh.h"
 
-#include "Core/Base.h"
-#include "glew.h"
-
-#include "glm.hpp"
-
 #include "Log/Log.h"
-
-#include "ForwardRenderer.h"
-
-/*Mesh::Mesh(GLVertexArray& vertexarray, GLIndexBuffer& indexbuffer, Material& material)
-	: m_VertexArray(&vertexarray), m_IndexBuffer(&indexbuffer), m_Material(material)
-{
-	
-}*/
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices, Material material)
 	: m_Vertices(vertices), m_Indices(indices)
 {
-	m_VertexBuffer = VertexBuffer::Create(static_cast<uint32_t>(vertices.size() * sizeof(Vertex)));
+	LE_CORE_ASSERT(vertices.size() > 0, "Mesh: vertices size is 0");
+	
+	LE_CORE_INFO("[Mesh] Creating vertex buffer with %d vertices", vertices.size());
+
+	m_VertexBuffer = VertexBuffer::Create(vertices.data(), static_cast<uint32_t>(vertices.size() * sizeof(Vertex)));
 	
 	m_VertexBuffer->SetLayout({
 		{ ShaderDataType::Float3, "a_position"  }, 
@@ -33,7 +24,6 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices, Material
 	m_VertexArray->AddVertexBuffer(m_VertexBuffer);
 
 	m_IndexBuffer = IndexBuffer::Create(indices.data(), static_cast<uint32_t>(indices.size()));
-
 	m_Material = new Material(material);
 }
 
@@ -42,13 +32,8 @@ Mesh::~Mesh()
 
 }
 
-void Mesh::Render(PerspectiveCamera& camera, glm::mat4 transform, int entity)
+void Mesh::Render()
 {
-	/*for (int i = 0; i < m_Vertices.size(); i++)
-		m_Vertices[i].EntityID = entity;*/
-
-	m_VertexBuffer->SetData(m_Vertices.data(), static_cast<uint32_t>(m_Vertices.size() * sizeof(Vertex)));
-
 	m_VertexArray->Bind();
 	m_IndexBuffer->Bind();
 	m_VertexArray->DrawIndexed(m_IndexBuffer->GetCount());

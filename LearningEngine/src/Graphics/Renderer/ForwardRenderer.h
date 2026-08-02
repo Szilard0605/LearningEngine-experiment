@@ -1,13 +1,14 @@
 #pragma once
 
 #include "API/RendererAPI.h"
+#include "API/Framebuffer.h"
+#include "API/CubeMap.h"
 #include "Mesh.h"
 #include "Model.h"
 
 #include "Light.h"
 
-#define MAX_LIGHTS 100
-#define MAX_MESHES 20000
+#define MAX_LIGHTS 12
 
 class ForwardRenderer
 {

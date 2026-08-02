@@ -23,7 +23,7 @@ void MaterialInspectorPanel::Render()
 		return;
 	}
 
-	auto& smc = entity.GetComponent<StaticModelComponent>();
+	/*auto& smc = entity.GetComponent<StaticModelComponent>();
 	if (smc.StaticModel)
 	{
 		// TODO: Make all of the meshes show in EntityListPanel under every model, 
@@ -39,6 +39,6 @@ void MaterialInspectorPanel::Render()
 				ImGui::PopID();
 			}
 		}
-	}
+	}*/
 	ImGui::End();
 }

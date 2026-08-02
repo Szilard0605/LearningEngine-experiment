@@ -11,6 +11,7 @@
 
 #include "Graphics/Scene/Entity.h"
 #include "Physics/PhysicsWorld.h"
+#include "Core/Input.h"
 
 static jmp_buf s_LuaPanicJump;
 

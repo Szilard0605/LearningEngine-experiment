@@ -4,6 +4,7 @@
 #include "Entity.h"
 #include "Components.h"
 #include "Utils/JSONHelper.h"
+#include "Graphics/Renderer/ModelImporter.h"
 
 #include "gtc/type_ptr.hpp"
 #include "json.hpp"
@@ -76,7 +77,7 @@ void SceneSerializer::Serialize(Scene* scene, std::string filepath)
         StaticModelComponent* smc = scene->Registry.try_get<StaticModelComponent>(entityID);
         if (smc)
         {
-            s_JSON[enttID][smc->ID]["SourcePath"] = smc->StaticModel->GetSourceFilePath().string();
+            s_JSON[enttID][smc->ID]["SourcePath"] = smc->StaticModel.GetSourcePath().string();
         }
 
         PointLightComponent* plc = scene->Registry.try_get<PointLightComponent>(entityID);
@@ -226,7 +227,7 @@ Scene* SceneSerializer::Load(const std::filesystem::path path)
             const auto& smcData = JSONHelper::GetObject(entry, "StaticModelComponent");
             std::string path = JSONHelper::ReadAs<std::string>(smcData, "SourcePath");
 
-            smc.StaticModel = new Model(path);
+            smc.StaticModel = ModelImporter::LoadModel(path);
             entity.AddOrReplaceComponent<StaticModelComponent>(smc);
         }
 
